@@ -1,1 +1,1 @@
-web: gunicorn hexlistserver:app --log-file -
+web: gunicorn hexlistserver:app
