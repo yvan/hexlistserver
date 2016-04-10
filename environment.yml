@@ -1,0 +1,7 @@
+name: hexlistserver
+dependencies:
+- python=3.5.1
+- pip
+- pip:
+    - flask==0.10.1
+    - psycopg2==2.6.1
