@@ -1,5 +1,5 @@
 .PHONY: run
 
 run:
-	python run.py
+	gunicorn hexlistserver:app
 	
