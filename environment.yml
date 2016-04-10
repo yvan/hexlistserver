@@ -5,3 +5,4 @@ dependencies:
 - pip:
     - flask==0.10.1
     - psycopg2==2.6.1
+    - gunicorn==19.4.5

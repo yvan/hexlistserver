@@ -13,5 +13,3 @@ app.config.from_pyfile('config.py')
 @app.route('/')
 def hello():
     return 'heyo!'
-
-
