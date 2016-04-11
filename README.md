@@ -6,7 +6,6 @@
 |_| |_|\___/_/\_\_|_|___/\__|___/\___|_|    \_/ \___|_|   
                                                         
 ```
-    export DATABASE_URL="postgresql://localhost/hexlistserver"
 
 hexlist is an API for storing and retrieving links
 
