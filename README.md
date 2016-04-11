@@ -22,7 +22,45 @@ heroku hosting and heroku postgres db
 start with this tutorial (ignore autoenv):
 [heroku flask postgres workflow](https://realpython.com/blog/python/flask-by-example-part-1-project-setup/)
 
-run `source env.sh` to setup local env variables properly (see the Makefile)
+Procfile:
+
+used by heroku, tells eroku what process to run
+
+runtime.txt:
+
+overrides the default config on heroku setup to run python 3 instaed of default python 2.
+
+requirements.txt:
+
+file with dependencies for heroku or pip to install
+
+manage.py:
+
+a file that we run via make file to manage database migrations
+
+run `make init` - initilaize db (shouldn't need to do)
+
+run `make migrate` - make a migration with the current data models/tables defined in those models.
+
+run `make upgrade` - upgrade your db with the new migration.
+
+env.sh:
+
+a file that contains development environment variables
+
+run `source env.sh` to setup local env variables properly
+
+config.py:
+
+a file that contains our configuration info
+
+set a subsection of the config file to be your app's config by running
+
+`export APP_SETTINGS="config.DevelopmentConfig"` (or see env.sh)
+
+or to set it permanently on heroku app, switch stage for prod
+
+`heroku config:set APP_SETTINGS=config.StagingConfig --remote stage`
 
 #api
 
