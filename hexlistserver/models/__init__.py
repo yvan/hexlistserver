@@ -1,4 +1,4 @@
 '''
 module marker for models
 '''
-from . import hex, hex_link, link, user
+from . import hex_object, hex_link, link, user
