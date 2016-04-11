@@ -3,8 +3,7 @@ model for a hex
 '''
 
 from hexlistserver import db
-from sqlalchemy.dialects.postgresql import JSON
-from hexlistserver.models import hex_link, link, user
+from hexlistserver.models import hex_link, user
 
 class HexObject(db.Model):
     __tablename__ = 'hex_objects'
@@ -15,23 +14,20 @@ class HexObject(db.Model):
     image_path = db.Column(db.String())
     hex_links = db.relationship("HexLink", back_populates="hex_object")
 
-    def __init__(self, name, owner, image, hex_links):
+    def __init__(self, name, owner, image_path, hex_links):
         self.name = name
         self.owner = owner
-        self.image = image
-        self.hex_links = hex_links
+        self.image_path = image_path
 
     def __repr__(self):
         return ('<id {}>' 
             + '<name {}>' 
             + '<owner {}>' 
-            + '<image {}>' 
-            + '<hex_links {}>').format(
+            + '<image_path {}>').format(
             self.id, 
             self.name, 
             self.owner, 
-            self.image, 
-            ', '.join(self.hex_links)
+            self.image_path
             )
 
 '''

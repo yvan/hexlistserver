@@ -2,7 +2,6 @@
 model for a link entry inside a hex
 '''
 from hexlistserver import db
-from sqlalchemy.dialects.postgresql import JSON
 
 class HexLink(db.Model):
     __tablename__ = 'hex_links'
@@ -19,9 +18,7 @@ class HexLink(db.Model):
     def __repr__(self):
         return ('<id {}>' 
             + '<url {}>' 
-            + '<description {}>' 
-            + '<image {}>' 
-            + '<hex_links {}>').format(
+            + '<description {}>').format(
             self.id, 
             self.url, 
             self.description

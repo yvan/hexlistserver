@@ -12,7 +12,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from hexlistserver.models import hex_object, hex_link, link, user
+from hexlistserver.models import hex_object, hex_link, user
 
 @app.route('/')
 def heyo():
