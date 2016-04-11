@@ -9,7 +9,8 @@ class HexLink(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String())
     description = db.Column(db.String())
-    hex_object = db.relationship("HexObject", backref='hex_links')
+    hex_object_id = db.Column(db.Integer, db.ForeignKey('hex_objects.id'))
+    hex_object = db.relationship("HexObject", back_populates='hex_links')
 
     def __init__(self, url, description):
         self.url = url
