@@ -30,6 +30,7 @@ class HexObject(db.Model):
 
 '''
 author @yvan
+http://flask-appbuilder.readthedocs.org/en/latest/relations.html
 http://flask-sqlalchemy.pocoo.org/2.1/models/
 http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
 http://exploreflask.readthedocs.org/en/latest/storing.html
