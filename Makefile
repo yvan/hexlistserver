@@ -11,3 +11,9 @@ migrate:
 
 upgrade:
 	python manage.py db upgrade
+
+downgrade:
+	python manage.py db downgrade
+
+show:
+	python manage.py db show
