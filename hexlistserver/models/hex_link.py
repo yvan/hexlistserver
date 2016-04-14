@@ -1,7 +1,7 @@
 '''
 model for a link entry inside a hex
 '''
-from app import db
+from hexlistserver.app import db
 
 class HexLink(db.Model):
     __tablename__ = 'hex_links'

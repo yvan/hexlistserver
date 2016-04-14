@@ -12,7 +12,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from models import hex_object, hex_link, user
+from hexlistserver.models import hex_object, hex_link, user
 
 @app.route('/')
 def heyo():
@@ -30,6 +30,9 @@ def store_link(hexid, link):
     hex_to_update.hex_links.append(hex_link_to_store)
     db.session.commit()
     return 'you tried to store: {}'.format(link)
+
+if __name__ == '__main__':
+    app.run()
 
 '''
 http://stackoverflow.com/questions/6699360/flask-sqlalchemy-update-a-rows-information

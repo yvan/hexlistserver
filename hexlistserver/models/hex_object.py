@@ -2,7 +2,7 @@
 model for a hex
 '''
 
-from app import db
+from hexlistserver.app import db
 
 class HexObject(db.Model):
     __tablename__ = 'hex_objects'

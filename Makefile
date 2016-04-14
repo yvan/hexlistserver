@@ -1,7 +1,7 @@
 .PHONY: run init migrate upgrade downgrade show
 
 run:
-	gunicorn hexlistserver:app
+	gunicorn hexlistserver.app:app
 
 init:
 	python hexlistserver/manage.py db init

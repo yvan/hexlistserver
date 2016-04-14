@@ -1,3 +1,3 @@
 #!/bin/bash
-export APP_SETTINGS="config.DevelopmentConfig"
+export APP_SETTINGS="hexlistserver.config.DevelopmentConfig"
 export DATABASE_URL="postgresql://localhost/hexlistserver"
