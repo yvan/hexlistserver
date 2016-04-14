@@ -19,8 +19,10 @@ heroku hosting and heroku postgres db
 
 #development
 
-start with this tutorial (ignore autoenv):
-[heroku flask postgres workflow](https://realpython.com/blog/python/flask-by-example-part-1-project-setup/)
+1 - run unit tests
+2 - tests locally by running 'make run'm then test the feature
+3 - then upload to staging heroku and tests feature
+4 - then once you're sure it works upload to prodduction heroku
 
 Procfile:
 
@@ -70,11 +72,18 @@ or to set it permanently on heroku app, switch stage for prod
 
 #resources
 
+[flask quickstart](http://flask.pocoo.org/docs/0.10/quickstart/)
+
+start with this tutorial (ignore autoenv):
+[heroku flask postgres workflow](https://realpython.com/blog/python/flask-by-example-part-1-project-setup/)
+
 [deploying-a-flask-application-to-heroku](https://community.nitrous.io/tutorials/deploying-a-flask-application-to-heroku)
 
 [discover flask - great resource](https://github.com/realpython/discover-flask)
 
 [great tutorial on alembic and db migration](http://blog.miguelgrinberg.com/post/flask-migrate-alembic-database-migration-wrapper-for-flask)
+
+[good video on alembic and migrations](https://www.youtube.com/watch?v=YJibNSI-iaE )
 
 [flask-by-example-part-2-postgres-sqlalchemy](https://realpython.com/blog/python/flask-by-example-part-2-postgres-sqlalchemy-and-alembic/)
 
@@ -89,6 +98,8 @@ or to set it permanently on heroku app, switch stage for prod
 [psql shell guide](http://postgresguide.com/utilities/psql.html)
 
 [psycopg docs](http://initd.org/psycopg/docs/)
+
+[http verbs](http://www.restapitutorial.com/lessons/httpmethods.html)
 
 #author
 

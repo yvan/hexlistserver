@@ -13,16 +13,16 @@ class HexObject(db.Model):
     image_path = db.Column(db.String())
     hex_links = db.relationship('HexLink', backref="hex_object")
 
-    def __init__(self, name, owner, image_path, hex_links):
+    def __init__(self, name, owner, image_path):
         self.name = name
         self.owner = owner
         self.image_path = image_path
 
     def __repr__(self):
-        return ('<id {}>' 
-            + '<name {}>' 
-            + '<owner {}>' 
-            + '<image_path {}>').format(
+        return ('{{id: {},' 
+            + 'name: "{}",' 
+            + 'owner: "{}",' 
+            + 'image_path: "{}"}}').format(
             self.id, 
             self.name, 
             self.owner, 
