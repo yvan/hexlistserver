@@ -23,11 +23,12 @@ def get_hex_object(hex_object_id):
     retrieved_hex = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
     return 'you retrieved: {}'.format(retrieved_hex)
 
-@app.route('/hex/post/', methods=['POST'])
-def post_hex_object():
-    hex_object = hex_object.HexObject()
+@app.route('/hex/post/q?name=<name>&<owner>&<image_path>', methods=['POST'])
+def post_hex_object(name, owner, image_path):
+    hex_object = hex_object.HexObject(name, owner, image_path)
+    db.session.add(hex_object)
     db.session.commit()
-    return 'you tried to store: {}'.format(link)
+    return 'you stored: {}'.format(hex_object)
 
 @app.route('/hex/delete/<int:hex_object_id>')
 def delete_hex(hex_object_id):
