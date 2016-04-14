@@ -19,9 +19,9 @@ class HexObject(db.Model):
         self.image_path = image_path
 
     def __repr__(self):
-        return ('{{id: {},' 
-            + 'name: "{}",' 
-            + 'owner: "{}",' 
+        return ('{{id: {}, ' 
+            + 'name: "{}", ' 
+            + 'owner: "{}", ' 
             + 'image_path: "{}"}}').format(
             self.id, 
             self.name, 
