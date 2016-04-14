@@ -20,8 +20,11 @@ heroku hosting and heroku postgres db
 #development
 
 1 - run unit tests
+
 2 - tests locally by running 'make run' then [test the feature with postma](https://www.getpostman.com/).
+
 3 - then upload to staging heroku and tests feature
+
 4 - then once you're sure it works upload to prodduction heroku
 
 `Procfile`:
