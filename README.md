@@ -20,7 +20,7 @@ heroku hosting and heroku postgres db
 #development
 
 1 - run unit tests
-2 - tests locally by running 'make run'm then test the feature
+2 - tests locally by running 'make run' then [test the feature with postma](https://www.getpostman.com/).
 3 - then upload to staging heroku and tests feature
 4 - then once you're sure it works upload to prodduction heroku
 
@@ -65,6 +65,12 @@ or to set it permanently on heroku app, switch stage for prod
 `heroku config:set APP_SETTINGS=hexlistserver.config.StagingConfig --remote stage`
 
 #api
+
+`GET /hex/get/<int:hex_object_id>`
+
+`POST /hex/post/`
+
+`DELETE /hex/delete/<int:hex_object_id>`
 
 #store
 

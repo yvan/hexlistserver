@@ -24,14 +24,14 @@ def get_hex_object(hex_object_id):
     retrieved_hex = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
     return 'you retrieved: {}'.format(retrieved_hex)
 
-@app.route('/hex/post/', methods=['GET', 'POST'])
+@app.route('/hex/post/', methods=['POST'])
 def post_hex_object():
     new_hex_object = hex_object.HexObject(request.args.get('name'), request.args.get('owner'), request.args.get('image_path'))
     db.session.add(new_hex_object)
     db.session.commit()
     return 'you stored: {}'.format(new_hex_object)
 
-@app.route('/hex/delete/<int:hex_object_id>')
+@app.route('/hex/delete/<int:hex_object_id>', methods=['POST'])
 def delete_hex(hex_object_id):
     hex_object_delete = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
     db.session.delete(hex_object_delete)
