@@ -24,19 +24,19 @@ heroku hosting and heroku postgres db
 3 - then upload to staging heroku and tests feature
 4 - then once you're sure it works upload to prodduction heroku
 
-Procfile:
+`Procfile`:
 
 used by heroku, tells eroku what process to run
 
-runtime.txt:
+`runtime.txt`:
 
 overrides the default config on heroku setup to run python 3 instaed of default python 2.
 
-requirements.txt:
+`requirements.txt`:
 
 file with dependencies for heroku or pip to install
 
-manage.py:
+`manage.py`:
 
 a file that we run via make file to manage database migrations
 
@@ -46,23 +46,23 @@ run `make migrate` - make a migration with the current data models/tables define
 
 run `make upgrade` - upgrade your db with the new migration.
 
-env.sh:
+`env.sh`:
 
 a file that contains development environment variables
 
 run `source env.sh` to setup local env variables properly
 
-config.py:
+`config.py`:
 
 a file that contains our configuration info
 
 set a subsection of the config file to be your app's config by running
 
-`export APP_SETTINGS="config.DevelopmentConfig"` (or see env.sh)
+`export APP_SETTINGS="hexlistserver.config.DevelopmentConfig"` (or see env.sh)
 
 or to set it permanently on heroku app, switch stage for prod
 
-`heroku config:set APP_SETTINGS=config.StagingConfig --remote stage`
+`heroku config:set APP_SETTINGS=hexlistserver.config.StagingConfig --remote stage`
 
 #api
 
