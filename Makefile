@@ -1,7 +1,13 @@
-.PHONY: run init migrate upgrade downgrade show
+.PHONY: run init migrate upgrade downgrade show stage
 
 run:
 	gunicorn hexlistserver.app:app
+
+stage:
+	git push stage master
+
+prod:
+	git push prod master
 
 init:
 	python manage.py db init
