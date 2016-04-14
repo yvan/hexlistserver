@@ -1,7 +1,7 @@
 '''
 model for a hex
 '''
-import uuid
+import random
 
 from hexlistserver.app import db
 
@@ -15,7 +15,7 @@ class HexObject(db.Model):
     hex_links = db.relationship('HexLink', backref="hex_object")
 
     def __init__(self, name, owner, image_path):
-        self.id = uuid.uuid4()
+        self.id = random.randrange(2, 7890232)
         self.name = name
         self.owner = owner
         self.image_path = image_path
