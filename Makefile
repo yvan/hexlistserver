@@ -1,4 +1,4 @@
-.PHONY: run
+.PHONY: run init migrate upgrade downgrade show
 
 run:
 	gunicorn hexlistserver:app
