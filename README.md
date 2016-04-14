@@ -21,7 +21,7 @@ heroku hosting and heroku postgres db
 
 1 - run unit tests
 
-2 - tests locally by running 'make run' then [test the feature with postma](https://www.getpostman.com/).
+2 - tests locally by running 'make run' then [test the feature with postman](https://www.getpostman.com/).
 
 3 - then upload to staging heroku and tests feature
 
