@@ -18,12 +18,12 @@ from hexlistserver.models import hex_object, hex_link, user
 def heyo():
     return 'heyo it\'s hexlist!'
 
-@app.route('/hex/get/<int:hex_object_id>', methods=['GET', 'POST'])
+@app.route('/hex/get/<int:hex_object_id>', methods=['GET'])
 def get_hex_object(hex_object_id):
     retrieved_hex = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
     return 'you retrieved: {}'.format(retrieved_hex)
 
-@app.route('/hex/post/<int:hex_object_id>?q', methods=['POST'])
+@app.route('/hex/post/<int:hex_object_id>', methods=['POST'])
 def post_hex_object(hexid, link):
     hex_link_to_store = hex_link.HexLink()
     hex_to_create = hex_object.HexObject.query.filter_by(id=hexid).first()
