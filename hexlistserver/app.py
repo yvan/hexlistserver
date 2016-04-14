@@ -33,7 +33,7 @@ def post_hex_object():
 
 @app.route('/hex/delete/<int:hex_object_id>')
 def delete_hex(hex_object_id):
-    hex_object_delete = hex_object.HexObject.query.filter_by(id=hex_object_id)
+    hex_object_delete = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
     db.session.delete(hex_object_delete)
     db.session.commit()
     return 'you deleted hex with id: {}'.format(hex_object_id)
