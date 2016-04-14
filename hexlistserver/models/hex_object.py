@@ -2,7 +2,7 @@
 model for a hex
 '''
 
-from hexlistserver import db
+from app import db
 
 class HexObject(db.Model):
     __tablename__ = 'hex_objects'
@@ -11,6 +11,7 @@ class HexObject(db.Model):
     name = db.Column(db.String())
     owner = db.Column(db.String())
     image_path = db.Column(db.String())
+    hex_links = db.relationship('HexLink', backref="hex_object")
 
     def __init__(self, name, owner, image_path, hex_links):
         self.name = name

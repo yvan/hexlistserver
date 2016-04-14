@@ -1,7 +1,7 @@
 '''
 model for a link entry inside a hex
 '''
-from hexlistserver import db
+from app import db
 
 class HexLink(db.Model):
     __tablename__ = 'hex_links'
@@ -10,7 +10,6 @@ class HexLink(db.Model):
     url = db.Column(db.String())
     description = db.Column(db.String())
     hex_object_id = db.Column(db.Integer, db.ForeignKey('hex_objects.id'))
-    hex_object = db.relationship("HexObject", back_populates='hex_links')
 
     def __init__(self, url, description):
         self.url = url

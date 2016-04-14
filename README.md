@@ -72,11 +72,15 @@ or to set it permanently on heroku app, switch stage for prod
 
 [deploying-a-flask-application-to-heroku](https://community.nitrous.io/tutorials/deploying-a-flask-application-to-heroku)
 
+[discover flask - great resource](https://github.com/realpython/discover-flask)
+
 [great tutorial on alembic and db migration](http://blog.miguelgrinberg.com/post/flask-migrate-alembic-database-migration-wrapper-for-flask)
 
 [flask-by-example-part-2-postgres-sqlalchemy](https://realpython.com/blog/python/flask-by-example-part-2-postgres-sqlalchemy-and-alembic/)
 
 [flask mega tutorial] (http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xviii-deployment-on-the-heroku-cloud)
+
+[how to - flask migrate](https://www.youtube.com/watch?v=YJibNSI-iaE )
 
 [heroku Procfile](https://devcenter.heroku.com/articles/procfile)
 

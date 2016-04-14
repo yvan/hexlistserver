@@ -1,1 +1,1 @@
-web: gunicorn hexlistserver:app
+web: gunicorn app:app

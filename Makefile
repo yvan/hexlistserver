@@ -4,16 +4,16 @@ run:
 	gunicorn hexlistserver:app
 
 init:
-	python manage.py db init
+	python hexlistserver/manage.py db init
 
 migrate:
-	python manage.py db migrate
+	python hexlistserver/manage.py db migrate
 
 upgrade:
-	python manage.py db upgrade
+	python hexlistserver/manage.py db upgrade
 
 downgrade:
-	python manage.py db downgrade
+	python hexlistserver/manage.py db downgrade
 
 show:
-	python manage.py db show
+	python hexlistserver/manage.py db show
