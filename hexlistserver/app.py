@@ -23,11 +23,9 @@ def get_hex_object(hex_object_id):
     retrieved_hex = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
     return 'you retrieved: {}'.format(retrieved_hex)
 
-@app.route('/hex/post/<int:hex_object_id>', methods=['POST'])
-def post_hex_object(hexid, link):
-    hex_link_to_store = hex_link.HexLink()
-    hex_to_create = hex_object.HexObject.query.filter_by(id=hexid).first()
-    hex_to_create.hex_links.append(hex_link_to_store)
+@app.route('/hex/post/', methods=['POST'])
+def post_hex_object():
+    hex_object = hex_object.HexObject()
     db.session.commit()
     return 'you tried to store: {}'.format(link)
 
