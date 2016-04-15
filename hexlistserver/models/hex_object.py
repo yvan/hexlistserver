@@ -10,24 +10,28 @@ class HexObject(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
-    owner = db.Column(db.String())
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     image_path = db.Column(db.String())
-    hex_links = db.relationship('HexLink', backref="hex_object")
+    hex_links = db.relationship('HexLink', backref='hex_object')
 
-    def __init__(self, name, owner, image_path):
+    def __init__(self, name, owner_id, image_path):
         self.id = random.randrange(2, 7890232)
         self.name = name
-        self.owner = owner
+        self.owner_id = owner_id
+        self.user_id = user_id
         self.image_path = image_path
 
     def __repr__(self):
         return ('{{id: {}, ' 
             + 'name: "{}", ' 
-            + 'owner: "{}", ' 
+            + 'owner_id: "{}", ' 
+            + 'user_id: "{}", '
             + 'image_path: "{}"}}').format(
             self.id, 
             self.name, 
-            self.owner, 
+            self.owner_id,
+            self.user_id,
             self.image_path
             )
 
