@@ -9,6 +9,20 @@
 
 hexlist is an API for storing and retrieving links
 
+#todo
+
+setup oauth server so e can authenticate and secure API use. (dont want just anyone with access to restricted methods), that will sit behing a secure router.
+
+build out the public router for the site.
+
+add twitter authentication.
+
+add github authentication? 
+
+reddit authentication?
+
+google authentication?
+
 #setup
 
 python flask app

@@ -23,6 +23,7 @@ class TestingConfig(Config):
     TESTING = True
 
 '''
+    author @yvan
     configuration file for flask
     put sensitive info in instance/config.py
     read https://exploreflask.com/configuration.html

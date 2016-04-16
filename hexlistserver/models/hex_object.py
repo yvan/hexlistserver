@@ -10,12 +10,15 @@ class HexObject(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String())
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     image_path = db.Column(db.String())
-    hex_links = db.relationship('HexLink', backref='hex_object')
 
-    def __init__(self, name, owner_id, image_path):
+    owner_id = db.Column(db.Integer, db.ForeignKey('user_objects.id'))
+    user_object_id = db.Column(db.Integer, db.ForeignKey('user_objects.id'))
+
+    owner = db.relationship('UserObject', foreign_keys="HexObject.owner_id")
+    user_object = db.relationship('UserObject', foreign_keys="HexObject.user_object_id")
+
+    def __init__(self, name, owner_id, user_id, image_path):
         self.id = random.randrange(2, 7890232)
         self.name = name
         self.owner_id = owner_id
@@ -26,7 +29,7 @@ class HexObject(db.Model):
         return ('{{id: {}, ' 
             + 'name: "{}", ' 
             + 'owner_id: "{}", ' 
-            + 'user_id: "{}", '
+            # + 'user_id: "{}", '
             + 'image_path: "{}"}}').format(
             self.id, 
             self.name, 
@@ -37,6 +40,8 @@ class HexObject(db.Model):
 
 '''
 author @yvan
+http://docs.sqlalchemy.org/en/latest/orm/join_conditions.html
+http://docs.sqlalchemy.org/en/latest/orm/backref.html
 http://flask-appbuilder.readthedocs.org/en/latest/relations.html
 http://flask-sqlalchemy.pocoo.org/2.1/models/
 http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#building-a-relationship
