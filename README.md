@@ -39,7 +39,7 @@ heroku hosting and heroku postgres db
 
 3 - then upload to staging heroku and tests feature
 
-4 - then once you're sure it works upload to prodduction heroku
+4 - then once you're sure it works upload to prodduction heroku 'git push https://git.heroku.com/hexlistserver-prod.git master', i dont add a second remote because 1, we should be careful bout what we push to prod, 2, heroku is a lot less verbose when there's one remote.
 
 `Procfile`:
 
