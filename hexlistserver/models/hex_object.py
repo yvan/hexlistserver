@@ -29,7 +29,7 @@ class HexObject(db.Model):
         return ('{{id: {}, ' 
             + 'name: "{}", ' 
             + 'owner_id: "{}", ' 
-            # + 'user_id: "{}", '
+            + 'user_id: "{}", '
             + 'image_path: "{}"}}').format(
             self.id, 
             self.name, 

@@ -41,6 +41,10 @@ heroku hosting and heroku postgres db
 
 4 - then once you're sure it works upload to prodduction heroku 'git push https://git.heroku.com/hexlistserver-prod.git master', i dont add a second remote because 1, we should be careful bout what we push to prod, 2, heroku is a lot less verbose when there's one remote.
 
+`start postgres locally`:
+
+`pg_ctl start -D /usr/local/var/postgres/`
+
 `Procfile`:
 
 used by heroku, tells eroku what process to run
@@ -89,6 +93,8 @@ or to set it permanently on heroku app, switch stage for prod
 
 `DELETE /hex/delete/<int:hex_object_id>`
 
+`POST /api/v1.0/user`
+
 #store
 
 #retrieve
@@ -97,7 +103,11 @@ or to set it permanently on heroku app, switch stage for prod
 
 [flask quickstart](http://flask.pocoo.org/docs/0.10/quickstart/)
 
-start with this tutorial (ignore autoenv):
+[good tut on basic rest API, read first](http://blog.miguelgrinberg.com/post/restful-authentication-with-flask)
+
+[follow up on the last one that lets you generate tokens](http://blog.miguelgrinberg.com/post/restful-authentication-with-flask)
+
+this tutorial (ignore autoenv):
 [heroku flask postgres workflow](https://realpython.com/blog/python/flask-by-example-part-1-project-setup/)
 
 [deploying-a-flask-application-to-heroku](https://community.nitrous.io/tutorials/deploying-a-flask-application-to-heroku)
