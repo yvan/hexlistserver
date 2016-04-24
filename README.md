@@ -81,19 +81,40 @@ set a subsection of the config file to be your app's config by running
 
 `export APP_SETTINGS="hexlistserver.config.DevelopmentConfig"` (or see env.sh)
 
-or to set it permanently on heroku app, switch stage for prod
+or to set it permanently on heroku staging app:
 
-`heroku config:set APP_SETTINGS=hexlistserver.config.StagingConfig --remote stage`
+`heroku config:set APP_SETTINGS=hexlistserver.config.StagingConfig`
 
-#api
+or production:
 
-`GET /hex/get/<int:hex_object_id>`
+`heroku config:set APP_settings=hexlistserver.config.ProductionConfig --remote https://git.heroku.com/hexlistserver-prod.git`
 
-`POST /hex/post/`
+env variables should look like:
 
-`DELETE /hex/delete/<int:hex_object_id>`
+```
+APP_SETTINGS: hexlistserver.config.ProductionConfig
+DATABASE_URL: postgres://postgresuser:password@ec2ipaddr.compute-1.amazonaws.com:PORT/DBNAME
+```
 
-`POST /api/v1.0/user`
+#using curl
+
+-u username:password is a way ot authenticate to the API. altough you should use a token instead.
+
+creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars)
+
+type `curl -h` to see what these options mean
+
+#POST /api/v1.0/user
+
+`curl -u mastercontrol:$starhatmonekybrains563 -i -X POST -H "Content-Type: application/json" -d '{"username":"dev","password":"dev"}' http://127.0.0.1:8000/api/v1.0/user`
+
+#GET /api/v1.0/user
+
+`curl -u dev:dev -i -X GET http://127.0.0.1:8000/api/v1.0/user/7851171`
+
+#DELETE /api/v1.0/user
+
+`curl -u dev:dev -X DELETE http://localhost127.0.0.1:8000/api/v1.0/user/7851171`
 
 #store
 

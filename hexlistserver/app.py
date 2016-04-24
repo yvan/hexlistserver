@@ -51,10 +51,9 @@ def delete_hex(hex_object_id):
     db.session.commit()
     return 'you deleted hex with id: {}'.format(hex_object_id)
 
-@app.route('/api/v1.0/user', methods=['GET'])
+@app.route('/api/v1.0/user/<int:user_object_id>', methods=['GET'])
 @auth.login_required
-def get_user():
-    user_object_id = request.json.get('user_object_id')
+def get_user(user_object_id):
     retrieved_user_object = user_object.UserObject.query.filter_by(id=user_object_id).first()
     return jsonify({ 'username': retrieved_user_object.username }), 201
 
