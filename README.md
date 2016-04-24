@@ -108,7 +108,7 @@ type `curl -h` to see what these options mean
 
 POST:
 
-`curl -u mastercontrol:$starhatmonekybrains563 -i -X POST -H "Content-Type: application/json" -d '{"username":"dev","password":"dev"}' http://127.0.0.1:8000/api/v1.0/user`
+`curl -u user:password -i -X POST -H "Content-Type: application/json" -d '{"username":"dev","password":"dev"}' http://127.0.0.1:8000/api/v1.0/user`
 
 GET:
 
