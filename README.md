@@ -104,15 +104,17 @@ creating a user already requires the existence of a user, to get around this. on
 
 type `curl -h` to see what these options mean
 
-#POST /api/v1.0/user
+#/api/v1.0/user
+
+POST:
 
 `curl -u mastercontrol:$starhatmonekybrains563 -i -X POST -H "Content-Type: application/json" -d '{"username":"dev","password":"dev"}' http://127.0.0.1:8000/api/v1.0/user`
 
-#GET /api/v1.0/user
+GET:
 
 `curl -u dev:dev -i -X GET http://127.0.0.1:8000/api/v1.0/user/7851171`
 
-#DELETE /api/v1.0/user
+DELETE:
 
 `curl -u dev:dev -X DELETE http://localhost127.0.0.1:8000/api/v1.0/user/7851171`
 
