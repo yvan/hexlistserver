@@ -9,13 +9,11 @@
 
 hexlist is an API for storing and retrieving links
 
-#using curl
+#/api/v1.0/token
 
--u username:password is a way ot authenticate to the API. altough you should use a token instead.
+GET:
 
-creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars)
-
-type `curl -h` to see what these options mean
+`curl -u dev:dev -X GET http://localhost:8000/api/v1.0/token`
 
 #/api/v1.0/user
 
@@ -34,6 +32,14 @@ DELETE:
 #store
 
 #retrieve
+
+#using curl
+
+-u username:password is a way ot authenticate to the API. altough you should use a token instead.
+
+creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars)
+
+type `curl -h` to see what these options mean
 
 #development
 

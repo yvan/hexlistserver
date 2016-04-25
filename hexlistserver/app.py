@@ -24,7 +24,7 @@ from hexlistserver.models import hex_object, hex_link, user_object
 def heyo():
     return 'heyo it\'s hexlist!'
 
-@app.route('/api/v1.0/token')
+@app.route('/api/v1.0/token', methods=['GET'])
 @auth.login_required
 def get_auth_token():
     # get the user inside curl -u user:password, and use them to generate a token
