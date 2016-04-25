@@ -87,7 +87,7 @@ def delete_user(user_object_id):
 def verify_password(username_or_token, password):
     user = user_object.UserObject.verify_auth_token(username_or_token)
     if not user:
-        user = user_object.UserObject.query.filter_by(username=username).first()
+        user = user_object.UserObject.query.filter_by(username=username_or_token).first()
         if not user or not user.verify_password(password):
             return False
     g.user = user
