@@ -4,6 +4,7 @@ model for a user
 
 import random
 
+from hexlistserver.app import app
 from hexlistserver.app import db
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
@@ -30,7 +31,7 @@ class UserObject(db.Model):
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
 
-    def genrate_auth_token(self, expiration=86400):
+    def generate_auth_token(self, expiration=86400):
         s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
         return s.dumps({'id': self.id})
 
@@ -43,7 +44,7 @@ class UserObject(db.Model):
             return None
         except BadSignature:
             return None
-        user = User.query.get(data['id'])
+        user = UserObject.query.get(data['id'])
         return user
 
 '''

@@ -24,9 +24,12 @@ from hexlistserver.models import hex_object, hex_link, user_object
 def heyo():
     return 'heyo it\'s hexlist!'
 
-@app.route('/api/token')
+@app.route('/api/v1.0/token')
+@auth.login_required
 def get_auth_token():
-    token = g.user_object.User.generate_auth_token()
+    # get the user inside curl -u user:password, and use them to generate a token
+    # with that user's id
+    token = g.user.generate_auth_token()
     return jsonify({ 'token': token.decode('ascii') })
 
 @app.route('/api/v1.0/hex/<int:hex_object_id>', methods=['GET'])
@@ -81,10 +84,12 @@ def delete_user(user_object_id):
     return 'you deleted user with id: {}'.format(user_object_id)
 
 @auth.verify_password
-def verify_password(username, password):
-    user = user_object.UserObject.query.filter_by(username = username).first()
-    if not user or not user.verify_password(password):
-        return False
+def verify_password(username_or_token, password):
+    user = user_object.UserObject.verify_auth_token(username_or_token)
+    if not user:
+        user = user_object.UserObject.query.filter_by(username=username).first()
+        if not user or not user.verify_password(password):
+            return False
     g.user = user
     return True
 
