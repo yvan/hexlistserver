@@ -112,6 +112,8 @@ def post_link():
 @auth.login_required
 def delete_link(link_object_id):
     delete_link = link_object.LinkObject.query.filter_by(id=link_object_id).first()
+    db.session.delete(delete_link)
+    db.session.commit()
     return jsonify({ 'link_object_id': delete_link.id}), 200  
 
 @auth.verify_password

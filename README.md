@@ -47,6 +47,8 @@ DELETE:
 
 GET:
 
+`curl -u dev:dev -i -X GET http://127.0.0.1:8000/api/v1.0/link/7059414`
+
 POST:
 
 `curl -u dev:dev -i -X POST -H "Content-Type: application/json" -d '{"url":"yvanscher.com", "description":"a link to yvan\'s personal site", "hex_object_id":7248714}' http://127.0.0.1:8000/api/v1.0/link`
