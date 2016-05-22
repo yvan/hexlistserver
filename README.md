@@ -55,6 +55,8 @@ POST:
 
 DELETE:
 
+`curl -u dev:dev -i -X DELETE http://127.0.0.1:8000/api/v1.0/link/7059414`
+
 
 #using curl
 
