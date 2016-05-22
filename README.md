@@ -29,13 +29,36 @@ DELETE:
 
 `curl -u dev:dev -X DELETE http://localhost127.0.0.1:8000/api/v1.0/user/7851171`
 
-#store
+#/api/v1.0/hex
 
-#retrieve
+GET:
+
+`curl -u dev:dev -i -X GET http://127.0.0.1:8000/api/v1.0/hex/6418073`
+
+POST:
+
+`curl -u dev:dev -i -X POST http://localhost:8000/api/v1.0/hex/ -H "Content-Type: application/json" -d '{"name": "yvan_hex_1", "owner_id":434596, "image_path":"http://yvanscher.com/favicon.ico", "user_id":434596}'`
+
+DELETE:
+
+`curl -i -X DELETE http://localhost:8000/api/v1.0/hex/5605321 -u dev:dev`
+
+#/api/v1.0/link
+
+GET:
+
+POST:
+
+`curl -u dev:dev -i -X POST -H "Content-Type: application/json" -d '{"url":"yvanscher.com", "description":"a link to yvan\'s personal site", "hex_object_id":7248714}' http://127.0.0.1:8000/api/v1.0/link`
+
+DELETE:
+
 
 #using curl
 
--u username:password is a way ot authenticate to the API. altough you should use a token instead.
+-u username:password is a way ot authenticate to the API. altough you should use a token instead. to use a token, first hit the token generation api [endpoint](#/api/v1.0/token), get a token and use it instead of the username (password can be any word w/ a token) like:
+
+`curl -u eyJpYXQiOjE0NjM5NDkyMzksImV4cCI6MTQ2NDAzNTYzOSwiYWxnIjoiSFMyNTYifQ.eyJpZCI6NTI3NDA3OX0.Tc_0outiJw1xIXFWO1HTyYhFXR9oh4h1eLVoYPHEke:whatever`
 
 creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars)
 

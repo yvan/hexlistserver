@@ -12,8 +12,8 @@ class HexObject(db.Model):
     name = db.Column(db.String())
     image_path = db.Column(db.String())
 
-    owner_id = db.Column(db.Integer, db.ForeignKey('user_objects.id'))
-    user_object_id = db.Column(db.Integer, db.ForeignKey('user_objects.id'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user_objects.id', ondelete='CASCADE'))
+    user_object_id = db.Column(db.Integer, db.ForeignKey('user_objects.id', ondelete='CASCADE'))
 
     owner = db.relationship('UserObject', foreign_keys="HexObject.owner_id")
     user_object = db.relationship('UserObject', foreign_keys="HexObject.user_object_id")
@@ -22,7 +22,7 @@ class HexObject(db.Model):
         self.id = random.randrange(2, 7890232)
         self.name = name
         self.owner_id = owner_id
-        self.user_id = user_id
+        self.user_object_id = user_id
         self.image_path = image_path
 
     def __repr__(self):
