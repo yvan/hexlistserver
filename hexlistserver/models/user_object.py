@@ -2,7 +2,9 @@
 model for a user
 '''
 
-from hexlistserver.app import app, db, flask_uuid
+import uuid
+
+from hexlistserver.app import app, db
 
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
@@ -15,7 +17,7 @@ class UserObject(db.Model):
     password_hash = db.Column(db.String(128))
 
     def __init__(self, username):
-        self.id = flask_uuid.uuid4()
+        self.id = uuid.uuid4().urn[9:] # make a uuid, convert to urn/string, uuid starts after 9th char
         self.username = username
 
     def __repr__(self):

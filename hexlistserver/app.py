@@ -18,9 +18,9 @@ login_manager = LoginManager()
 auth = HTTPBasicAuth()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
-flask_uuid = FlaskUUID(app)
+FlaskUUID(app)
 
-from hexlistserver.models import hex_object, link_object, user_object
+from hexlistserver.models import hex_object, link_object, user_object, ios_hex_location
 
 @app.route('/')
 def heyo():
@@ -34,7 +34,7 @@ def get_auth_token():
     token = g.user_object.generate_auth_token()
     return jsonify({ 'token': token.decode('ascii') }), 200
 
-@app.route('/api/v1.0/hex/<int:hex_object_id>', methods=['GET'])
+@app.route('/api/v1.0/hex/<string:hex_object_id>', methods=['GET'])
 @auth.login_required
 def get_hex_object(hex_object_id):
     retrieved_hex_object = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
@@ -54,7 +54,7 @@ def post_hex_object():
     db.session.commit()
     return jsonify({ 'hex': str(new_hex_object) }), 201
 
-@app.route('/api/v1.0/hex/<int:hex_object_id>', methods=['DELETE'])
+@app.route('/api/v1.0/hex/<string:hex_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_hex(hex_object_id):
     hex_object_delete = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
@@ -62,14 +62,13 @@ def delete_hex(hex_object_id):
     db.session.commit()
     return  jsonify({ 'hex_id': hex_object_id }), 200
 
-@app.route('/api/v1.0/user/<int:user_object_id>', methods=['GET'])
+@app.route('/api/v1.0/user/<string:user_object_id>', methods=['GET'])
 @auth.login_required
 def get_user(user_object_id):
     retrieved_user = user_object.UserObject.query.filter_by(id=user_object_id).first()
     return jsonify({ 'username': retrieved_user.username }), 200
 
 @app.route('/api/v1.0/user', methods=['POST'])
-@auth.login_required
 def post_user():
     username = request.json.get('username')
     password = request.json.get('password')
@@ -83,7 +82,7 @@ def post_user():
     db.session.commit()
     return jsonify({ 'username': user.username }), 201, {'location': url_for('get_user', user_object_id=user.id, _external = True)}
 
-@app.route('/api/v1.0/user/<int:user_object_id>', methods=['DELETE'])
+@app.route('/api/v1.0/user/<string:user_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_user(user_object_id):
     user_delete = user_object.UserObject.query.filter_by(id=user_object_id).first()
@@ -91,7 +90,7 @@ def delete_user(user_object_id):
     db.session.commit()
     return jsonify({ 'user_object_id': user_delete.id}), 200
 
-@app.route('/api/v1.0/link/<int:link_object_id>', methods=['GET'])
+@app.route('/api/v1.0/link/<string:link_object_id>', methods=['GET'])
 @auth.login_required
 def get_link(link_object_id):
     retrieved_link = link_object.LinkObject.query.filter_by(id=link_object_id).first()
@@ -110,7 +109,7 @@ def post_link():
     db.session.commit()
     return jsonify({ 'link_object': str(new_link_object) }), 201
 
-@app.route('/api/v1.0/link/<int:link_object_id>', methods=['DELETE'])
+@app.route('/api/v1.0/link/<string:link_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_link(link_object_id):
     delete_link = link_object.LinkObject.query.filter_by(id=link_object_id).first()
