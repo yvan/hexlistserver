@@ -2,27 +2,26 @@
 model for a user
 '''
 
-import random
+from hexlistserver.app import app, db, flask_uuid
 
-from hexlistserver.app import app
-from hexlistserver.app import db
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 
 class UserObject(db.Model):
     __tablename__ = 'user_objects'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(), primary_key=True)
     username = db.Column(db.String(32), index=True)
     password_hash = db.Column(db.String(128))
 
     def __init__(self, username):
-        self.id = random.randrange(2, 7890232)
+        self.id = flask_uuid.uuid4()
         self.username = username
 
     def __repr__(self):
         return ('{{id: "{}"}}').format(
-            self.id
+            self.id,
+            self.username
             )
 
     def hash_password(self, password):

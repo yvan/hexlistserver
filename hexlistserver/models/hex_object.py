@@ -1,14 +1,12 @@
 '''
 model for a hex
 '''
-import random
-
-from hexlistserver.app import db
+from hexlistserver.app import db, flask_uuid
 
 class HexObject(db.Model):
     __tablename__ = 'hex_objects'
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(), primary_key=True)
     name = db.Column(db.String())
     image_path = db.Column(db.String())
 
@@ -19,7 +17,7 @@ class HexObject(db.Model):
     user_object = db.relationship('UserObject', foreign_keys="HexObject.user_object_id")
 
     def __init__(self, name, owner_id, user_id, image_path):
-        self.id = random.randrange(2, 7890232)
+        self.id = self.id = flask_uuid.uuid4()
         self.name = name
         self.owner_id = owner_id
         self.user_object_id = user_id

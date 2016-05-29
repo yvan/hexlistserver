@@ -9,6 +9,7 @@ from flask import g, abort, redirect, url_for, request, Flask, render_template, 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import LoginManager, login_required
+from flask.ext.uuid import FlaskUUID
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -17,6 +18,7 @@ login_manager = LoginManager()
 auth = HTTPBasicAuth()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
+flask_uuid = FlaskUUID(app)
 
 from hexlistserver.models import hex_object, link_object, user_object
 
