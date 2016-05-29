@@ -35,7 +35,7 @@ class HexObject(db.Model):
             self.id, 
             self.name, 
             self.owner_id,
-            self.user_id,
+            self.user_object_id,
             self.image_path
             )
 

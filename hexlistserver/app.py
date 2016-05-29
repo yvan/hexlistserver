@@ -69,6 +69,7 @@ def get_user(user_object_id):
     return jsonify({ 'username': retrieved_user.username }), 200
 
 @app.route('/api/v1.0/user', methods=['POST'])
+@auth.login_required
 def post_user():
     username = request.json.get('username')
     password = request.json.get('password')

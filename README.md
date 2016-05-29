@@ -27,7 +27,7 @@ GET:
 
 DELETE:
 
-`curl -u dev:dev -X DELETE http://localhost127.0.0.1:8000/api/v1.0/user/7851171`
+`curl -u dev:dev -X DELETE http://127.0.0.1:8000/api/v1.0/user/7851171`
 
 #/api/v1.0/hex
 
@@ -37,7 +37,7 @@ GET:
 
 POST:
 
-`curl -u dev:dev -i -X POST http://localhost:8000/api/v1.0/hex/ -H "Content-Type: application/json" -d '{"name": "yvan_hex_1", "owner_id":434596, "image_path":"http://yvanscher.com/favicon.ico", "user_id":434596}'`
+`curl -u dev:dev -i -X POST http://localhost:8000/api/v1.0/hex -H "Content-Type: application/json" -d '{"name": "yvan_hex_1", "owner_id":434596, "image_path":"http://yvanscher.com/favicon.ico", "user_id":434596}'`
 
 DELETE:
 
@@ -132,6 +132,9 @@ env variables should look like:
 APP_SETTINGS: hexlistserver.config.ProductionConfig
 DATABASE_URL: postgres://postgresuser:password@ec2ipaddr.compute-1.amazonaws.com:PORT/DBNAME
 ```
+
+dev user pass - dev:dev
+yvan user pass - yvan:getmysquanchon
 
 #setup
 
