@@ -64,9 +64,7 @@ DELETE:
 
 `curl -u eyJpYXQiOjE0NjM5NDkyMzksImV4cCI6MTQ2NDAzNTYzOSwiYWxnIjoiSFMyNTYifQ.eyJpZCI6NTI3NDA3OX0.Tc_0outiJw1xIXFWO1HTyYhFXR9oh4h1eLVoYPHEke:whatever`
 
-creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars)
-
-type `curl -h` to see what these options mean
+creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars). you can manually insert this user onto the staging server like so: .
 
 #development
 
@@ -132,6 +130,13 @@ env variables should look like:
 APP_SETTINGS: hexlistserver.config.ProductionConfig
 DATABASE_URL: postgres://postgresuser:password@ec2ipaddr.compute-1.amazonaws.com:PORT/DBNAME
 ```
+
+migrating the db on herkou:
+
+```
+git push stage master
+heroku run make migrate # if you didnt migrate locally you need this line, creates the migration
+heroku run make upgrade # either way you need this line, actually moves the db to this migration
 
 dev user pass - dev:dev
 yvan user pass - yvan:getmysquanchon
