@@ -57,6 +57,33 @@ DELETE:
 
 `curl -u dev:dev -i -X DELETE http://127.0.0.1:8000/api/v1.0/link/7059414`
 
+#/api/v1.0/location
+
+GET:
+
+`curl -u dev:dev -i -X GET http://localhost:8000/api/v1.0/location/534f6e75-93a6-4b6d-9dcf-85ae20fcb144`
+
+POST:
+
+`curl -u dev:dev -i -X POST  http://localhost:8000/api/v1.0/location -H "Content-Type: application/json" -d '{"platform":"ios","location":"myhexlist", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}'`
+
+DELETE:
+
+`curl -u dev:dev -i -X DELETE http://localhost:8000/api/v1.0/location/534f6e75-93a6-4b6d-9dcf-85ae20fcb144`
+
+#/api/v1.0/send
+
+GET:
+
+`curl -u dev:dev -i -X GET http://localhost:8000/api/v1.0/send/175823b5-64a1-47d0-a6a6-81f2c685af11`
+
+POST:
+
+`curl -u dev:dev -i -X POST  http://localhost:8000/api/v1.0/send -H "Content-Type: application/json" -d '{"sender_id":"d7c2f463-736f-467e-a317-a6e4b64cd6a6","recipient_id":"9066e9a9-bc47-4f12-8436-551695026421", "hex_object_id":"175823b5-64a1-47d0-a6a6-81f2c685af11"}'`
+
+DELETE:
+
+`curl -u dev:dev -i -X DELETE http://localhost:8000/api/v1.0/send/175823b5-64a1-47d0-a6a6-81f2c685af11`
 
 #using curl
 
