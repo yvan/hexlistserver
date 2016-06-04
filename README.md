@@ -9,6 +9,14 @@
 
 hexlist is an API for storing and retrieving links
 
+the staging server is at:
+
+`https://hexlistserver-stage.herokuapp.com/`
+
+ther production server is at:
+
+`https://hexlistserver-prod.herokuapp.com/`
+
 #/api/v1.0/token
 
 GET:
