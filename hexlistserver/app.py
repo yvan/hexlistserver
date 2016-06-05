@@ -54,7 +54,7 @@ def post_hex_object():
     new_hex_object = hex_object.HexObject(name, owner_id, user_id, image_path)
     db.session.add(new_hex_object)
     db.session.commit()
-    return jsonify({'id':new_hex_object.id, 'name':new_hex_object.name, 'image_path':new_hex_object.image_path, 'owner_id':new_hex_object.owner_id, 'user_id':new_hex_object.user_id}), 201
+    return jsonify({'id':new_hex_object.id, 'name':new_hex_object.name, 'image_path':new_hex_object.image_path, 'owner_id':new_hex_object.owner_id, 'user_id':new_hex_object.user_object_id}), 201
 
 @app.route('/api/v1.0/hex/<string:hex_object_id>', methods=['DELETE'])
 @auth.login_required
