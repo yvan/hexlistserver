@@ -21,7 +21,8 @@ db = SQLAlchemy(app)
 from hexlistserver.models import (hex_object, 
                                  link_object, 
                                  user_object, 
-                                 ios_hex_location)
+                                 ios_hex_location, 
+                                 send_object)
 
 @app.route('/')
 def heyo():
@@ -149,32 +150,32 @@ def delete_location(hex_object_id):
     db.session.commit()
     return jsonify({'hex_object_id': hex_location.hex_object_id,'location':hex_location.location}), 200
 
-# @app.route('/api/v1.0/send/<string:hex_object_id>', methods=['GET'])
-# @auth.login_required
-# def get_send(hex_object_id):
-#     retrieved_send_object = send_object.SendObject.query.filter_by(id=hex_object_id).first()
-#     return jsonify({'id': retrieved_send_object.id, 'sender_id': retrieved_send_object.sender_id, 'recipient_id': retrieved_send_object.recipient_id, 'hex_object_id':retrieved_send_object.hex_object_id}), 200
+@app.route('/api/v1.0/send/<string:hex_object_id>', methods=['GET'])
+@auth.login_required
+def get_send(hex_object_id):
+    retrieved_send_object = send_object.SendObject.query.filter_by(id=hex_object_id).first()
+    return jsonify({'id': retrieved_send_object.id, 'sender_id': retrieved_send_object.sender_id, 'recipient_id': retrieved_send_object.recipient_id, 'hex_object_id':retrieved_send_object.hex_object_id}), 200
 
-# @app.route('/api/v1.0/send', methods=['POST'])
-# @auth.login_required
-# def post_send():
-#     sender_id = request.json.get('sender_id')
-#     recipient_id = request.json.get('recipient_id')
-#     hex_object_id = request.json.get('hex_object_id')
-#     if sender_id is None or recipient_id is None or hex_object_id is None:
-#         abort(400)
-#     new_send_object = send_object.SendObject(sender_id, recipient_id, hex_object_id)
-#     db.session.add(new_send_object)
-#     db.session.commit()
-#     return jsonify({'sender_id': new_send_object.sender_id, 'recipient_id': new_send_object.recipient_id, 'hex_object_id':new_send_object.hex_object_id}), 201
+@app.route('/api/v1.0/send', methods=['POST'])
+@auth.login_required
+def post_send():
+    sender_id = request.json.get('sender_id')
+    recipient_id = request.json.get('recipient_id')
+    hex_object_id = request.json.get('hex_object_id')
+    if sender_id is None or recipient_id is None or hex_object_id is None:
+        abort(400)
+    new_send_object = send_object.SendObject(sender_id, recipient_id, hex_object_id)
+    db.session.add(new_send_object)
+    db.session.commit()
+    return jsonify({'sender_id': new_send_object.sender_id, 'recipient_id': new_send_object.recipient_id, 'hex_object_id':new_send_object.hex_object_id}), 201
 
-# @app.route('/api/v1.0/send/<string:hex_object_id>', methods=['DELETE'])
-# @auth.login_required
-# def delete_send(hex_object_id):
-#     send_object_delete = send_object.SendObject.query.filter_by(hex_object_id=hex_object_id).first()
-#     db.session.delete(send_object_delete)
-#     db.session.commit()
-#     return jsonify({'sender_id': send_object_delete.sender_id, 'recipient_id': send_object_delete.recipient_id, 'hex_object_id':send_object_delete.hex_object_id}), 200   
+@app.route('/api/v1.0/send/<string:hex_object_id>', methods=['DELETE'])
+@auth.login_required
+def delete_send(hex_object_id):
+    send_object_delete = send_object.SendObject.query.filter_by(hex_object_id=hex_object_id).first()
+    db.session.delete(send_object_delete)
+    db.session.commit()
+    return jsonify({'sender_id': send_object_delete.sender_id, 'recipient_id': send_object_delete.recipient_id, 'hex_object_id':send_object_delete.hex_object_id}), 200   
 
 @auth.verify_password
 def verify_password(username_or_token, password):
