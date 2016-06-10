@@ -177,6 +177,12 @@ heroku run make upgrade # either way you need this line, actually moves the db t
 dev user pass - dev:dev
 yvan user pass - yvan:getmysquanchon
 
+upgrading to the next level of db on heroku:
+[https://devcenter.heroku.com/articles/upgrading-heroku-postgres-databases](https://devcenter.heroku.com/articles/upgrading-heroku-postgres-databases)
+
+adding namecheap ssl certificate:
+[https://www.resumonk.com/blog/setup-ssl-certificate-heroku/](https://www.resumonk.com/blog/setup-ssl-certificate-heroku/)
+
 #setup
 
 python flask app

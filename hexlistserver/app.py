@@ -81,17 +81,23 @@ def post_user():
         abort(400)
     if user_object.UserObject.query.filter_by(username=username).first() is not None:
         abort(400)
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'id': user.id, 'username': user.username}), 201
+    if request.authorization.username == 'userMakerZubat':
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'id': user.id, 'username': user.username}), 201
+    else:
+        return jsonify({'error': 'POST /user is forbidden api endpoint for the user you tried to authenticate with', 'code': 403}), 403
 
 @app.route('/api/v1.0/user/<string:user_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_user(user_object_id):
     user_delete = user_object.UserObject.query.filter_by(id=user_object_id).first()
-    db.session.delete(user_delete)
-    db.session.commit()
-    return jsonify({'id': user_delete.id, 'username': user_delete.username}), 200
+    if request.authorization.username == 'userMakerZubat':
+        db.session.delete(user_delete)
+        db.session.commit()
+        return jsonify({'id': user_delete.id, 'username': user_delete.username}), 200
+    else:
+        return jsonify({'error': 'DELETE /user is forbidden api endpoint for the user you provided', 'code': 403}), 403
 
 @app.route('/api/v1.0/link/<string:link_object_id>', methods=['GET'])
 @auth.login_required
