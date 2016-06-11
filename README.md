@@ -166,6 +166,7 @@ MAIL_PORT=465
 MAIL_USERNAME='hexlist.worker.bees@gmail.com'
 MAIL_PASSWORD='DA_PASSWURD'
 ```
+these env variables are only set on the production server, because on staging DEBUG=True, the error handler never fires on the staging server. they were originally tested locally by setting the local development config to have DEUG=False temporarily.
 
 env variables should look like:
 

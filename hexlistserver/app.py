@@ -191,9 +191,11 @@ def delete_send(hex_object_id):
     db.session.commit()
     return jsonify({'sender_id': send_object_delete.sender_id, 'recipient_id': send_object_delete.recipient_id, 'hex_object_id':send_object_delete.hex_object_id}), 200   
 
+# this error handler only fires when DEBUG=False,
+# so it only fires on our production server
 @app.errorhandler(500)
 def internal_error(error):
-    msg = Message('500 error', sender=app.config['MAIL_USERNAME'], recipients=['yvanscher@gmail.com'])
+    msg = Message('hexlistserver 500 internal server error', sender=app.config['MAIL_USERNAME'], recipients=['yvanscher@gmail.com'])
     msg.body = '\n'.join(traceback.format_stack())
     mail.send(msg)
     return jsonify({'error': 'yo human there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
