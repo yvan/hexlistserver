@@ -44,7 +44,10 @@ def get_auth_token():
 @auth.login_required
 def get_hex_object(hex_object_id):
     retrieved_hex_object = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
-    return jsonify({'id':retrieved_hex_object.id, 'name':retrieved_hex_object.name, 'image_path':retrieved_hex_object.image_path, 'owner_id':retrieved_hex_object.owner_id, 'user_id':retrieved_hex_object.user_object_id}), 200
+    if retrieved_hex_object:
+        return jsonify({'id':retrieved_hex_object.id, 'name':retrieved_hex_object.name, 'image_path':retrieved_hex_object.image_path, 'owner_id':retrieved_hex_object.owner_id, 'user_id':retrieved_hex_object.user_object_id}), 200
+    else:
+        return jsonify({'error': 'we couldn\'t find that hex, u must be wrong', 'code': 404), 404
 
 @app.route('/api/v1.0/hex', methods=['POST'])
 @auth.login_required
@@ -110,7 +113,10 @@ def delete_user(user_object_id):
 @auth.login_required
 def get_link(link_object_id):
     retrieved_link = link_object.LinkObject.query.filter_by(id=link_object_id).first()
-    return jsonify({'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id})
+    if retrieved_link:
+        return jsonify({'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id})
+    else:
+        return jsonify({'error': 'we couldn\'t find that link, u must be wrong', 'code': 404), 404
 
 @app.route('/api/v1.0/link', methods=['POST'])
 @auth.login_required
@@ -139,7 +145,10 @@ def get_location():
     hex_object_id = request.json.get('hex_object_id')
     user_object_id = request.json.get('hex_object_id')
     return_location = ios_hex_location.IosHexLocation.query.filter_by(user_object_id=user_object_id, hex_object_id=hex_object_id).first()
-    return jsonify({'id': return_location.id,'user_object_id': return_location.user_object_id,'hex_object_id': return_location.hex_object_id, 'location': return_location.location}), 200
+    if return_location:
+        return jsonify({'id': return_location.id,'user_object_id': return_location.user_object_id,'hex_object_id': return_location.hex_object_id, 'location': return_location.location}), 200
+    else:
+        return jsonify({'error': 'we couldn\'t find that location, u must be wrong', 'code': 404), 404
 
 @app.route('/api/v1.0/location', methods=['POST'])
 @auth.login_required
@@ -170,8 +179,11 @@ def delete_location(location_object_id):
 @auth.login_required
 def get_send(hex_object_id):
     retrieved_send_object = send_object.SendObject.query.filter_by(id=hex_object_id).first()
-    return jsonify({'id': retrieved_send_object.id, 'sender_id': retrieved_send_object.sender_id, 'recipient_id': retrieved_send_object.recipient_id, 'hex_object_id':retrieved_send_object.hex_object_id}), 200
-
+    if retrieved_send_object:
+        return jsonify({'id': retrieved_send_object.id, 'sender_id': retrieved_send_object.sender_id, 'recipient_id': retrieved_send_object.recipient_id, 'hex_object_id':retrieved_send_object.hex_object_id}), 200
+    else:
+        return jsonify({'error': 'we couldn\'t find that send, u must be wrong', 'code': 404), 404
+        
 @app.route('/api/v1.0/send', methods=['POST'])
 @auth.login_required
 def post_send():
