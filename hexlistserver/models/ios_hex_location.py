@@ -8,12 +8,17 @@ from hexlistserver.app import db
 class IosHexLocation(db.Model):
     __tablename__ = 'ios_hex_locations'
 
-    hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id'), primary_key=True)    
-    hex_object = db.relationship('HexObject', foreign_keys="IosHexLocation.hex_object_id")
-
+    id = db.Column(db.String(), primary_key=True)
+    user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id'))
+    hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id'))    
     location = db.Column(db.String())
 
-    def __init__(self, hex_object_id, location):
+    hex_object = db.relationship('HexObject', foreign_keys="IosHexLocation.hex_object_id")
+    user_object = db.relationship('HexObject', foreign_keys="IosHexLocation.user_object_id")
+
+    def __init__(self, user_object_id, hex_object_id, location):
+        self.id = uuid.uuid4().urn[9:] # make a uuid, convert to urn/string, uuid starts after 9th char
+        self.user_object_id = user_object_id
         self.hex_object_id = hex_object_id
         self.location = location
 

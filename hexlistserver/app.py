@@ -25,7 +25,7 @@ mail = Mail(app)
 from hexlistserver.models import (hex_object, 
                                  link_object, 
                                  user_object, 
-                                 ios_hex_location, 
+                                 # ios_hex_location, 
                                  send_object)
 
 @app.route('/')
@@ -134,35 +134,38 @@ def delete_link(link_object_id):
     db.session.commit()
     return jsonify({'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id}), 200
 
-@app.route('/api/v1.0/location/<string:hex_object_id>', methods=['GET'])
-@auth.login_required
-def get_location(hex_object_id):
-    return_location = ios_hex_location.IosHexLocation.query.filter_by(hex_object_id=hex_object_id).first()
-    return jsonify({'hex_object_id': return_location.hex_object_id, 'location': return_location.location}), 200
+# @app.route('/api/v1.0/location', methods=['GET'])
+# @auth.login_required
+# def get_location():
+#     hex_object_id = request.json.get('hex_object_id')
+#     user_object_id = request.json.get('hex_object_id')
+#     return_location = ios_hex_location.IosHexLocation.query.filter_by(user_object_id=user_object_id, hex_object_id=hex_object_id).first()
+#     return jsonify({'id': return_location.id,'user_object_id': return_location.user_object_id,'hex_object_id': return_location.hex_object_id, 'location': return_location.location}), 200
 
-@app.route('/api/v1.0/location', methods=['POST'])
-@auth.login_required
-def post_location():
-    platform = request.json.get('platform')
-    location = request.json.get('location')
-    hex_object_id = request.json.get('hex_object_id')
-    if location is None or hex_object_id is None or platform is None:
-        abort(400)
-    if platform == 'ios':
-        new_hex_location = ios_hex_location.IosHexLocation(hex_object_id, location)
-    else:
-        abort(400)
-    db.session.add(new_hex_location)
-    db.session.commit()
-    return jsonify({'hex_object_id': new_hex_location.hex_object_id,'location':new_hex_location.location}), 201
+# @app.route('/api/v1.0/location', methods=['POST'])
+# @auth.login_required
+# def post_location():
+#     platform = request.json.get('platform')
+#     location = request.json.get('location')
+#     hex_object_id = request.json.get('hex_object_id')
+#     user_object_id = request.json.get('hex_object_id')
+#     if location is None or hex_object_id is None or platform is None:
+#         abort(400)
+#     if platform == 'ios':
+#         new_hex_location = ios_hex_location.IosHexLocation(user_object_id, hex_object_id, location)
+#     else:
+#         abort(400)
+#     db.session.add(new_hex_location)
+#     db.session.commit()
+#     return jsonify({'id': new_hex_location.id,'user_object_id': new_hex_location.user_object_id,'hex_object_id': new_hex_location.hex_object_id, 'location': new_hex_location.location}), 201
 
-@app.route('/api/v1.0/location/<string:hex_object_id>', methods=['DELETE'])
-@auth.login_required
-def delete_location(hex_object_id):
-    hex_location = ios_hex_location.IosHexLocation.query.filter_by(hex_object_id=hex_object_id).first()
-    db.session.delete(hex_location)
-    db.session.commit()
-    return jsonify({'hex_object_id': hex_location.hex_object_id,'location':hex_location.location}), 200
+# @app.route('/api/v1.0/location/<string:location_object_id>', methods=['DELETE'])
+# @auth.login_required
+# def delete_location(location_object_id):
+#     hex_location = ios_hex_location.IosHexLocation.query.filter_by(id=location_object_id).first()
+#     db.session.delete(hex_location)
+#     db.session.commit()
+#     return jsonify({'id': hex_location.id,'user_object_id': hex_location.user_object_id,'hex_object_id': hex_location.hex_object_id, 'location': hex_location.location}), 200
 
 @app.route('/api/v1.0/send/<string:hex_object_id>', methods=['GET'])
 @auth.login_required
