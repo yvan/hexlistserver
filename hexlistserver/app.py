@@ -201,7 +201,7 @@ def internal_error(error):
     msg = Message('hexlistserver 500 internal server error', sender=app.config['MAIL_USERNAME'], recipients=['yvanscher@gmail.com'])
     msg.body = '\n'.join(traceback.format_stack())
     mail.send(msg)
-    return jsonify({'error': 'yo human there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
+    return jsonify({'error': 'there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
 
 @auth.verify_password
 def verify_password(username_or_token, password):
