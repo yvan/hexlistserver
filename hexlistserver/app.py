@@ -3,20 +3,24 @@ primary file with app logic
 '''
 
 import os
+import traceback
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import LoginManager, login_required
+from flask.ext.mail import Mail, Message
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 login_manager = LoginManager()
 auth = HTTPBasicAuth()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
+mail = Mail(app)
 
 from hexlistserver.models import (hex_object, 
                                  link_object, 
@@ -68,7 +72,11 @@ def delete_hex(hex_object_id):
 @auth.login_required
 def get_user(user_object_id):
     retrieved_user = user_object.UserObject.query.filter_by(id=user_object_id).first()
+    # if retrieved_user:
     return jsonify({'id':retrieved_user.id, 'username':retrieved_user.username}), 200
+    # else:
+        # return jsonify({'error': 'no user found for that id', 'code': 404}), 404
+
 
 @app.route('/api/v1.0/user', methods=['POST'])
 @auth.login_required
@@ -182,6 +190,13 @@ def delete_send(hex_object_id):
     db.session.delete(send_object_delete)
     db.session.commit()
     return jsonify({'sender_id': send_object_delete.sender_id, 'recipient_id': send_object_delete.recipient_id, 'hex_object_id':send_object_delete.hex_object_id}), 200   
+
+@app.errorhandler(500)
+def internal_error(error):
+    msg = Message('500 error', sender=app.config['MAIL_USERNAME'], recipients=['yvanscher@gmail.com','scher.roman@gmail.com'])
+    msg.body = '\n'.join(traceback.format_stack())
+    mail.send(msg)
+    return jsonify({'error': 'yo human there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
 
 @auth.verify_password
 def verify_password(username_or_token, password):

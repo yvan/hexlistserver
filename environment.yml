@@ -1,13 +1,14 @@
 name: hexlistserver
 dependencies:
 - python=3.5.1
-- psycopg2=2.6.1
 - pip
 - pip:
-    - flask==0.10.1
-    - Flask-SQLAlchemy==2.1
-    - Flask-Migrate==1.8.0
-    - gunicorn==19.4.5
-    - flask-login==0.3.2
-    - passlib==1.6.5
-    - Flask-HTTPAuth==3.1.1
+  - flask==0.10.1
+  - psycopg2==2.6.1
+  - Flask-SQLAlchemy==2.1
+  - Flask-Migrate==1.8.0
+  - gunicorn==19.4.5
+  - flask-login==0.3.2
+  - passlib==1.6.5
+  - Flask-HTTPAuth==3.1.1
+  - Flask-ErrorMail==0.2.2

@@ -159,6 +159,14 @@ or production:
 
 `heroku config:set APP_settings=hexlistserver.config.ProductionConfig --remote https://git.heroku.com/hexlistserver-prod.git`
 
+the same applies to these environment vars for email error reporting:
+```
+MAIL_SERVER='smtp.gmail.com'
+MAIL_PORT=465
+MAIL_USERNAME='hexlist.worker.bees@gmail.com'
+MAIL_PASSWORD='DA_PASSWURD'
+```
+
 env variables should look like:
 
 ```
@@ -191,7 +199,6 @@ postgresdb with flask-sqlalchemy
 
 heroku hosting and heroku postgres db
 
-
 #resources
 
 [flask quickstart](http://flask.pocoo.org/docs/0.10/quickstart/)
@@ -204,6 +211,8 @@ this tutorial (ignore autoenv):
 [heroku flask postgres workflow](https://realpython.com/blog/python/flask-by-example-part-1-project-setup/)
 
 [deploying-a-flask-application-to-heroku](https://community.nitrous.io/tutorials/deploying-a-flask-application-to-heroku)
+
+[error handling and reporting implementation](http://flask.pocoo.org/docs/0.11/errorhandling/)
 
 [discover flask - great resource](https://github.com/realpython/discover-flask)
 
