@@ -13,17 +13,10 @@ class ProductionConfig(Config):
     DEBUG = False
     MAIL_SERVER=os.environ['MAIL_SERVER']
     MAIL_PORT=os.environ['MAIL_PORT']
-    MAIL_USE_TLS=False
+    MAIL_USE_TLS=True
     MAIL_USE_SSL=True
     MAIL_USERNAME=os.environ['MAIL_USERNAME']
     MAIL_PASSWORD=os.environ['MAIL_PASSWORD']
-
-    # MAIL_SERVER=os.environ['MAILGUN_SMTP_SERVER']
-    # MAIL_PORT=os.environ['MAILGUN_SMTP_PORT']
-    # MAIL_USE_TLS=False
-    # MAIL_USE_SSL=True
-    # MAIL_USERNAME=os.environ['MAILGUN_SMTP_LOGIN']
-    # MAIL_PASSWORD=os.environ['MAILGUN_SMTP_PASSWORD']
 
 class StagingConfig(Config):
     DEVELOPMENT = True
