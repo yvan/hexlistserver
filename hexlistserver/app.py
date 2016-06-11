@@ -72,11 +72,10 @@ def delete_hex(hex_object_id):
 @auth.login_required
 def get_user(user_object_id):
     retrieved_user = user_object.UserObject.query.filter_by(id=user_object_id).first()
-    # if retrieved_user:
-    return jsonify({'id':retrieved_user.id, 'username':retrieved_user.username}), 200
-    # else:
-        # return jsonify({'error': 'no user found for that id', 'code': 404}), 404
-
+    if retrieved_user:
+        return jsonify({'id':retrieved_user.id, 'username':retrieved_user.username}), 200
+    else:
+        return jsonify({'error': 'no user found for that id', 'code': 404}), 404
 
 @app.route('/api/v1.0/user', methods=['POST'])
 @auth.login_required
