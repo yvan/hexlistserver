@@ -14,7 +14,7 @@ class IosHexLocation(db.Model):
     location = db.Column(db.String())
 
     hex_object = db.relationship('HexObject', foreign_keys="IosHexLocation.hex_object_id")
-    user_object = db.relationship('HexObject', foreign_keys="IosHexLocation.user_object_id")
+    user_object = db.relationship('UserObject', foreign_keys="IosHexLocation.user_object_id")
 
     def __init__(self, user_object_id, hex_object_id, location):
         self.id = uuid.uuid4().urn[9:] # make a uuid, convert to urn/string, uuid starts after 9th char
