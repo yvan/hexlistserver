@@ -11,7 +11,7 @@ class SendObject(db.Model):
     id = db.Column(db.String(), primary_key=True)
     sender_id = db.Column(db.String())
     recipient_id = db.Column(db.String())
-    hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id', ondelete='CASCADE'))
+    hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id'))
     hex_object = db.relationship('HexObject', foreign_keys="SendObject.hex_object_id")
 
     def __init__(self, sender_id, recipient_id, hex_object_id):

@@ -13,8 +13,8 @@ class HexObject(db.Model):
     name = db.Column(db.String())
     image_path = db.Column(db.String())
 
-    owner_id = db.Column(db.String(), db.ForeignKey('user_objects.id', ondelete='CASCADE'))
-    user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id', ondelete='CASCADE'))
+    owner_id = db.Column(db.String(), db.ForeignKey('user_objects.id'))
+    user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id'))
 
     owner = db.relationship('UserObject', foreign_keys="HexObject.owner_id")
     user_object = db.relationship('UserObject', foreign_keys="HexObject.user_object_id")
