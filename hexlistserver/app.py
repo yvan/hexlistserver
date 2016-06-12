@@ -3,6 +3,7 @@ primary file with app logic
 '''
 
 import os
+import requests
 import traceback
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify
@@ -10,7 +11,6 @@ from flask import g, abort, redirect, url_for, request, Flask, render_template, 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import LoginManager, login_required
-from flask.ext.mail import Mail, Message
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -20,7 +20,7 @@ login_manager = LoginManager()
 auth = HTTPBasicAuth()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
-mail = Mail(app)
+
 
 from hexlistserver.models import (hex_object, 
                                  link_object, 
@@ -47,7 +47,7 @@ def get_hex_object(hex_object_id):
     if retrieved_hex_object:
         return jsonify({'id':retrieved_hex_object.id, 'name':retrieved_hex_object.name, 'image_path':retrieved_hex_object.image_path, 'owner_id':retrieved_hex_object.owner_id, 'user_id':retrieved_hex_object.user_object_id}), 200
     else:
-        return jsonify({'error': 'we couldn\'t find that hex, u must be wrong', 'code': 404), 404
+        return jsonify({'error': 'we couldn\'t find that hex, u must be wrong', 'code': 404}), 404
 
 @app.route('/api/v1.0/hex', methods=['POST'])
 @auth.login_required
@@ -116,7 +116,7 @@ def get_link(link_object_id):
     if retrieved_link:
         return jsonify({'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id})
     else:
-        return jsonify({'error': 'we couldn\'t find that link, u must be wrong', 'code': 404), 404
+        return jsonify({'error': 'we couldn\'t find that link, u must be wrong', 'code': 404}), 404
 
 @app.route('/api/v1.0/link', methods=['POST'])
 @auth.login_required
@@ -148,7 +148,7 @@ def get_location():
     if return_location:
         return jsonify({'id': return_location.id,'user_object_id': return_location.user_object_id,'hex_object_id': return_location.hex_object_id, 'location': return_location.location}), 200
     else:
-        return jsonify({'error': 'we couldn\'t find that location, u must be wrong', 'code': 404), 404
+        return jsonify({'error': 'we couldn\'t find that location, u must be wrong', 'code': 404}), 404
 
 @app.route('/api/v1.0/location', methods=['POST'])
 @auth.login_required
@@ -182,8 +182,8 @@ def get_send(hex_object_id):
     if retrieved_send_object:
         return jsonify({'id': retrieved_send_object.id, 'sender_id': retrieved_send_object.sender_id, 'recipient_id': retrieved_send_object.recipient_id, 'hex_object_id':retrieved_send_object.hex_object_id}), 200
     else:
-        return jsonify({'error': 'we couldn\'t find that send, u must be wrong', 'code': 404), 404
-        
+        return jsonify({'error': 'we couldn\'t find that send, u must be wrong', 'code': 404}), 404
+
 @app.route('/api/v1.0/send', methods=['POST'])
 @auth.login_required
 def post_send():
@@ -209,10 +209,21 @@ def delete_send(hex_object_id):
 # so it only fires on our production server
 @app.errorhandler(500)
 def internal_error(error):
-    msg = Message('hexlistserver 500 internal server error', sender=app.config['MAIL_USERNAME'], recipients=['yvanscher@gmail.com'])
-    msg.body = '\n'.join(traceback.format_stack())
-    mail.send(msg)
+    r = send_mail('yvanscher@gmail.com', app.config['MAILGUN_SENDER'], '500 server error', '\n'.join(traceback.format_stack()), None)
     return jsonify({'error': 'there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
+
+def send_mail(to_address, from_address, subject, plaintext, html):
+    r = requests.post("https://api.mailgun.net/v2/%s/messages" % app.config['MAILGUN_DOMAIN'],
+            auth=("api", app.config['MAILGUN_KEY']),
+            data={
+                "from": from_address,
+                "to": to_address,
+                "subject": subject,
+                "text": plaintext,
+                "html": html
+            }
+         )
+    return r
 
 @auth.verify_password
 def verify_password(username_or_token, password):

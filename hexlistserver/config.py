@@ -11,12 +11,9 @@ class Config(object):
 class ProductionConfig(Config):
     DEVELOPMENT = False
     DEBUG = False
-    MAIL_SERVER=os.environ['MAIL_SERVER']
-    MAIL_PORT=os.environ['MAIL_PORT']
-    MAIL_USE_TLS=False
-    MAIL_USE_SSL=True
-    MAIL_USERNAME=os.environ['MAIL_USERNAME']
-    MAIL_PASSWORD=os.environ['MAIL_PASSWORD']
+    # MAILGUN_SENDER = os.environ['MAILGUN_SMTP_LOGIN']
+    # MAILGUN_KEY = os.environ['MAILGUN_API_KEY']
+    # MAILGUN_DOMAIN = os.environ['MAILGUN_DOMAIN']
 
 class StagingConfig(Config):
     DEVELOPMENT = True
