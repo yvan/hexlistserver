@@ -59,7 +59,7 @@ GET:
 
 POST:
 
-`curl -u dev:dev -i -X POST -H "Content-Type: application/json" -d '{"url":"yvanscher.com", "description":"a link to yvan\'s personal site", "hex_object_id":7248714}' http://127.0.0.1:8000/api/v1.0/link`
+`curl -u dev:dev -i -X POST -H "Content-Type: application/json" -d '[{"url":"yvanscher.com", "description":"a link to yvans personal site", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}, {"url":"yvanscher.com", "description":"a link to yvans personal site", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}]' http://127.0.0.1:8000/api/v1.0/link`
 
 DELETE:
 
@@ -141,7 +141,7 @@ run `make upgrade` - upgrade your db with the new migration.
 
 a file that contains development environment variables
 
-run `source env.sh` to setup local env variables properly
+run `source env.sh` to setup local env variables properly, any environment variables that are not loaded from this file can be found in the environment on the staging or prod servers.
 
 `config.py`:
 
@@ -171,8 +171,14 @@ these env variables are only set on the production server, because on staging DE
 env variables should look like:
 
 ```
-APP_SETTINGS: hexlistserver.config.ProductionConfig
+ANON_USER_ID:        USRID
+ANON_USER_NAME:      BLAH
+ANON_USER_PASSWORD:  PWD
+APP_SETTINGS:        hexlistserver.config.DevelopmentConfig
+FLASK_SECRET_KEY:    SECRET
 DATABASE_URL: postgres://postgresuser:password@ec2ipaddr.compute-1.amazonaws.com:PORT/DBNAME
+USER_MAKER_NAME:     USR
+USER_MAKER_PASSWORD: PWD
 ```
 
 migrating the db on herkou:
@@ -236,6 +242,8 @@ this tutorial (ignore autoenv):
 [psycopg docs](http://initd.org/psycopg/docs/)
 
 [http verbs](http://www.restapitutorial.com/lessons/httpmethods.html)
+
+[reading about heroku gunicorn workers](https://devcenter.heroku.com/articles/python-gunicorn#basic-configuration)
 
 #author
 

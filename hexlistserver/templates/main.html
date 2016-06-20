@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+    
+    <div class="logo-container">
+        <a class="logo" href="/" style="background-image: url('/static/hexlist.png')"></a>
+    </div>
+
+    <div class="content-container">
+        <p class="hexlist-title">Hexlist</p>
+        <p>put some links in the text area below.</p>
+        <p>get an organized hex.</p>
+        <form action="/internal/form_hex_create" method="POST" name="link_submit">
+          <div class="input-container">
+            {{ form.hidden_tag() }}
+            {{ form.links }}
+            <p><input type="submit" value="Make hex"></p>
+          </div>
+        </form>
+        
+    </div>
+
+    <div class="footer-container">
+        <object type="image/svg+xml" data="/static/App_Store_Badge_US-UK_135x40.svg">Your browser does not support SVG</object>
+    </div>
+
+{% endblock %}

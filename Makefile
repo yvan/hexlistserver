@@ -1,7 +1,7 @@
 .PHONY: run init migrate upgrade downgrade show stage
 
 run:
-	gunicorn hexlistserver.app:app
+	gunicorn hexlistserver.app:app -w 2
 
 stage:
 	git push stage master

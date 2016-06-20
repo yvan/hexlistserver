@@ -5,7 +5,13 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = 'this-really-needs-to-be-changed'
+    WTF_CSRF_ENABLED = True
+    SECRET_KEY = os.environ['FLASK_SECRET_KEY']
+    USER_MAKER_NAME = os.environ['USER_MAKER_NAME']
+    USER_MAKER_PASSWORD = os.environ['USER_MAKER_PASSWORD']
+    ANON_USER_ID = os.environ['ANON_USER_ID']
+    ANON_USER_NAME = os.environ['ANON_USER_NAME']
+    ANON_USER_PASSWORD = os.environ['ANON_USER_PASSWORD']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
 class ProductionConfig(Config):
@@ -22,6 +28,7 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
+    SERVER_NAME = 'localhost:8000'
 
 class TestingConfig(Config):
     TESTING = True
