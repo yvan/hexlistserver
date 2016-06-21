@@ -24,7 +24,6 @@ auth = HTTPBasicAuth()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
 
-
 from hexlistserver.models import (hex_object, 
                                  link_object, 
                                  user_object, 
