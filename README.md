@@ -184,6 +184,7 @@ USER_MAKER_PASSWORD: PWD
 migrating the db on herkou:
 
 ```
+# make sure all environment variables are properly set on the heroku instance
 git push stage master
 heroku run make migrate # if you didnt migrate locally you need this line, creates the migration
 heroku run make upgrade # either way you need this line, actually moves the db to this migration

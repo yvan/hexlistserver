@@ -28,7 +28,6 @@ class StagingConfig(Config):
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-    SERVER_NAME = 'localhost:8000'
 
 class TestingConfig(Config):
     TESTING = True
