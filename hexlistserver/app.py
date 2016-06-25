@@ -167,6 +167,17 @@ def get_link(link_object_id):
     else:
         return jsonify({'error': 'we couldn\'t find that link, u must be wrong', 'code': 404}), 404
 
+@app.route('/api/v1.0/links', methods=['GET'])
+@auth.login_required
+def get_links():
+    return_links = []
+    for link_object_id in request.json.get('link_object_ids'):
+        return_links.append(get_link_method(link_object_id))
+    if retrieved_link:
+        return jsonify({i:{'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id} for i, retrieved_link in enumerate(return_links)}), 200
+    else:
+        return jsonify({'error': 'we couldn\'t find those links, u must be wrong', 'code': 404}), 404
+
 def get_link_method(link_object_id):
     return link_object.LinkObject.query.filter_by(id=link_object_id).first()
 
@@ -174,8 +185,19 @@ def get_link_method(link_object_id):
 @app.route('/api/v1.0/link', methods=['POST'])
 @auth.login_required
 def post_link():
+    url =  request.json.get('url')
+    description =  request.json.get('description')
+    hex_object_id =  request.json.get('hex_object_id')
+    if url is None or hex_object_id is None:
+        abort(400)
+    new_link_object = post_link_method(url, description, hex_object_id)
+    return jsonify({'id': new_link_object.id, 'urls': new_link_object.url,'description': new_link_object.description,'hex_object_id': new_link_object.hex_object_id}), 201
+
+#accepts multiple urls, so a list
+@app.route('/api/v1.0/links', methods=['POST'])
+@auth.login_required
+def post_links():
     return_links = []
-    print(request.json)
     for link in request.json.get('urls'):
         url = link.get('url')
         description = link.get('description')
@@ -196,6 +218,12 @@ def post_link_method(url, description, hex_object_id):
 @app.route('/api/v1.0/link/<string:link_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_link(link_object_id):
+    delete_link = delete_link_method(link_object_id)
+    return jsonify({'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id}), 200
+
+@app.route('/api/v1.0/links', methods=['DELETE'])
+@auth.login_required
+def delete_links(link_object_id):
     delete_link = delete_link_method(link_object_id)
     return jsonify({'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id}), 200
 
