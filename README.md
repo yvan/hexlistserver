@@ -59,11 +59,25 @@ GET:
 
 POST:
 
-`curl -u dev:dev -i -X POST -H "Content-Type: application/json" -d '[{"url":"yvanscher.com", "description":"a link to yvans personal site", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}, {"url":"yvanscher.com", "description":"a link to yvans personal site", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}]' http://127.0.0.1:8000/api/v1.0/link`
+`curl -u dev:dev -i -X POST -H "Content-Type: application/json" -d '{"url":"yvanscher.com", "description":"a link to yvans personal site", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}' http://127.0.0.1:8000/api/v1.0/link`
 
 DELETE:
 
 `curl -u dev:dev -i -X DELETE http://127.0.0.1:8000/api/v1.0/link/7059414`
+
+#/api/v1.0/hexlinks
+
+GET:
+
+`curl -u dev:dev -i -X GET http://127.0.0.1:8000/api/v1.0/hexlinks/534f6e75-93a6-4b6d-9dcf-85ae20fcb144`
+
+POST:
+
+`curl -u dev:dev -i -X POST -H "Content-Type: application/json" -d '[{"url":"yvanscher.com", "description":"a link to yvans personal site", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}, {"url":"yvanscher.com", "description":"a link to yvans personal site", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}]' http://127.0.0.1:8000/api/v1.0/hexlinks`
+
+DELETE:
+
+`curl -u dev:dev -i -X DELETE http://127.0.0.1:8000/api/v1.0/hexlinks/534f6e75-93a6-4b6d-9dcf-85ae20fcb144`
 
 #/api/v1.0/location
 

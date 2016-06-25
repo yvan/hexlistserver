@@ -163,18 +163,16 @@ def delete_user_method(user_object_id, req_auth_user):
 def get_link(link_object_id):
     retrieved_link = get_link_method(link_object_id)
     if retrieved_link:
-        return jsonify({'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id})
+        return jsonify({'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id}), 200
     else:
         return jsonify({'error': 'we couldn\'t find that link, u must be wrong', 'code': 404}), 404
 
-@app.route('/api/v1.0/links', methods=['GET'])
+@app.route('/api/v1.0/hexlinks/<string:hex_object_id>', methods=['GET'])
 @auth.login_required
-def get_links():
-    return_links = []
-    for link_object_id in request.json.get('link_object_ids'):
-        return_links.append(get_link_method(link_object_id))
-    if retrieved_link:
-        return jsonify({i:{'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id} for i, retrieved_link in enumerate(return_links)}), 200
+def get_hexlinks(hex_object_id):
+    return_links = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+    if return_links:
+        return jsonify({'hexlinks': [{'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id} for retrieved_link in return_links]}), 200
     else:
         return jsonify({'error': 'we couldn\'t find those links, u must be wrong', 'code': 404}), 404
 
@@ -194,11 +192,11 @@ def post_link():
     return jsonify({'id': new_link_object.id, 'urls': new_link_object.url,'description': new_link_object.description,'hex_object_id': new_link_object.hex_object_id}), 201
 
 #accepts multiple urls, so a list
-@app.route('/api/v1.0/links', methods=['POST'])
+@app.route('/api/v1.0/hexlinks', methods=['POST'])
 @auth.login_required
-def post_links():
+def post_hexlinks():
     return_links = []
-    for link in request.json.get('urls'):
+    for link in request.json:
         url = link.get('url')
         description = link.get('description')
         hex_object_id = link.get('hex_object_id')
@@ -221,11 +219,14 @@ def delete_link(link_object_id):
     delete_link = delete_link_method(link_object_id)
     return jsonify({'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id}), 200
 
-@app.route('/api/v1.0/links', methods=['DELETE'])
+@app.route('/api/v1.0/hexlinks/<string:hex_object_id>', methods=['DELETE'])
 @auth.login_required
-def delete_links(link_object_id):
-    delete_link = delete_link_method(link_object_id)
-    return jsonify({'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id}), 200
+def delete_hexlinks(hex_object_id):
+    delete_links = []
+    return_links = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+    for link in return_links:
+        delete_links.append(delete_link_method(link.id))
+    return jsonify({'hexlinks': [{'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id} for delete_link in delete_links]}), 200
 
 def delete_link_method(link_object_id):
     delete_link = link_object.LinkObject.query.filter_by(id=link_object_id).first()
