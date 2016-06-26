@@ -6,14 +6,14 @@
         <p class="hexlist-title">Hexlist</p>
         <p>{{ username }}</p>
         {% for hex in hexes %}
-            <p>{{ hex.name }}</p>
-            {% for key, values in hexlinks.items() %}
+            <p><a href="{{ hex.id }}">{{ hex.name }}</a></p>
+            <!-- {% for key, values in hexlinks.items() %}
                 {% if key == hex.id %}
                     {% for value in values %}
                         <p>{{ value }}</p>
                     {% endfor %}
                 {% endif %}
-            {% endfor %}
+            {% endfor %} -->
         {% endfor %}
     </div>
 
