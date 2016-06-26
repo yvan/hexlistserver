@@ -6,7 +6,7 @@
         <p class="hexlist-title">Hexlist</p>
         <p>{{ username }}</p>
         {% for hex in hexes %}
-            <p><a href="{{ hex.id }}">{{ hex.name }}</a></p>
+            <p><a href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a></p>
             <!-- {% for key, values in hexlinks.items() %}
                 {% if key == hex.id %}
                     {% for value in values %}
