@@ -10,10 +10,12 @@ import traceback
 
 from random_words import RandomWords
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify
-
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.login import LoginManager, login_required
+
+from hexlistserver.forms.textarea import TextareaForm
+from hexlistserver.forms.create_user import CreateUser
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -24,27 +26,50 @@ auth = HTTPBasicAuth()
 login_manager.init_app(app)
 db = SQLAlchemy(app)
 
-from hexlistserver.models import (hex_object, 
-                                 link_object, 
-                                 user_object, 
-                                 ios_hex_location, 
-                                 send_object)
-
-from hexlistserver.forms.textarea import TextareaForm
+from hexlistserver.models import hex_object, link_object, user_object, ios_hex_location, send_object
 
 '''
-api route methods
+view route methods
 '''
 
 @app.route('/')
 def main_page():
     text_area = TextareaForm()
-    return render_template('main.html', user=None, form=text_area)
+    return render_template('main.html', form=text_area)
 
 @app.route('/about')
 def about_page():
     # if a user is set in the context
     return render_template('about.html')
+
+# display a hex with all its links
+@app.route('/hex/<string:hex_object_id>')
+def hex_view(hex_object_id):
+    create_user = CreateUser()
+    hex_object = get_hex_object_method(hex_object_id)
+    hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+    return render_template('hex.html', form=create_user, hex_name=hex_object.name, hexlinks=hexlinks)
+
+# display a link
+@app.route('/link/<string:link_object_id>')
+def link_view(link_object_id):
+    link_object = get_link_method(link_object_id)
+    return render_template('link.html', link=link_object)
+
+# display a user with all their hexes
+@app.route('/user/<string:user_object_id>')
+def user_view(user_object_id):
+    hexlinks = {}
+    user_object = get_user_method(user_object_id)
+    hex_objects = hex_object.HexObject.query.filter_by(user_object_id=user_object.id)
+    for hex_obj in hex_objects:
+        links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
+        hexlinks[hex_obj.id] = [link.url for link in links]
+    return render_template('user.html', hexes=hex_objects, hexlinks=hexlinks)
+
+'''
+api route methods
+'''
 
 @app.route('/api/v1.0/token', methods=['GET'])
 @auth.login_required
@@ -347,7 +372,14 @@ def form_hex_create():
         new_hex_object = post_hex_object_method(name, owner_id, user_id, image_path)
         for url in submitted_urls:
             post_link_method(url, '', new_hex_object.id)
-    return redirect('/')
+    return redirect(url_for('hex_view', hex_object_id=new_hex_object.id))
+
+app.route('/internal/form_create_user', methods=['POST'])
+def form_create_user():
+    pass
+    # create_user = CreateUser(request.form)
+    
+
 
 '''
 supporting non route methods

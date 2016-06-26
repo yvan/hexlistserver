@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    
+    <div class="content-container">
+        <p class="hexlist-title">Hexlist</p>
+        <p>{{ username }}</p>
+        {% for hex in hexes %}
+            <p>hex.name</p>
+            {% for key, values in hexlinks.items() %}
+                {% if key == hex.id %}
+                    {% for value in values %}
+                        <p>{{ value }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+{% endblock %}

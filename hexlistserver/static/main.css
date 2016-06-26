@@ -8,7 +8,7 @@ hr { border: 0; height: 1px; background-image: -webkit-linear-gradient(left, tra
 footer { position: fixed; bottom: 0; right: 0; height: 20px; }
 
 /*** anchor tags ***/
-a:link, a:visited, a:hover, a:active { color: #F1EED9; text-decoration: none; }
+a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
 /*** logo ***/
 .logo-container { text-align: center; }
