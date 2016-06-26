@@ -376,10 +376,10 @@ def form_hex_create():
 
 app.route('/internal/form_create_user', methods=['POST'])
 def form_create_user():
-    pass
-    # create_user = CreateUser(request.form)
+    create_user = CreateUser(request.form)
+    if request.form and create_user.validate_on_submit():
+        post_user_method(request.form.username, request.form.password, app.config['USER_MAKER_NAME'])
     
-
 
 '''
 supporting non route methods

@@ -8,7 +8,7 @@
         {% for hexlink in hexlinks %}
             <p><a href="{{ hexlink.url }}">{{ hexlink.url }}</a></p>
         {% endfor %}
-        <form action="/internal/create_user" method="POST" name="link_submit">
+        <form action="/internal/form_create_user" method="POST" name="link_submit">
           <div class="input-container">
             {{ form.hidden_tag() }}
             {{ form.username }}
