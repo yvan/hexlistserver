@@ -45,10 +45,20 @@ def about_page():
 # display a hex with all its links
 @app.route('/hex/<string:hex_object_id>')
 def hex_view(hex_object_id):
-    create_user = CreateUser()
+    if g and g.get('user_object'):
+        user_object_name = g.user_object.username
+        create_user = CreateUser(username=user_object_name)
+    else:
+        user_object_name = app.config['ANON_USER_NAME']
+        create_user = CreateUser()
+
     hex_object = get_hex_object_method(hex_object_id)
+    hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
-    return render_template('hex.html', form=create_user, hex_name=hex_object.name, hexlinks=hexlinks)
+    if app.config['ANON_USER_NAME'] == hex_owner.username:
+        return render_template('hex.html', form=create_user, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
+    else:
+        return render_template('hex.html', form=None, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
 
 # display a link
 @app.route('/link/<string:link_object_id>')
@@ -374,12 +384,29 @@ def form_hex_create():
             post_link_method(url, '', new_hex_object.id)
     return redirect(url_for('hex_view', hex_object_id=new_hex_object.id))
 
-app.route('/internal/form_create_user', methods=['POST'])
-def form_create_user():
+@app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
+def form_create_user(hex_object_id):
     create_user = CreateUser(request.form)
-    if request.form and create_user.validate_on_submit():
-        post_user_method(request.form.username, request.form.password, app.config['USER_MAKER_NAME'])
-    
+    if request.form and create_user.validate_on_submit(): 
+        if request.form['password'] == request.form['password_two'] and verify_password(request.form['username'], request.form['password']):
+                user_check = g.user_object
+                # assign the hex to that user
+                hex_to_reassign = get_hex_object_method(hex_object_id)
+                hex_to_reassign.owner_id = user_check.id
+                hex_to_reassign.user_object_id = user_check.id
+                db.session.commit()
+        elif request.form['password'] == request.form['password_two']:
+            # create the user
+            created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
+            # assign the hex to that user
+            hex_to_reassign = get_hex_object_method(hex_object_id)
+            hex_to_reassign.owner_id = created_user.id
+            hex_to_reassign.user_object_id = created_user.id
+            db.session.commit()
+        else:
+            abort(400)
+        hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 '''
 supporting non route methods

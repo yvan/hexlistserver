@@ -8,15 +8,18 @@
         {% for hexlink in hexlinks %}
             <p><a href="{{ hexlink.url }}">{{ hexlink.url }}</a></p>
         {% endfor %}
-        <form action="/internal/form_create_user" method="POST" name="link_submit">
-          <div class="input-container">
-            {{ form.hidden_tag() }}
-            {{ form.username }}
-            {{ form.password }}
-            {{ form.password_two }}
-            <p><input type="submit" value="claim hex"></p>
-          </div>
-        </form>
+
+        {% if form %}
+            <form action="/internal/form_make_or_claim_user_and_claim_hex/{{ hex_id }}" method="POST" name="link_submit">
+              <div class="input-container">
+                {{ form.hidden_tag() }}
+                {{ form.username }}
+                {{ form.password }}
+                {{ form.password_two }}
+                <p><input type="submit" value="claim hex"></p>
+              </div>
+            </form>
+        {% endif %}
     </div>
 
 {% endblock %}

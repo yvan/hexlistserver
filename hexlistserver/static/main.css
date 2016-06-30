@@ -21,6 +21,8 @@ a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
 .content-container { text-align: center; }
 
+.content-container input { color: black; }
+
 .content-container textarea {
     border-radius: 1px;
     width: 450px; 
