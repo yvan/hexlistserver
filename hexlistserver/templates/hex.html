@@ -5,6 +5,7 @@
     <div class="content-container">
         <p class="hexlist-title">Hexlist</p>
         <p>{{ hex_name }}</p>
+        <p><a href="" class="add_more_links">add more links</a></p>
         {% for hexlink in hexlinks %}
             <p><a href="{{ hexlink.url }}">{{ hexlink.url }}</a></p>
         {% endfor %}
@@ -19,7 +20,25 @@
                 <p><input type="submit" value="claim hex"></p>
               </div>
             </form>
+        {% elif textarea_form %}
+            <form action="/internal/form_hex_create" method="POST" name="link_submit">
+              <div class="input-container">
+                {{ textarea_form.hidden_tag() }}
+                <div class="hex_page">
+                {{ textarea_form.links }}
+                <p><input type="submit" value="add links"></p>
+              </div>
+            </form>
         {% endif %}
     </div>
+
+    <script>
+        $('.add_more_links').click(function () {
+            $('html, body').animate({
+                scrollTop: $(document).height()
+            }, 'slow');
+            return false;
+        });
+    </script>
 
 {% endblock %}

@@ -56,9 +56,10 @@ def hex_view(hex_object_id):
     hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
     if app.config['ANON_USER_NAME'] == hex_owner.username:
-        return render_template('hex.html', form=create_user, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
+        return render_template('hex.html', form=create_user, textarea_form=None, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
     else:
-        return render_template('hex.html', form=None, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
+        text_area = TextareaForm()
+        return render_template('hex.html', form=None, textarea_form=text_area, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
 
 # display a link
 @app.route('/link/<string:link_object_id>')
