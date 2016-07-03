@@ -104,7 +104,7 @@ def hex_view(hex_object_id):
             text_area_form = None
             show_login = True
 
-        return render_template('hex.html', form=create_user, textarea_form=textarea_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, show_login=show_login)
+        return render_template('hex.html', form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, show_login=show_login)
     # if the hex is owned by someone else
     else:
         # if the accessing user is logged in is the owner
@@ -208,7 +208,7 @@ def form_create_user(hex_object_id):
 def form_add_links_to_hex(hex_object_id):
     text_area = TextareaForm(request.form)
     submitted_urls = get_urls_from_blob(request.form['links'])
-
+    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 '''
 api route methods
