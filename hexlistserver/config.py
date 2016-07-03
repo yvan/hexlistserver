@@ -6,6 +6,7 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     WTF_CSRF_ENABLED = True
+    SESSION_TYPE = os.environ['SESSION_TYPE']
     SECRET_KEY = os.environ['FLASK_SECRET_KEY']
     USER_MAKER_NAME = os.environ['USER_MAKER_NAME']
     USER_MAKER_PASSWORD = os.environ['USER_MAKER_PASSWORD']

@@ -13,6 +13,11 @@ a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 /*** logo ***/
 .logo-container { text-align: center; }
 
+.login_class { 
+    padding:5px;
+    position: absolute;
+}
+
 .logo { width: 96px; height: 96px; display: inline-block; background-size: cover; }
 
 .hexlist-title { font-size: 2.8em; text-align: center; }

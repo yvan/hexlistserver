@@ -2,10 +2,22 @@
 
 {% block content %}
     
+    {% if show_login %}
+
+    <div class="login_class"><a href="{{ url_for('login_page') }}">login</a></div>
+
+    {% else %}
+
+    <div class="login_class"><a href="{{ url_for('main_page') }}">logout</a></div>
+
+    {% endif %}
+    
     <div class="content-container">
         <p class="hexlist-title">Hexlist</p>
         <p>{{ hex_name }}</p>
-        <p><a href="" class="add_more_links">add more links</a></p>
+        {% if add_more_links %}
+            <p><a href="" class="add_more_links">add more links</a></p>
+        {% endif %}
         {% for hexlink in hexlinks %}
             <p><a href="{{ hexlink.url }}">{{ hexlink.url }}</a></p>
         {% endfor %}
@@ -21,7 +33,7 @@
               </div>
             </form>
         {% elif textarea_form %}
-            <form action="/internal/form_hex_create" method="POST" name="link_submit">
+            <form action="/internal/form_add_links_to_hex/{{ hex_id }}" method="POST" name="link_submit">
               <div class="input-container">
                 {{ textarea_form.hidden_tag() }}
                 <div class="hex_page">

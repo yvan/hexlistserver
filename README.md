@@ -260,6 +260,12 @@ this tutorial (ignore autoenv):
 
 [reading about heroku gunicorn workers](https://devcenter.heroku.com/articles/python-gunicorn#basic-configuration)
 
+[flask session tutorial](http://www.tutorialspoint.com/flask/flask_sessions.htm)
+
+[flask session docs](https://pythonhosted.org/Flask-Session/)
+
+[jinja docs](http://jinja.pocoo.org/docs/dev/templates/)
+
 #author
 
 [yvan](https://github.com/yvan)

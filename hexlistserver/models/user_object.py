@@ -15,6 +15,10 @@ class UserObject(db.Model):
     id = db.Column(db.String(), primary_key=True)
     username = db.Column(db.String(32), index=True)
     password_hash = db.Column(db.String(128))
+    is_active = True
+    is_authenticated = True
+    is_anonymous = False
+
 
     def __init__(self, username):
         self.id = uuid.uuid4().urn[9:] # make a uuid, convert to urn/string, uuid starts after 9th char
@@ -47,7 +51,10 @@ class UserObject(db.Model):
             return None
         user = UserObject.query.get(data['id'])
         return user
-
+    
+    def get_id(self):
+        return self.id
+        
 '''
 author @yvan
 '''

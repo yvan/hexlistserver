@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-container">
+    <p class="hexlist-title">Hexlist</p>
+    <form action="/login" method="POST" name="link_submit">
+      <div class="input-container">
+        {{ form.hidden_tag() }}
+        {{ form.username }}
+        {{ form.password }}
+        <p><input type="submit" value="login"></p>
+      </div>
+    </form>
+</div>
+
+{% endblock %}

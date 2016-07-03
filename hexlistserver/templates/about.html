@@ -2,15 +2,25 @@
 
 {% block content %}
 
-<div class="content-container">
-    <p>Hexlist is a way to store links in simple groups</p>
+    {% if show_login %}
 
-    <p>our web client is the big white box on <a href="url_for('main_page')">our main page</a></p>
+    <div class="login_class"><a href="{{ url_for('login_page') }}">login</a></div>
 
-    <p><a href="https://twitter.com/hexlist">@hexlist on twitter</a></p>
+    {% else %}
 
-    <p>our support email is support@hexlist.com</p>
-    
-</div>
+    <div class="login_class"><a href="{{ url_for('main_page') }}">logout</a></div>
+
+    {% endif %}
+
+    <div class="content-container">
+        <p>Hexlist is a way to store links in simple groups</p>
+
+        <p>our web client is the big white box on <a href="url_for('main_page')">our main page</a></p>
+
+        <p><a href="https://twitter.com/hexlist">@hexlist on twitter</a></p>
+
+        <p>our support email is support@hexlist.com</p>
+        
+    </div>
 
 {% endblock %}

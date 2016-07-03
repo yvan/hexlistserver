@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+    {% if show_login %}
+
+    <div class="login_class"><a href="{{ url_for('login_page') }}">login</a></div>
+
+    {% else %}
+
+    <div class="login_class"><a href="{{ url_for('main_page') }}">logout</a></div>
+
+    {% endif %}
     
     <div class="content-container">
         <p class="hexlist-title">Hexlist</p>

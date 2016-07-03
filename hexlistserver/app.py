@@ -9,24 +9,62 @@ import requests
 import traceback
 
 from random_words import RandomWords
-from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify
+from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.httpauth import HTTPBasicAuth
-from flask.ext.login import LoginManager, login_required
 
 from hexlistserver.forms.textarea import TextareaForm
 from hexlistserver.forms.create_user import CreateUser
+from hexlistserver.forms.login_user import LoginUser
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-login_manager = LoginManager()
 auth = HTTPBasicAuth()
+login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 
 from hexlistserver.models import hex_object, link_object, user_object, ios_hex_location, send_object
+
+'''
+login manager
+'''
+@login_manager.user_loader
+def load_user(user_id):
+    user_obj = get_user_method(user_id)
+    if user_obj:
+        return user_obj
+    return None
+
+@app.route('/login_page', methods=['GET'])
+def login_page():
+    if not current_user.is_anonymous:
+        return redirect(url_for('main_page'))
+    login_user_form = LoginUser()
+    return render_template('login.html', form=login_user_form)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if not current_user.is_anonymous:
+        return redirect(url_for('main_page'))
+    if request.method == 'POST':
+        if verify_password(request.form['username'], request.form['password']):
+            login_user(get_user_by_name(request.form['username']))
+        else:
+            # tell user about failed login
+            print('failed login')
+            pass
+    return redirect(url_for('main_page'))
+
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main_page'))
 
 '''
 view route methods
@@ -35,37 +73,67 @@ view route methods
 @app.route('/')
 def main_page():
     text_area = TextareaForm()
-    return render_template('main.html', form=text_area)
+    return render_template('main.html', form=text_area, show_login=current_user.is_anonymous)
 
 @app.route('/about')
 def about_page():
     # if a user is set in the context
-    return render_template('about.html')
+    return render_template('about.html', show_login=current_user.is_anonymous)
 
 # display a hex with all its links
 @app.route('/hex/<string:hex_object_id>')
 def hex_view(hex_object_id):
-    if g and g.get('user_object'):
-        user_object_name = g.user_object.username
-        create_user = CreateUser(username=user_object_name)
-    else:
-        user_object_name = app.config['ANON_USER_NAME']
-        create_user = CreateUser()
 
     hex_object = get_hex_object_method(hex_object_id)
     hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+
+    # if the hex is owned by anon, anonymous user
+    # display a form to claim ownership
     if app.config['ANON_USER_NAME'] == hex_owner.username:
-        return render_template('hex.html', form=create_user, textarea_form=None, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
+        
+        # if the accessing user is logged in
+        if not current_user.is_anonymous:
+            create_user = CreateUser(username=current_user.username)
+            text_area_form = TextareaForm()
+            show_login = False
+        # or if the hex is owned by someone else
+        else:
+            user_object_name = app.config['ANON_USER_NAME']
+            create_user = CreateUser()
+            text_area_form = None
+            show_login = True
+
+        return render_template('hex.html', form=create_user, textarea_form=textarea_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, show_login=show_login)
+    # if the hex is owned by someone else
     else:
-        text_area = TextareaForm()
-        return render_template('hex.html', form=None, textarea_form=text_area, hex_id=hex_object.id, hex_name=hex_object.name, hexlinks=hexlinks)
+        # if the accessing user is logged in is the owner
+        if not current_user.is_anonymous and current_user.id == hex_owner.id:
+            create_user = None
+            text_area_form = TextareaForm()
+            add_more_links = True
+            show_login = False
+        # or if the hex is owned by someone else
+        # if the accessing user is not that owner
+        elif  not current_user.is_anonymous:
+            create_user = None
+            text_area_form = None
+            add_more_links = False
+            show_login = False
+        # if the user is not logged in
+        else:
+            create_user = None
+            text_area_form = None
+            add_more_links = False
+            show_login = True
+
+        return render_template('hex.html', form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, show_login=show_login)
 
 # display a link
 @app.route('/link/<string:link_object_id>')
 def link_view(link_object_id):
     link_object = get_link_method(link_object_id)
-    return render_template('link.html', link=link_object)
+    return render_template('link.html', link=link_object, show_login=current_user.is_anonymous)
 
 # display a user with all their hexes
 @app.route('/user/<string:user_object_id>')
@@ -76,7 +144,71 @@ def user_view(user_object_id):
     for hex_obj in hex_objects:
         links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
         hexlinks[hex_obj.id] = [link.url for link in links]
-    return render_template('user.html', hexes=hex_objects, hexlinks=hexlinks)
+    return render_template('user.html', hexes=hex_objects, hexlinks=hexlinks, show_login=current_user.is_anonymous)
+
+'''
+internal form methods
+'''
+@app.route('/internal/form_hex_create', methods=['POST'])
+def form_hex_create():
+    text_area = TextareaForm(request.form)
+    if request.form and text_area.validate_on_submit():
+        # get a list of links from the input field
+        submitted_urls = get_urls_from_blob(request.form['links'])
+        # create a user?
+        # create info for new hex, attributed to te "anon" user
+        rw = RandomWords()
+        name = 'hex-' + rw.random_word() + '-' + str(binascii.hexlify(os.urandom(16)))[2:-1]
+        if not current_user.is_anonymous:
+            user_id = current_user.id
+            owner_id = current_user.id
+        else:
+            user_id = app.config['ANON_USER_ID']
+            owner_id = app.config['ANON_USER_ID']
+        image_path = ''
+
+        #create new hex and new links
+        new_hex_object = post_hex_object_method(name, owner_id, user_id, image_path)
+        for url in submitted_urls:
+            post_link_method(url, '', new_hex_object.id)
+        return redirect(url_for('hex_view', hex_object_id=new_hex_object.id))
+    text_area = TextareaForm(links=request.form['links'])
+    return render_template('main.html', form=text_area, show_login=current_user.is_anonymous)
+
+@app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
+def form_create_user(hex_object_id):
+    create_user = CreateUser(request.form)
+    if request.form and create_user.validate_on_submit(): 
+        if request.form['password'] == request.form['password_two'] and verify_password(request.form['username'], request.form['password']):
+                # get user from their session
+                if current_user.is_anonymous:
+                    session_user_object = get_user_by_name(request.form['username'])
+                    session['user_object_id'] = session_user_object.id
+                else:
+                    session_user_object = current_user
+                # assign the hex to that user
+                hex_to_reassign = get_hex_object_method(hex_object_id)
+                hex_to_reassign.owner_id = session_user_object.id
+                hex_to_reassign.user_object_id = session_user_object.id
+                db.session.commit()
+        elif request.form['password'] == request.form['password_two']:
+            # create the user
+            created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
+            # assign the hex to that user
+            hex_to_reassign = get_hex_object_method(hex_object_id)
+            hex_to_reassign.owner_id = created_user.id
+            hex_to_reassign.user_object_id = created_user.id
+            db.session.commit()
+        else:
+            abort(400)
+        hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+
+@app.route('/internal/form_add_links_to_hex/<string:hex_object_id>', methods=['POST'])
+def form_add_links_to_hex(hex_object_id):
+    text_area = TextareaForm(request.form)
+    submitted_urls = get_urls_from_blob(request.form['links'])
+
 
 '''
 api route methods
@@ -149,6 +281,9 @@ def get_user(user_object_id):
 
 def get_user_method(user_object_id):
     return user_object.UserObject.query.filter_by(id=user_object_id).first()
+
+def get_user_by_name(username):
+    return user_object.UserObject.query.filter_by(username=username).first()
 
 @app.route('/api/v1.0/user', methods=['POST'])
 @auth.login_required
@@ -357,61 +492,16 @@ def delete_send_method(hex_object_id):
     db.session.delete(send_object_delete)
     db.session.commit()
     return send_object_delete
-'''
-non core methods
-'''
-@app.route('/internal/form_hex_create', methods=['POST'])
-def form_hex_create():
-    text_area = TextareaForm(request.form)
-    if request.form and text_area.validate_on_submit():
-        # get a list of links from the input field
-        WEB_URL_REGEX = r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
-        submitted_urls = re.findall(WEB_URL_REGEX, request.form['links'])
-        # create a user?
-        # create info for new hex, attributed to te "anon" user
-        rw = RandomWords()
-        name = 'hex-' + rw.random_word() + '-' + str(binascii.hexlify(os.urandom(16)))[2:-1]
-        if g and g.get('user_object'):
-            user_id = g.user_object.id
-            owner_id = g.user_object.id
-        else:
-            user_id = app.config['ANON_USER_ID']
-            owner_id = app.config['ANON_USER_ID']
-        image_path = ''
-
-        #create new hex and new links
-        new_hex_object = post_hex_object_method(name, owner_id, user_id, image_path)
-        for url in submitted_urls:
-            post_link_method(url, '', new_hex_object.id)
-    return redirect(url_for('hex_view', hex_object_id=new_hex_object.id))
-
-@app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
-def form_create_user(hex_object_id):
-    create_user = CreateUser(request.form)
-    if request.form and create_user.validate_on_submit(): 
-        if request.form['password'] == request.form['password_two'] and verify_password(request.form['username'], request.form['password']):
-                user_check = g.user_object
-                # assign the hex to that user
-                hex_to_reassign = get_hex_object_method(hex_object_id)
-                hex_to_reassign.owner_id = user_check.id
-                hex_to_reassign.user_object_id = user_check.id
-                db.session.commit()
-        elif request.form['password'] == request.form['password_two']:
-            # create the user
-            created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
-            # assign the hex to that user
-            hex_to_reassign = get_hex_object_method(hex_object_id)
-            hex_to_reassign.owner_id = created_user.id
-            hex_to_reassign.user_object_id = created_user.id
-            db.session.commit()
-        else:
-            abort(400)
-        hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 '''
 supporting non route methods
 '''
+
+# get the urls from a blob of text
+def get_urls_from_blob(blob):
+    WEB_URL_REGEX = r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
+    submitted_urls = re.findall(WEB_URL_REGEX, blob)
+    return submitted_urls
 
 # this error handler only fires when DEBUG=False,
 # so it only fires on our production server
