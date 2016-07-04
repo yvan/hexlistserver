@@ -117,13 +117,61 @@ creating a user already requires the existence of a user, to get around this. on
 
 #development
 
-1 - run unit tests
+1 - Clone hexlistserver repository
 
-2 - tests locally by running 'make run' then [test the feature with postman](https://www.getpostman.com/).
+2 - Add Heroku remotes for staging & production
 
-3 - then upload to staging heroku and tests feature
+`git remote add stage https://git.heroku.com/hexlistserver-stage.git`
 
-4 - then once you're sure it works upload to prodduction heroku 'git push https://git.heroku.com/hexlistserver-prod.git master', i dont add a second remote because 1, we should be careful bout what we push to prod, 2, heroku is a lot less verbose when there's one remote.
+`git remote add prod https://git.heroku.com/hexlistserver-prod.git`
+
+3 - Install Postgressql locally
+
+`brew install postgresql`
+
+4 - Create hexlistserver conda env from environment.yml
+
+`conda env create -f environment.yml`
+
+5 - Start postgresql and create a database user and the hexlistserver database
+
+`createuser --pwprompt admin`
+
+`createdb -O admin -E utf8 hexlistserver`
+
+`psql -U admin -W hexlistserver`
+
+6 - Set ENV variables for hexlistserver app
+
+`heroku config --remote stage`
+
+Copy all values except APP_SETTINGS and DATABASE_URL, and do not set USER_MAKER_PASSWORD yet.
+
+`export ANON_USER_ID= && export ANON_USER_NAME= && export ANON_USER_PASSWORD= && export APP_SETTINGS=hexlistserver.config.DevelopmentConfig && export DATABASE_URL=postgresql://localhost/hexlistserver && export FLASK_SECRET_KEY= && export USER_MAKER_NAME= && export USER_MAKER_PASSWORD=`
+
+7 - Run `make upgrade` to perform migration & create database tables
+
+8 - Create 'user-maker' and 'anon' users
+
+Log in to staging server's database
+
+`heroku pg:psql --remote stage --app hexlistserver-stage`
+
+`SELECT * FROM user_objects;`
+
+Copy id, name, and password hash of stage server's 'user-maker' and 'anon' users
+
+Create new user-maker user locally
+
+INSERT INTO user_objects VALUES ('USER_ID','USER_NAME','USER_PASSWORD_HASH');
+
+9 - Test locally by running 'make run' then [test the feature with postman](https://www.getpostman.com/).
+
+10 - run unit tests
+
+11 - then upload to staging heroku and tests feature
+
+12 - then once you're sure it works upload to prodduction heroku 'git push https://git.heroku.com/hexlistserver-prod.git master', i dont add a second remote because 1, we should be careful bout what we push to prod, 2, heroku is a lot less verbose when there's one remote.
 
 `start postgres locally`:
 
