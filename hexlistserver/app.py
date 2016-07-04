@@ -9,7 +9,7 @@ import requests
 import traceback
 
 from random_words import RandomWords
-from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session
+from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.httpauth import HTTPBasicAuth
@@ -56,9 +56,8 @@ def login():
             login_user(get_user_by_name(request.form['username']))
         else:
             # tell user about failed login
-            print('failed login')
-            pass
-    return redirect(url_for('main_page'))
+            flash('you failed to login')
+    return redirect(url_for('login_page'))
 
 @app.route('/logout', methods=['GET'])
 @login_required
