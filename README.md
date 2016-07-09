@@ -115,6 +115,25 @@ DELETE:
 
 creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars). you can manually insert this user onto the staging server like so: .
 
+#running locally
+
+launch redis
+`launchctl load ~/Library/LaunchAgents/homebrew.mxcl.redis.plist`
+
+stop redis
+`launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.redis.plist`
+
+start postgres locally
+`pg_ctl start -D /usr/local/var/postgres/`
+
+start the server
+`make run` or `gunicorn hexlistserver.app:app`
+
+start the worker in another tab (or background process)
+`python hexlistserver/worker.py`
+
+do stuff
+
 #development
 
 1 - Clone hexlistserver repository
@@ -173,9 +192,16 @@ INSERT INTO user_objects VALUES ('USER_ID','USER_NAME','USER_PASSWORD_HASH');
 
 12 - then once you're sure it works upload to prodduction heroku 'git push https://git.heroku.com/hexlistserver-prod.git master', i dont add a second remote because 1, we should be careful bout what we push to prod, 2, heroku is a lot less verbose when there's one remote.
 
-`start postgres locally`:
+`get redis instance locally` (for the worker that gathers link info):
 
-`pg_ctl start -D /usr/local/var/postgres/`
+install
+`brew install redis`
+
+tell launchtl to manage redis
+`ln -sfv /usr/local/opt/redis/*.plist ~/Library/LaunchAgents`
+
+add redis on heroku
+`heroku addons:create redistogo`
 
 `Procfile`:
 
@@ -313,6 +339,10 @@ this tutorial (ignore autoenv):
 [flask session docs](https://pythonhosted.org/Flask-Session/)
 
 [jinja docs](http://jinja.pocoo.org/docs/dev/templates/)
+
+[python rq docs](http://python-rq.org/docs/) -> for managing redis queues and ous scraper
+
+[tutorial on how to run the web scraper on heroku worker dyno](https://devcenter.heroku.com/articles/python-rq)
 
 #author
 

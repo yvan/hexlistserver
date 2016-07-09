@@ -4,7 +4,7 @@
     
     {% if show_login %}
 
-    <div class="login_class"><a href="{{ url_for('login_page') }}">login</a></div>
+    <div class="login_class"><a href="{{ url_for('login') }}">login</a></div>
 
     {% else %}
 
@@ -19,7 +19,15 @@
             <p><a href="" class="add_more_links">add more links</a></p>
         {% endif %}
         {% for hexlink in hexlinks %}
-            <p><a href="{{ hexlink.url }}">{{ hexlink.url }}</a></p>
+            <p><a href="{{ hexlink.url }}">
+            {% if hexlink.description %}
+               {{ hexlink.url }}
+            {% elif hexlink.web_page_title %}
+               {{ hexlink.web_page_title }}
+            {% else %}
+               {{ hexlink.url }}
+            {% endif %}
+            </a></p>
         {% endfor %}
 
         {% if form %}
@@ -42,7 +50,25 @@
               </div>
             </form>
         {% endif %}
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class=flashes>
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
     </div>
+
+    {% if should_scroll %}
+        <script>
+            $('html, body').animate({
+                scrollTop: $(document).height()
+            }, 'slow');
+        </script>
+    {% endif %}
 
     <script>
         $('.add_more_links').click(function () {
