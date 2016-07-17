@@ -48,6 +48,8 @@ a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
 .content-container input { color: black; }
 
+.login_referrer { display: none; }
+
 .content-container textarea {
     border-radius: 1px;
     width: 450px; 

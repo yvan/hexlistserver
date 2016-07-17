@@ -8,8 +8,11 @@ import binascii
 import requests
 import traceback
 
+from rq import Queue
+from hexlistserver.worker import conn
 from random_words import RandomWords
-from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session
+
+from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.httpauth import HTTPBasicAuth
@@ -27,6 +30,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 db = SQLAlchemy(app)
+q = Queue(connection=conn)
 
 from hexlistserver.models import hex_object, link_object, user_object, ios_hex_location, send_object
 
@@ -40,31 +44,29 @@ def load_user(user_id):
         return user_obj
     return None
 
-@app.route('/login_page', methods=['GET'])
-def login_page():
-    if not current_user.is_anonymous:
-        return redirect(url_for('main_page'))
-    login_user_form = LoginUser()
-    return render_template('login.html', form=login_user_form)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if not current_user.is_anonymous:
-        return redirect(url_for('main_page'))
+        return redirect(request.form['login_referrer'])
     if request.method == 'POST':
         if verify_password(request.form['username'], request.form['password']):
             login_user(get_user_by_name(request.form['username']))
+            return redirect(request.form['login_referrer'])
         else:
             # tell user about failed login
-            print('failed login')
-            pass
-    return redirect(url_for('main_page'))
+            flash('you failed to login')
+            return redirect(url_for('login'))
+    else:
+        if not current_user.is_anonymous:
+            return redirect(url_for('main_page'))
+        login_user_form = LoginUser()
+        return render_template('login.html', form=login_user_form, login_referrer=request.referrer)
 
 @app.route('/logout', methods=['GET'])
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main_page'))
+    return redirect(request.referrer)
 
 '''
 view route methods
@@ -72,6 +74,7 @@ view route methods
 
 @app.route('/')
 def main_page():
+    print(request.referrer)
     text_area = TextareaForm()
     return render_template('main.html', form=text_area, current_user=current_user)
 
@@ -83,6 +86,9 @@ def about_page():
 # display a hex with all its links
 @app.route('/hex/<string:hex_object_id>')
 def hex_view(hex_object_id):
+    print(request.referrer)
+
+    scroll_arg = request.args.get('should_scroll', None)
 
     hex_object = get_hex_object_method(hex_object_id)
     hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
@@ -101,7 +107,7 @@ def hex_view(hex_object_id):
             user_object_name = app.config['ANON_USER_NAME']
             create_user = CreateUser()
 
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks)
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, should_scroll=None)
     # hex is owned by someone
     else:
         # hex is owned by current user
@@ -115,7 +121,7 @@ def hex_view(hex_object_id):
         else:
             # add_more_links = False
 
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks)
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, should_scroll=scroll_arg)
 
 # display a link
 @app.route('/link/<string:link_object_id>')
@@ -188,15 +194,24 @@ def form_create_user(hex_object_id):
             hex_to_reassign.user_object_id = created_user.id
             db.session.commit()
         else:
-            abort(400)
+            # tell user about failed hex claim
+            flash('there was an error claiming this hex, you probably just need to try again')
         hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
+    else:
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
 
 @app.route('/internal/form_add_links_to_hex/<string:hex_object_id>', methods=['POST'])
 def form_add_links_to_hex(hex_object_id):
     text_area = TextareaForm(request.form)
-    submitted_urls = get_urls_from_blob(request.form['links'])
-    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+    if request.form and text_area.validate_on_submit():
+        submitted_urls = get_urls_from_blob(request.form['links'])
+        for url in submitted_urls:
+            post_link_method(url, '', hex_object_id)
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+    else:
+        flash('there was an error adding links to this hex, reload and try again?')
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
 
 '''
 api route methods
@@ -370,6 +385,8 @@ def post_link_method(url, description, hex_object_id):
     new_link_object = link_object.LinkObject(url, description, hex_object_id)
     db.session.add(new_link_object)
     db.session.commit()
+    j = q.enqueue(add_web_page_title_to_link, new_link_object.id ,new_link_object.url)
+    print(j)
     return new_link_object
 
 @app.route('/api/v1.0/link/<string:link_object_id>', methods=['DELETE'])
@@ -484,6 +501,15 @@ def delete_send_method(hex_object_id):
 '''
 supporting non route methods
 '''
+
+# this method hould ONLY be queued on a worker process
+# q.enqueue(get_url_web_page_title, new_link_object.id ,new_link_object.url)
+def add_web_page_title_to_link(link_object_id, url):
+    r = requests.get(url)
+    html = bs4.BeautifulSoup(r.text)
+    new_link_object = get_link_method(link_object_id)
+    new_link_object.web_page_title = html.title.text
+    db.session.commit()
 
 # get the urls from a blob of text
 def get_urls_from_blob(blob):

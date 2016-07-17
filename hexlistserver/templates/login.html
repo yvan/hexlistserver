@@ -9,9 +9,22 @@
         {{ form.hidden_tag() }}
         {{ form.username }}
         {{ form.password }}
+        <div class="login_referrer" style="display:none;">
+          <input name="login_referrer" type="hidden" value="{{ login_referrer }}">
+        </div>
         <p><input type="submit" value="login"></p>
       </div>
     </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class=flashes>
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 </div>
 
 {% endblock %}

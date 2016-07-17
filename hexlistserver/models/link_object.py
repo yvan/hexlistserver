@@ -11,6 +11,7 @@ class LinkObject(db.Model):
     id = db.Column(db.String(), primary_key=True)
     url = db.Column(db.String())
     description = db.Column(db.String())
+    web_page_title = db.Column(db.String())
     hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id'))
     hex_object = db.relationship('HexObject', foreign_keys="LinkObject.hex_object_id")
 

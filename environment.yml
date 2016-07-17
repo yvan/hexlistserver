@@ -15,3 +15,5 @@ dependencies:
   - requests==2.10.0
   - Flask-WTF==0.12
   - RandomWords==0.2.0
+  - rq==0.6.0
+  - beautifulsoup4==4.4.1
