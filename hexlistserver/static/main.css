@@ -10,6 +10,26 @@ footer { position: fixed; bottom: 0; right: 0; height: 20px; }
 /*** anchor tags ***/
 a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
+/*** navbar ***/
+.navbar-brand {
+  padding: 0px;
+}
+.navbar-brand>img {
+  height: 100%;
+  padding: 7px 15px;
+  width: auto;
+}
+
+.divider {
+    content: ' ';
+    display: block;
+    float: left;
+    background: #E8E8E8;
+    margin: 5 0 5 0px;
+    height: 40px;
+    width: 1px;
+}
+
 /*** logo ***/
 .logo-container { text-align: center; }
 
