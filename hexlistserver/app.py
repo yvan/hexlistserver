@@ -76,7 +76,7 @@ view route methods
 def main_page():
     print(request.referrer)
     text_area = TextareaForm()
-    return render_template('main.html', form=text_area, current_user=current_user)
+    return render_template('main.html', current_user=current_user, form=text_area)
 
 @app.route('/about')
 def about_page():
@@ -93,6 +93,9 @@ def hex_view(hex_object_id):
     hex_object = get_hex_object_method(hex_object_id)
     hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+    create_user = None
+    text_area_form = False
+    add_more_links = False
 
     # hex is owned by anon, anonymous user
     # display a form to claim ownership
@@ -114,12 +117,12 @@ def hex_view(hex_object_id):
         if not current_user.is_anonymous and current_user.id == hex_owner.id:
             text_area_form = TextareaForm()
             add_more_links = True
-        # hex is owned by someone else
-        elif not current_user.is_anonymous:
-            # add_more_links = False
-        # user is not logged in
-        else:
-            # add_more_links = False
+        # # hex is owned by someone else
+        # elif not current_user.is_anonymous:
+        #     # add_more_links = False
+        # # user is not logged in
+        # else:
+        #     # add_more_links = False
 
         return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, should_scroll=scroll_arg)
 
@@ -127,7 +130,7 @@ def hex_view(hex_object_id):
 @app.route('/link/<string:link_object_id>')
 def link_view(link_object_id):
     link_object = get_link_method(link_object_id)
-    return render_template('link.html', link=link_object, current_user=current_user)
+    return render_template('link.html', current_user=current_user, link=link_object)
 
 # display a user with all their hexes
 @app.route('/user/<string:user_object_id>')
@@ -138,7 +141,7 @@ def user_view(user_object_id):
     for hex_obj in hex_objects:
         links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
         hexlinks[hex_obj.id] = [link.url for link in links]
-    return render_template('user.html', hexes=hex_objects, hexlinks=hexlinks, current_user=current_user)
+    return render_template('user.html', current_user=current_user, hexes=hex_objects, hexlinks=hexlinks)
 
 '''
 internal form methods
@@ -167,7 +170,7 @@ def form_hex_create():
             post_link_method(url, '', new_hex_object.id)
         return redirect(url_for('hex_view', hex_object_id=new_hex_object.id))
     text_area = TextareaForm(links=request.form['links'])
-    return render_template('main.html', form=text_area, current_user=current_user)
+    return render_template('main.html', current_user=current_user, form=text_area)
 
 @app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
 def form_create_user(hex_object_id):

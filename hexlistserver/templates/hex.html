@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <div class="content-container">
+    <div class="content-container container">
         <p class="hexlist-title">Hexlist</p>
         <p>{{ hex_name }}</p>
         {% if add_more_links %}
@@ -21,24 +21,37 @@
         {% endfor %}
 
         {% if form %}
+          <div class="col-xs-12">
             <form action="/internal/form_make_or_claim_user_and_claim_hex/{{ hex_id }}" method="POST" name="link_submit">
-              <div class="input-container">
+              <div class="input-container form-group col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
                 {{ form.hidden_tag() }}
-                {{ form.username }}
-                {{ form.password }}
-                {{ form.password_two }}
-                <p><input type="submit" value="claim hex"></p>
+                {{ form.username(class="form-control") }}
+              </div>
+              <div class="input-container form-group col-xs-12 col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+                <div class="col-xs-6 nopadding-left lesspadding-right">
+                  {{ form.password(class="form-control") }}
+                </div>
+                <div class="col-xs-6 nopadding-right lesspadding-left">
+                  {{ form.password_two(class="form-control") }}
+                </div>
+              </div>
+              <div class="col-xs-12 center-block">
+                <button type="submit" class="btn btn-default center-block">claim hex</button>
               </div>
             </form>
+          </div>
         {% elif textarea_form %}
-            <form action="/internal/form_add_links_to_hex/{{ hex_id }}" method="POST" name="link_submit">
-              <div class="input-container">
-                {{ textarea_form.hidden_tag() }}
-                <div class="hex_page">
-                {{ textarea_form.links }}
-                <p><input type="submit" value="add links"></p>
-              </div>
-            </form>
+            <div class="col-xs-12">
+              <form action="/internal/form_add_links_to_hex/{{ hex_id }}" method="POST" name="link_submit">
+                <div class="input-container form-group col-lg-6 col-lg-offset-3 col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+                  {{ textarea_form.hidden_tag() }}
+                  {{ textarea_form.links(class="form-control",rows="20") }}
+                </div>
+                <div class="col-xs-12 center-block">
+                  <button type="submit" class="btn btn-default center-block">add links</button>
+                </div>
+              </form>
+            </div>
         {% endif %}
 
         {% with messages = get_flashed_messages() %}
