@@ -75,7 +75,6 @@ view route methods
 
 @app.route('/')
 def main_page():
-    print(request.referrer)
     text_area = TextareaForm()
     return render_template('main.html', current_user=current_user, form=text_area)
 
@@ -87,8 +86,6 @@ def about_page():
 # display a hex with all its links
 @app.route('/hex/<string:hex_object_id>')
 def hex_view(hex_object_id):
-    print(request.referrer)
-
     scroll_arg = request.args.get('should_scroll', None)
 
     hex_object = get_hex_object_method(hex_object_id)
@@ -378,7 +375,6 @@ def post_hexlinks():
         url = link.get('url')
         description = link.get('description')
         hex_object_id = link.get('hex_object_id')
-        print('aborting on link {}'.format(link))
         if url is None or hex_object_id is None:
             abort(400)
         new_link_object = post_link_method(url, description, hex_object_id)
@@ -390,7 +386,6 @@ def post_link_method(url, description, hex_object_id):
     db.session.add(new_link_object)
     db.session.commit()
     j = q.enqueue(add_web_page_title_to_link, new_link_object.id, new_link_object.url)
-    print(j)
     return new_link_object
 
 @app.route('/api/v1.0/link/<string:link_object_id>', methods=['DELETE'])
@@ -508,11 +503,14 @@ supporting non route methods
 # this method hould ONLY be queued on a worker process
 def add_web_page_title_to_link(link_object_id, url):
     r = requests.get(url)
-    try:
-        raw_html_bytes = r.content.decode('utf-8')
-        html = bs4.BeautifulSoup(raw_html_bytes, 'html.parser')
-        new_title = html.title.text
-    except UnicodeDecodeError:
+    if r.status_code == 200:
+        try:
+            raw_html_bytes = r.content.decode('utf-8')
+            html = bs4.BeautifulSoup(raw_html_bytes, 'html.parser')
+            new_title = html.title.text
+        except UnicodeError:
+            new_title = url
+    else:
         new_title = url
     new_link_object = get_link_method(link_object_id)
     new_link_object.web_page_title = new_title
