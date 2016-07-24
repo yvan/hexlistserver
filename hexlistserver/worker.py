@@ -1,5 +1,9 @@
 import os
+import sys
 import redis
+
+sys.path.append('.')
+
 from rq import Worker, Queue, Connection
 
 listen = ['high', 'default', 'low']

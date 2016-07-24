@@ -130,7 +130,7 @@ start the server
 `make run` or `gunicorn hexlistserver.app:app`
 
 start the worker in another tab (or background process)
-`python hexlistserver/worker.py`
+`python hexlistserver/heroku_worker.py`
 
 do stuff
 

@@ -4,6 +4,7 @@ primary file with app logic
 
 import os
 import re
+import bs4
 import binascii
 import requests
 import traceback
@@ -397,7 +398,7 @@ def post_link_method(url, description, hex_object_id):
     new_link_object = link_object.LinkObject(url, description, hex_object_id)
     db.session.add(new_link_object)
     db.session.commit()
-    j = q.enqueue(add_web_page_title_to_link, new_link_object.id ,new_link_object.url)
+    j = q.enqueue(add_web_page_title_to_link, new_link_object.id, new_link_object.url)
     print(j)
     return new_link_object
 
@@ -513,14 +514,17 @@ def delete_send_method(hex_object_id):
 '''
 supporting non route methods
 '''
-
 # this method hould ONLY be queued on a worker process
-# q.enqueue(get_url_web_page_title, new_link_object.id ,new_link_object.url)
 def add_web_page_title_to_link(link_object_id, url):
     r = requests.get(url)
-    html = bs4.BeautifulSoup(r.text)
+    try:
+        raw_html_bytes = r.content.decode('utf-8')
+        html = bs4.BeautifulSoup(raw_html_bytes, 'html.parser')
+        new_title = html.title.text
+    except UnicodeDecodeError:
+        new_title = url
     new_link_object = get_link_method(link_object_id)
-    new_link_object.web_page_title = html.title.text
+    new_link_object.web_page_title = new_title
     db.session.commit()
 
 # get the urls from a blob of text
