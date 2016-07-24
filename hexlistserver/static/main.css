@@ -10,6 +10,29 @@ footer { position: fixed; bottom: 0; right: 0; height: 20px; }
 /*** anchor tags ***/
 a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
+/*** navbar ***/
+.navbar {
+    border-radius: 4px !important;
+}
+.navbar-brand {
+  padding: 0px;
+}
+.navbar-brand>img {
+  height: 100%;
+  padding: 7px 15px;
+  width: auto;
+}
+
+.divider {
+    content: ' ';
+    display: block;
+    float: left;
+    background: #E8E8E8;
+    margin: 5 0 5 0px;
+    height: 40px;
+    width: 1px;
+}
+
 /*** logo ***/
 .logo-container { text-align: center; }
 
@@ -30,7 +53,7 @@ a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
 .login_referrer { display: none; }
 
-.content-container textarea {
+/*.content-container textarea {
     border-radius: 1px;
     width: 450px; 
     height: 500px;
@@ -45,7 +68,7 @@ a:link, a:visited, a:hover, a:active { color: #F1EED9; }
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
-}
+}*/
 
 input[type=submit] {
     border-radius: 1px;
@@ -64,7 +87,29 @@ input[type=submit] {
 
 input[type=submit]:active { color: #A31E39; }
 
+.nopadding-left {
+   padding-left: 0 !important;
+}
+
+.nopadding-right {
+   padding-right: 0 !important;
+}
+
+.lesspadding-left {
+   padding-left: 7.5 !important;
+}
+
+.lesspadding-right {
+   padding-right: 7.5 !important;
+}
+
 /*** media queries ***/
 /* X-Small devices (phones, 480px and up) */
 @media (min-width: 480px) { /* wrapper stays 480px wide past 480px wide and is kept centered */
   .wrapper { width: 480px; margin: 10% auto 0 auto; } }
+
+@media (max-width: 768px) {
+   .divider {
+       display: none ;
+   }
+}

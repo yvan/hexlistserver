@@ -77,12 +77,12 @@ view route methods
 def main_page():
     print(request.referrer)
     text_area = TextareaForm()
-    return render_template('main.html', form=text_area, show_login=current_user.is_anonymous)
+    return render_template('main.html', current_user=current_user, form=text_area)
 
 @app.route('/about')
 def about_page():
     # if a user is set in the context
-    return render_template('about.html', show_login=current_user.is_anonymous)
+    return render_template('about.html', current_user=current_user)
 
 # display a hex with all its links
 @app.route('/hex/<string:hex_object_id>')
@@ -94,53 +94,44 @@ def hex_view(hex_object_id):
     hex_object = get_hex_object_method(hex_object_id)
     hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+    create_user = None
+    text_area_form = False
+    add_more_links = False
 
-    # if the hex is owned by anon, anonymous user
+    # hex is owned by anon, anonymous user
     # display a form to claim ownership
     if app.config['ANON_USER_NAME'] == hex_owner.username:
         
-        # if the accessing user is logged in
+        # user is not logged in
         if not current_user.is_anonymous:
             create_user = CreateUser(username=current_user.username)
             text_area_form = TextareaForm()
-            show_login = False
-        # or if the hex is owned by someone else
+        # user is logged in
         else:
             user_object_name = app.config['ANON_USER_NAME']
             create_user = CreateUser()
-            text_area_form = None
-            show_login = True
 
-        return render_template('hex.html', form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, show_login=show_login, should_scroll=None)
-    # if the hex is owned by someone else
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, should_scroll=None)
+    # hex is owned by someone
     else:
-        # if the accessing user is logged in is the owner
+        # hex is owned by current user
         if not current_user.is_anonymous and current_user.id == hex_owner.id:
-            create_user = None
             text_area_form = TextareaForm()
             add_more_links = True
-            show_login = False
-        # or if the hex is owned by someone else
-        # if the accessing user is not that owner
-        elif  not current_user.is_anonymous:
-            create_user = None
-            text_area_form = None
-            add_more_links = False
-            show_login = False
-        # if the user is not logged in
-        else:
-            create_user = None
-            text_area_form = None
-            add_more_links = False
-            show_login = True
+        # # hex is owned by someone else
+        # elif not current_user.is_anonymous:
+        #     # add_more_links = False
+        # # user is not logged in
+        # else:
+        #     # add_more_links = False
 
-        return render_template('hex.html', form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, show_login=show_login, should_scroll=scroll_arg)
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, should_scroll=scroll_arg)
 
 # display a link
 @app.route('/link/<string:link_object_id>')
 def link_view(link_object_id):
     link_object = get_link_method(link_object_id)
-    return render_template('link.html', link=link_object, show_login=current_user.is_anonymous)
+    return render_template('link.html', current_user=current_user, link=link_object)
 
 # display a user with all their hexes
 @app.route('/user/<string:user_object_id>')
@@ -151,7 +142,7 @@ def user_view(user_object_id):
     for hex_obj in hex_objects:
         links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
         hexlinks[hex_obj.id] = [link.url for link in links]
-    return render_template('user.html', hexes=hex_objects, hexlinks=hexlinks, show_login=current_user.is_anonymous)
+    return render_template('user.html', current_user=current_user, hexes=hex_objects, hexlinks=hexlinks)
 
 '''
 internal form methods
@@ -180,7 +171,7 @@ def form_hex_create():
             post_link_method(url, '', new_hex_object.id)
         return redirect(url_for('hex_view', hex_object_id=new_hex_object.id))
     text_area = TextareaForm(links=request.form['links'])
-    return render_template('main.html', form=text_area, show_login=current_user.is_anonymous)
+    return render_template('main.html', current_user=current_user, form=text_area)
 
 @app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
 def form_create_user(hex_object_id):

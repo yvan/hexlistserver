@@ -2,16 +2,6 @@
 
 {% block content %}
 
-    {% if show_login %}
-
-    <div class="login_class"><a href="{{ url_for('login') }}">login</a></div>
-
-    {% else %}
-
-    <div class="login_class"><a href="{{ url_for('logout') }}">logout</a></div>
-
-    {% endif %}
-
     <div class="content-container">
         <p>Hexlist is a way to store links in simple groups</p>
 
@@ -22,5 +12,5 @@
         <p>our support email is support@hexlist.com</p>
         
     </div>
-
+    
 {% endblock %}
