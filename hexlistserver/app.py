@@ -10,6 +10,7 @@ import requests
 import traceback
 
 from rq import Queue
+from urllib.parse import urlparse
 from hexlistserver.worker import conn
 from random_words import RandomWords
 
@@ -382,6 +383,12 @@ def post_hexlinks():
     return jsonify({i:{'id': new_link_object.id, 'urls': new_link_object.url,'description': new_link_object.description,'hex_object_id': new_link_object.hex_object_id} for i, new_link_object in enumerate(return_links)}), 201
 
 def post_link_method(url, description, hex_object_id):
+    url_parsed = urlparse(url)
+    if url_parsed.scheme == '':
+        if url_parsed.netloc.startswith('//'):
+            url = 'http:' + url
+        else:
+            url = 'http://' + url
     new_link_object = link_object.LinkObject(url, description, hex_object_id)
     db.session.add(new_link_object)
     db.session.commit()
