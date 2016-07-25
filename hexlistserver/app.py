@@ -5,6 +5,7 @@ primary file with app logic
 import os
 import re
 import bs4
+import petname
 import binascii
 import requests
 import traceback
@@ -148,7 +149,9 @@ def form_hex_create():
         # create a user?
         # create info for new hex, attributed to te "anon" user
         rw = RandomWords()
-        name = 'hex-' + rw.random_word() + '-' + str(binascii.hexlify(os.urandom(16)))[2:-1]
+        the_petname_bits = petname.Generate(2, ".").split('.')
+
+        name = 'hex-' + the_petname_bits[0] + '-' + rw.random_word() #+ '-' + str(binascii.hexlify(os.urandom(16)))[2:-1]
         if not current_user.is_anonymous:
             user_id = current_user.id
             owner_id = current_user.id
