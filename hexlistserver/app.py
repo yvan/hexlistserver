@@ -95,35 +95,29 @@ def hex_view(hex_object_id):
     create_user = None
     text_area_form = False
     add_more_links = False
+    logged_in_claim_hex = False
 
     # hex is owned by anon, anonymous user
     # display a form to claim ownership
     if app.config['ANON_USER_NAME'] == hex_owner.username:
         
         # user is not logged in
-        if not current_user.is_anonymous:
-            create_user = CreateUser(username=current_user.username)
-            text_area_form = TextareaForm()
+        if current_user.is_anonymous:
+            create_user = CreateUser()
         # user is logged in
         else:
-            user_object_name = app.config['ANON_USER_NAME']
-            create_user = CreateUser()
+            create_user = None
+            logged_in_claim_hex = True
 
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, should_scroll=None)
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, logged_in_claim_hex=logged_in_claim_hex,should_scroll=None)
     # hex is owned by someone
     else:
         # hex is owned by current user
         if not current_user.is_anonymous and current_user.id == hex_owner.id:
             text_area_form = TextareaForm()
             add_more_links = True
-        # # hex is owned by someone else
-        # elif not current_user.is_anonymous:
-        #     # add_more_links = False
-        # # user is not logged in
-        # else:
-        #     # add_more_links = False
 
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, should_scroll=scroll_arg)
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, logged_in_claim_hex=logged_in_claim_hex, should_scroll=scroll_arg)
 
 # display a link
 @app.route('/link/<string:link_object_id>')
@@ -171,6 +165,15 @@ def form_hex_create():
     text_area = TextareaForm(links=request.form['links'])
     return render_template('main.html', current_user=current_user, form=text_area)
 
+@app.route('/internal/form_make_or_claim_user_and_claim_hex_logged_in/<string:hex_object_id>', methods=['POST'])
+def form_claim_hex_logged_in(hex_object_id):
+    session_user_object = current_user
+    hex_to_reassign = get_hex_object_method(hex_object_id)
+    hex_to_reassign.owner_id = session_user_object.id
+    hex_to_reassign.user_object_id = session_user_object.id
+    db.session.commit()
+    return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
+
 @app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
 def form_create_user(hex_object_id):
     create_user = CreateUser(request.form)
@@ -198,7 +201,6 @@ def form_create_user(hex_object_id):
         else:
             # tell user about failed hex claim
             flash('there was an error claiming this hex, you probably just need to try again')
-        hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
         return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
     else:
         return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
