@@ -509,6 +509,8 @@ def delete_send_method(hex_object_id):
 '''
 supporting non route methods
 '''
+# this method checks that the accessing user owns the thing they are accessing
+
 # this method hould ONLY be queued on a worker process
 def add_web_page_title_to_link(link_object_id, url):
     r = requests.get(url)
