@@ -75,18 +75,18 @@ def logout():
 view route methods
 '''
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def main_page():
     text_area = TextareaForm()
     return render_template('main.html', current_user=current_user, form=text_area)
 
-@app.route('/about')
+@app.route('/about', methods=['GET'])
 def about_page():
     # if a user is set in the context
     return render_template('about.html', current_user=current_user)
 
 # display a hex with all its links
-@app.route('/hex/<string:hex_object_id>')
+@app.route('/hex/<string:hex_object_id>', methods=['GET'])
 def hex_view(hex_object_id):
     scroll_arg = request.args.get('should_scroll', None)
 
@@ -121,13 +121,13 @@ def hex_view(hex_object_id):
         return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, logged_in_claim_hex=logged_in_claim_hex, should_scroll=scroll_arg)
 
 # display a link
-@app.route('/link/<string:link_object_id>')
+@app.route('/link/<string:link_object_id>', methods=['GET'])
 def link_view(link_object_id):
     link_object = get_link_method(link_object_id)
     return render_template('link.html', current_user=current_user, link=link_object)
 
 # display a user with all their hexes
-@app.route('/user/<string:user_object_id>')
+@app.route('/user/<string:user_object_id>', methods=['GET'])
 def user_view(user_object_id):
     hexlinks = {}
     user_object = get_user_method(user_object_id)
@@ -468,28 +468,36 @@ def delete_location_method(location_object_id):
     db.session.commit()
     return hex_location
 
-@app.route('/api/v1.0/send/<string:hex_object_id>', methods=['GET'])
+@app.route('/api/v1.0/send/<string:send_object_id>', methods=['GET'])
 @auth.login_required
-def get_send(hex_object_id):
-    retrieved_send_object = get_send_method(hex_object_id)
-    if retrieved_send_object:
-        return jsonify({'id': retrieved_send_object.id, 'sender_id': retrieved_send_object.sender_id, 'recipient_id': retrieved_send_object.recipient_id, 'hex_object_id':retrieved_send_object.hex_object_id}), 200
+def get_send(send_object_id):
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":send_object_id}, request.method):
+        retrieved_send_object = get_send_method(send_object_id)
+        if retrieved_send_object:
+            return jsonify({'id': retrieved_send_object.id, 'sender_id': retrieved_send_object.sender_id, 'recipient_id': retrieved_send_object.recipient_id, 'hex_object_id':retrieved_send_object.hex_object_id}), 200
+        else:
+            return jsonify({'error': 'we couldn\'t find that send, u must be wrong', 'code': 404}), 404
     else:
-        return jsonify({'error': 'we couldn\'t find that send, u must be wrong', 'code': 404}), 404
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
-def get_send_method(hex_object_id):
-    return send_object.SendObject.query.filter_by(id=hex_object_id).first()
+def get_send_method(send_object_id):
+    return send_object.SendObject.query.filter_by(id=send_object_id).first()
 
 @app.route('/api/v1.0/send', methods=['POST'])
 @auth.login_required
 def post_send():
-    sender_id = request.json.get('sender_id')
-    recipient_id = request.json.get('recipient_id')
-    hex_object_id = request.json.get('hex_object_id')
-    if sender_id is None or recipient_id is None or hex_object_id is None:
-        abort(400)
-    new_send_object = post_send_method(sender_id, recipient_id, hex_object_id)
-    return jsonify({'sender_id': new_send_object.sender_id, 'recipient_id': new_send_object.recipient_id, 'hex_object_id':new_send_object.hex_object_id}), 201
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, request.json, request.method):
+        sender_id = request.json.get('sender_id')
+        recipient_id = request.json.get('recipient_id')
+        hex_object_id = request.json.get('hex_object_id')
+        if sender_id is None or recipient_id is None or hex_object_id is None:
+            abort(400)
+        new_send_object = post_send_method(sender_id, recipient_id, hex_object_id)
+        return jsonify({'id':new_send_object.id, 'sender_id': new_send_object.sender_id, 'recipient_id': new_send_object.recipient_id, 'hex_object_id':new_send_object.hex_object_id}), 201
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def post_send_method(sender_id, recipient_id, hex_object_id):
     new_send_object = send_object.SendObject(sender_id, recipient_id, hex_object_id)
@@ -497,14 +505,18 @@ def post_send_method(sender_id, recipient_id, hex_object_id):
     db.session.commit()
     return new_send_object    
 
-@app.route('/api/v1.0/send/<string:hex_object_id>', methods=['DELETE'])
+@app.route('/api/v1.0/send/<string:send_object_id>', methods=['DELETE'])
 @auth.login_required
-def delete_send(hex_object_id):
-    send_object_delete = delete_send_method(hex_object_id)
-    return jsonify({'sender_id': send_object_delete.sender_id, 'recipient_id': send_object_delete.recipient_id, 'hex_object_id':send_object_delete.hex_object_id}), 200
+def delete_send(send_object_id):
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":send_object_id}, request.method):
+        send_object_delete = delete_send_method(send_object_id)
+        return jsonify({'sender_id': send_object_delete.sender_id, 'recipient_id': send_object_delete.recipient_id, 'hex_object_id':send_object_delete.hex_object_id}), 200
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
-def delete_send_method(hex_object_id):
-    send_object_delete = send_object.SendObject.query.filter_by(hex_object_id=hex_object_id).first()
+def delete_send_method(send_object_id):
+    send_object_delete = send_object.SendObject.query.filter_by(id=send_object_id).first()
     db.session.delete(send_object_delete)
     db.session.commit()
     return send_object_delete
@@ -513,6 +525,44 @@ def delete_send_method(hex_object_id):
 supporting non route methods
 '''
 # this method checks that the accessing user owns the thing they are accessing
+def user_can_perform_action(user, endpoint, data, method):
+    # if user is anonymous, no permission granted
+
+    #else check the endpoint
+    endpoint_type = str(endpoint).split('/')[3]
+    print(user, endpoint, data, method)
+    if endpoint_type == 'send':
+        if method in ('GET', 'DELETE'):
+            send_object = get_send_method(data.get('id'))
+            if user.id in (send_object.recipient_id, send_object.sender_id):
+                return True
+            else:
+                return False
+        elif method == 'POST':
+            if user.id == data.get('sender_id'):
+                return True
+            else:
+                return False
+    elif endpoint_type == 'hex':
+        if method == 'GET':
+            send_object = get_send_method(object_id)
+            if current_user.id in (send_object.recipient_id, send_object.sender_id):
+                return True
+            else:
+                return False
+        elif method == 'POST':
+            if current_user.id == data.get('sender_id'):
+                return True
+            else:
+                return False
+        elif method == 'DELETE':
+            hex_object = get_hex_object_method(data.get('hex_object_id'))
+            if current_user.id == hex_object.owner_id:
+                return True
+            else:
+                return False
+    elif endpoint_type == 'hexlinks':
+        pass
 
 # this method hould ONLY be queued on a worker process
 def add_web_page_title_to_link(link_object_id, url):
