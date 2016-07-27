@@ -87,7 +87,7 @@ GET:
 
 POST:
 
-`curl -u dev:dev -i -X POST  http://localhost:8000/api/v1.0/location -H "Content-Type: application/json" -d '{"platform":"ios","location":"myhexlist", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144"}'`
+`curl -u dev:dev -i -X POST  http://localhost:8000/api/v1.0/location -H "Content-Type: application/json" -d '{"platform":"ios","location":"myhexlist", "hex_object_id":"534f6e75-93a6-4b6d-9dcf-85ae20fcb144", "user_object_id":"f78f8e39-2235-4238-b930-1d838ffa56e0"}'`
 
 DELETE:
 

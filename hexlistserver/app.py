@@ -424,31 +424,42 @@ def delete_link_method(link_object_id):
 @app.route('/api/v1.0/location', methods=['GET'])
 @auth.login_required
 def get_location():
-    hex_object_id = request.json.get('hex_object_id')
-    user_object_id = request.json.get('user_object_id')
-    return_location = get_location_method(user_object_id, hex_object_id)
-    if return_location:
-        return jsonify({'id': return_location.id,'user_object_id': return_location.user_object_id,'hex_object_id': return_location.hex_object_id, 'location': return_location.location}), 200
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, request.json, request.method):
+        hex_object_id = request.json.get('hex_object_id')
+        user_object_id = request.json.get('user_object_id')
+        return_location = get_location_method(user_object_id, hex_object_id)
+        if return_location:
+            return jsonify({'id': return_location.id,'user_object_id': return_location.user_object_id,'hex_object_id': return_location.hex_object_id, 'location': return_location.location}), 200
+        else:
+            return jsonify({'error': 'we couldn\'t find that location, u must be wrong', 'code': 404}), 404
     else:
-        return jsonify({'error': 'we couldn\'t find that location, u must be wrong', 'code': 404}), 404
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def get_location_method(user_object_id, hex_object_id):
     return ios_hex_location.IosHexLocation.query.filter_by(user_object_id=user_object_id, hex_object_id=hex_object_id).first()
 
+def get_location_by_id(location_object_id):
+    return ios_hex_location.IosHexLocation.query.filter_by(id=location_object_id).first()
+
 @app.route('/api/v1.0/location', methods=['POST'])
 @auth.login_required
 def post_location():
-    platform = request.json.get('platform')
-    location = request.json.get('location')
-    hex_object_id = request.json.get('hex_object_id')
-    user_object_id = request.json.get('hex_object_id')
-    if location is None or hex_object_id is None or platform is None:
-        abort(400)
-    if platform == 'ios':
-        new_hex_location = post_location_method(user_object_id, hex_object_id, location)
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, request.json, request.method):
+        platform = request.json.get('platform')
+        location = request.json.get('location')
+        user_object_id = request.json.get('user_object_id')
+        hex_object_id = request.json.get('hex_object_id')
+        if location is None or hex_object_id is None or platform is None:
+            abort(400)
+        if platform == 'ios':
+            new_hex_location = post_location_method(user_object_id, hex_object_id, location)
+        else:
+            abort(400)
+        return jsonify({'id': new_hex_location.id,'user_object_id': new_hex_location.user_object_id,'hex_object_id': new_hex_location.hex_object_id, 'location': new_hex_location.location}), 201
     else:
-        abort(400)
-    return jsonify({'id': new_hex_location.id,'user_object_id': new_hex_location.user_object_id,'hex_object_id': new_hex_location.hex_object_id, 'location': new_hex_location.location}), 201
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def post_location_method(user_object_id, hex_object_id, location):
     new_hex_location = ios_hex_location.IosHexLocation(user_object_id, hex_object_id, location)
@@ -459,8 +470,12 @@ def post_location_method(user_object_id, hex_object_id, location):
 @app.route('/api/v1.0/location/<string:location_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_location(location_object_id):
-    hex_location = delete_location_method(location_object_id)
-    return jsonify({'id': hex_location.id,'user_object_id': hex_location.user_object_id,'hex_object_id': hex_location.hex_object_id, 'location': hex_location.location}), 200
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":location_object_id}, request.method):
+        hex_location = delete_location_method(location_object_id)
+        return jsonify({'id': hex_location.id,'user_object_id': hex_location.user_object_id,'hex_object_id': hex_location.hex_object_id, 'location': hex_location.location}), 200
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def delete_location_method(location_object_id):
     hex_location = ios_hex_location.IosHexLocation.query.filter_by(id=location_object_id).first()
@@ -558,6 +573,25 @@ def user_can_perform_action(user, endpoint, data, method):
         elif method == 'DELETE':
             hex_object = get_hex_object_method(data.get('hex_object_id'))
             if current_user.id == hex_object.owner_id:
+                return True
+            else:
+                return False
+    elif endpoint_type == 'location':
+        if method == 'GET':
+            location = get_location_method(data.get('user_object_id'), data.get('hex_object_id'))
+            if user.id == location.user_object_id:
+                return True
+            else:
+                return False
+        elif method == 'POST':
+            if user.id == data.get('user_object_id'):
+                return True
+            else:
+                return False
+        elif method == 'DELETE':
+            print(data.get('id'))
+            location = get_location_by_id(data.get('id'))
+            if user.id == location.user_object_id:
                 return True
             else:
                 return False

@@ -2,6 +2,7 @@
 model that show the location
 of a hex on the ios platform
 '''
+import uuid
 
 from hexlistserver.app import db
 
