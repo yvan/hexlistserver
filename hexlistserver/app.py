@@ -560,22 +560,7 @@ def user_can_perform_action(user, endpoint, data, method):
                 return False
     elif endpoint_type == 'hex':
         if method == 'GET':
-            send_object = get_send_method(object_id)
-            if current_user.id in (send_object.recipient_id, send_object.sender_id):
-                return True
-            else:
-                return False
-        elif method == 'POST':
-            if current_user.id == data.get('sender_id'):
-                return True
-            else:
-                return False
-        elif method == 'DELETE':
-            hex_object = get_hex_object_method(data.get('hex_object_id'))
-            if current_user.id == hex_object.owner_id:
-                return True
-            else:
-                return False
+            pass
     elif endpoint_type == 'location':
         if method == 'GET':
             location = get_location_method(data.get('user_object_id'), data.get('hex_object_id'))
