@@ -320,7 +320,11 @@ this tutorial (ignore autoenv):
 
 [flask mega tutorial] (http://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xviii-deployment-on-the-heroku-cloud)
 
-[how to - flask migrate](https://www.youtube.com/watch?v=YJibNSI-iaE )
+[how to - flask migrate](https://www.youtube.com/watch?v=YJibNSI-iaE)
+
+[how to actually use alembic because the manager script is shit](http://www.chesnok.com/daily/2013/07/02/a-practical-guide-to-using-alembic/)
+
+[docs for ops for alembic](http://alembic.zzzcomputing.com/en/latest/ops.html)
 
 [heroku Procfile](https://devcenter.heroku.com/articles/procfile)
 

@@ -127,10 +127,10 @@ def link_view(link_object_id):
     return render_template('link.html', current_user=current_user, link=link_object)
 
 # display a user with all their hexes
-@app.route('/user/<string:user_object_id>', methods=['GET'])
-def user_view(user_object_id):
+@app.route('/user/<string:username>', methods=['GET'])
+def user_view(username):
     hexlinks = {}
-    user_object = get_user_method(user_object_id)
+    user_object = get_user_by_name(username)
     hex_objects = hex_object.HexObject.query.filter_by(user_object_id=user_object.id)
     for hex_obj in hex_objects:
         links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
@@ -250,17 +250,21 @@ def get_hex_object_method(hex_object_id):
 @app.route('/api/v1.0/hex', methods=['POST'])
 @auth.login_required
 def post_hex_object():
-    name = request.json.get('name')
-    user_id = request.json.get('user_id')
-    owner_id = request.json.get('owner_id')
-    image_path = request.json.get('image_path')
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, request.json, request.method):
+        name = request.json.get('name')
+        user_id = request.json.get('user_id')
+        owner_id = request.json.get('owner_id')
+        image_path = request.json.get('image_path')
 
-    #create new hex
-    if name is None or user_id is None or owner_id is None or image_path is None:
-        abort(400)
+        #create new hex
+        if name is None or user_id is None or owner_id is None or image_path is None:
+            abort(400)
 
-    new_hex_object = post_hex_object_method(name, owner_id, user_id, image_path)
-    return jsonify({'id':new_hex_object.id, 'name':new_hex_object.name, 'image_path':new_hex_object.image_path, 'owner_id':new_hex_object.owner_id, 'user_id':new_hex_object.user_object_id}), 201
+        new_hex_object = post_hex_object_method(name, owner_id, user_id, image_path)
+        return jsonify({'id':new_hex_object.id, 'name':new_hex_object.name, 'image_path':new_hex_object.image_path, 'owner_id':new_hex_object.owner_id, 'user_id':new_hex_object.user_object_id}), 201
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def post_hex_object_method(name, owner_id, user_id, image_path):
     new_hex_object = hex_object.HexObject(name, owner_id, user_id, image_path)
@@ -271,8 +275,12 @@ def post_hex_object_method(name, owner_id, user_id, image_path):
 @app.route('/api/v1.0/hex/<string:hex_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_hex(hex_object_id):
-    delete_hex_method(hex_object_id)
-    return  jsonify({'id':hex_object_delete.id, 'name':hex_object_delete.name, 'image_path':hex_object_delete.image_path, 'owner_id':hex_object_delete.owner_id, 'user_id':hex_object_delete.user_object_id}), 200
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":hex_object_id}, request.method):
+        hex_object_delete = delete_hex_method(hex_object_id)
+        return  jsonify({'id':hex_object_delete.id, 'name':hex_object_delete.name, 'image_path':hex_object_delete.image_path, 'owner_id':hex_object_delete.owner_id, 'user_id':hex_object_delete.user_object_id}), 200
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def delete_hex_method(hex_object_id):
     hex_object_delete = hex_object.HexObject.query.filter_by(id=hex_object_id).first()
@@ -559,8 +567,17 @@ def user_can_perform_action(user, endpoint, data, method):
             else:
                 return False
     elif endpoint_type == 'hex':
-        if method == 'GET':
-            pass
+        if method == 'POST':
+            if user.id == data.get('user_id') and user.id == data.get('owner_id'):
+                return True
+            else:
+                return False
+        elif method == 'DELETE':
+            hex_obj = get_hex_object_method(data.get('id'))
+            if hex_obj.owner_id == user.id:
+                return True
+            else:
+                return False
     elif endpoint_type == 'location':
         if method == 'GET':
             location = get_location_method(data.get('user_object_id'), data.get('hex_object_id'))
