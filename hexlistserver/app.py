@@ -19,6 +19,7 @@ from flask import g, abort, redirect, url_for, request, Flask, render_template, 
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.httpauth import HTTPBasicAuth
+from flask.ext.sslify import SSLify
 
 from hexlistserver.forms.textarea import TextareaForm
 from hexlistserver.forms.create_user import CreateUser
@@ -29,6 +30,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 auth = HTTPBasicAuth()
+sslify = SSLify(app, subdomains=True)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'

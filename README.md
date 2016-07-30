@@ -348,6 +348,8 @@ this tutorial (ignore autoenv):
 
 [tutorial on how to run the web scraper on heroku worker dyno](https://devcenter.heroku.com/articles/python-rq)
 
+[heroku add custom domain](https://devcenter.heroku.com/articles/custom-domains)
+
 #author
 
 [yvan](https://github.com/yvan)
