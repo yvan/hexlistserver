@@ -23,3 +23,6 @@ downgrade:
 
 show:
 	python manage.py db show
+
+revision:
+	python manage.py db revision

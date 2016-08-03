@@ -348,6 +348,8 @@ this tutorial (ignore autoenv):
 
 [tutorial on how to run the web scraper on heroku worker dyno](https://devcenter.heroku.com/articles/python-rq)
 
+[flask update row info](http://stackoverflow.com/questions/6699360/flask-sqlalchemy-update-a-rows-information)
+
 [heroku add custom domain](https://devcenter.heroku.com/articles/custom-domains)
 
 #author

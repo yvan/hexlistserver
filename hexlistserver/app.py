@@ -352,20 +352,28 @@ def delete_user_method(user_object_id, req_auth_user):
 @app.route('/api/v1.0/link/<string:link_object_id>', methods=['GET'])
 @auth.login_required
 def get_link(link_object_id):
-    retrieved_link = get_link_method(link_object_id)
-    if retrieved_link:
-        return jsonify({'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id}), 200
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":link_object_id}, request.method):
+        retrieved_link = get_link_method(link_object_id)
+        if retrieved_link:
+            return jsonify({'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id}), 200
+        else:
+            return jsonify({'error': 'we couldn\'t find that link, u must be wrong', 'code': 404}), 404
     else:
-        return jsonify({'error': 'we couldn\'t find that link, u must be wrong', 'code': 404}), 404
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 @app.route('/api/v1.0/hexlinks/<string:hex_object_id>', methods=['GET'])
 @auth.login_required
 def get_hexlinks(hex_object_id):
-    return_links = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
-    if return_links:
-        return jsonify({'hexlinks': [{'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id} for retrieved_link in return_links]}), 200
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":hex_object_id}, request.method):
+        return_links = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+        if return_links:
+            return jsonify({'hexlinks': [{'id': retrieved_link.id, 'url': retrieved_link.url,'description': retrieved_link.description,'hex_object_id': retrieved_link.hex_object_id} for retrieved_link in return_links]}), 200
+        else:
+            return jsonify({'error': 'we couldn\'t find those links, u must be wrong', 'code': 404}), 404
     else:
-        return jsonify({'error': 'we couldn\'t find those links, u must be wrong', 'code': 404}), 404
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def get_link_method(link_object_id):
     return link_object.LinkObject.query.filter_by(id=link_object_id).first()
@@ -374,28 +382,36 @@ def get_link_method(link_object_id):
 @app.route('/api/v1.0/link', methods=['POST'])
 @auth.login_required
 def post_link():
-    url =  request.json.get('url')
-    description =  request.json.get('description')
-    hex_object_id =  request.json.get('hex_object_id')
-    if url is None or hex_object_id is None:
-        abort(400)
-    new_link_object = post_link_method(url, description, hex_object_id)
-    return jsonify({'id': new_link_object.id, 'urls': new_link_object.url,'description': new_link_object.description,'hex_object_id': new_link_object.hex_object_id}), 201
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, request.json, request.method):
+        url =  request.json.get('url')
+        description =  request.json.get('description')
+        hex_object_id =  request.json.get('hex_object_id')
+        if url is None or hex_object_id is None:
+            abort(400)
+        new_link_object = post_link_method(url, description, hex_object_id)
+        return jsonify({'id': new_link_object.id, 'urls': new_link_object.url,'description': new_link_object.description,'hex_object_id': new_link_object.hex_object_id}), 201
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 #accepts multiple urls, so a list
 @app.route('/api/v1.0/hexlinks', methods=['POST'])
 @auth.login_required
 def post_hexlinks():
-    return_links = []
-    for link in request.json:
-        url = link.get('url')
-        description = link.get('description')
-        hex_object_id = link.get('hex_object_id')
-        if url is None or hex_object_id is None:
-            abort(400)
-        new_link_object = post_link_method(url, description, hex_object_id)
-        return_links.append(new_link_object)
-    return jsonify({i:{'id': new_link_object.id, 'urls': new_link_object.url,'description': new_link_object.description,'hex_object_id': new_link_object.hex_object_id} for i, new_link_object in enumerate(return_links)}), 201
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, request.json, request.method):
+        return_links = []
+        for link in request.json:
+            url = link.get('url')
+            description = link.get('description')
+            hex_object_id = link.get('hex_object_id')
+            if url is None or hex_object_id is None:
+                abort(400)
+            new_link_object = post_link_method(url, description, hex_object_id)
+            return_links.append(new_link_object)
+        return jsonify({i:{'id': new_link_object.id, 'urls': new_link_object.url,'description': new_link_object.description,'hex_object_id': new_link_object.hex_object_id} for i, new_link_object in enumerate(return_links)}), 201
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def post_link_method(url, description, hex_object_id):
     url_parsed = urlparse(url)
@@ -413,17 +429,25 @@ def post_link_method(url, description, hex_object_id):
 @app.route('/api/v1.0/link/<string:link_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_link(link_object_id):
-    delete_link = delete_link_method(link_object_id)
-    return jsonify({'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id}), 200
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":link_object_id}, request.method):
+        delete_link = delete_link_method(link_object_id)
+        return jsonify({'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id}), 200
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 @app.route('/api/v1.0/hexlinks/<string:hex_object_id>', methods=['DELETE'])
 @auth.login_required
 def delete_hexlinks(hex_object_id):
-    delete_links = []
-    return_links = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
-    for link in return_links:
-        delete_links.append(delete_link_method(link.id))
-    return jsonify({'hexlinks': [{'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id} for delete_link in delete_links]}), 200
+    authorizing_user = get_user_by_name(request.authorization.username)
+    if user_can_perform_action(authorizing_user, request.url_rule, {"id":hex_object_id}, request.method):
+        delete_links = []
+        return_links = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+        for link in return_links:
+            delete_links.append(delete_link_method(link.id))
+        return jsonify({'hexlinks': [{'id': delete_link.id, 'url': delete_link.url,'description': delete_link.description,'hex_object_id': delete_link.hex_object_id} for delete_link in delete_links]}), 200
+    else:
+        return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def delete_link_method(link_object_id):
     delete_link = link_object.LinkObject.query.filter_by(id=link_object_id).first()
@@ -528,7 +552,7 @@ def post_send_method(sender_id, recipient_id, hex_object_id):
     new_send_object = send_object.SendObject(sender_id, recipient_id, hex_object_id)
     db.session.add(new_send_object)
     db.session.commit()
-    return new_send_object    
+    return new_send_object
 
 @app.route('/api/v1.0/send/<string:send_object_id>', methods=['DELETE'])
 @auth.login_required
@@ -600,7 +624,34 @@ def user_can_perform_action(user, endpoint, data, method):
             else:
                 return False
     elif endpoint_type == 'hexlinks':
-        pass
+        if method == 'GET':
+            hex_obj = get_hex_object_method(data.get('id'))
+            if hex_obj.owner_id == user.id:
+                return True
+            else:
+                return False
+        elif method == 'POST':
+            print([user.id == get_hex_object_method(link.get('hex_object_id')).owner_id for link in data])
+            return all([user.id == get_hex_object_method(link.get('hex_object_id')).owner_id for link in data])
+        elif method == 'DELETE':
+            hex_obj = get_hex_object_method(data.get('id'))
+            if hex_obj.owner_id == user.id:
+                return True
+            else:
+                return False
+    elif endpoint_type == 'link':
+        if method == 'POST':
+            hex_obj = get_hex_object_method(data.get('hex_object_id'))
+            if hex_obj.owner_id == user.id:
+                return True
+            else:
+                return False
+        elif method == 'DELETE':
+            hex_obj = get_hex_object_method(get_link_method(data.get('id')).hex_object_id)
+            if hex_obj.owner_id == user.id:
+                return True
+            else:
+                return False
 
 # this method hould ONLY be queued on a worker process
 def add_web_page_title_to_link(link_object_id, url):
@@ -659,5 +710,4 @@ if __name__ == '__main__':
 
 '''
 author @yvan
-http://stackoverflow.com/questions/6699360/flask-sqlalchemy-update-a-rows-information
 '''
