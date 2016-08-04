@@ -10,6 +10,8 @@ footer { position: fixed; bottom: 0; right: 0; height: 20px; }
 /*** anchor tags ***/
 a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
+p { font-size: 15px; }
+
 /*** navbar ***/
 .navbar {
     border-radius: 4px !important;
@@ -47,11 +49,22 @@ a:link, a:visited, a:hover, a:active { color: #F1EED9; }
 
 .footer-container { text-align: center; }
 
-.content-container { text-align: center; }
+.content-container { max-width: 700px; text-align: center; margin-bottom: 15px }
 
 .content-container input { color: black; }
 
 .login_referrer { display: none; }
+
+.list-title { word-wrap: break-word; }
+.list-content { margin-top: 12.5px; margin-bottom: 7.5px; }
+.list-link { 
+  font-size: 15px; 
+  text-decoration: none !important; 
+  word-wrap: break-word;
+  display:block;
+  padding: 7.5px 0px 7.5px 0px;
+}
+.list-link:hover { opacity: 0.75; }
 
 /*.content-container textarea {
     border-radius: 1px;
@@ -86,6 +99,10 @@ input[type=submit] {
 }
 
 input[type=submit]:active { color: #A31E39; }
+
+.nopadding-top {
+  padding-top: 0 !important;
+}
 
 .nopadding-left {
    padding-left: 0 !important;

@@ -137,7 +137,7 @@ def user_view(username):
     for hex_obj in hex_objects:
         links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
         hexlinks[hex_obj.id] = [link.url for link in links]
-    return render_template('user.html', current_user=current_user, hexes=hex_objects, hexlinks=hexlinks)
+    return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks)
 
 '''
 internal form methods
