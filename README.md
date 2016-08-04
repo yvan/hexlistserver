@@ -154,6 +154,9 @@ do stuff
 
 5 - Start postgresql and create a database user and the hexlistserver database
 
+start postgres locally
+`pg_ctl start -D /usr/local/var/postgres/`
+
 `createuser --pwprompt admin`
 
 `createdb -O admin -E utf8 hexlistserver`
@@ -184,7 +187,7 @@ Create new user-maker user locally
 
 INSERT INTO user_objects VALUES ('USER_ID','USER_NAME','USER_PASSWORD_HASH');
 
-9 - Test locally by running 'make run' then [test the feature with postman](https://www.getpostman.com/).
+9 - Test locally by running `make run` then [test the feature with postman](https://www.getpostman.com/).
 
 10 - run unit tests
 

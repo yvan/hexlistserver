@@ -2,12 +2,13 @@
 
 {% block content %}
     
-    <div class="content-container">
-        <p class="hexlist-title">Hexlist</p>
-        <p>{{ username }}</p>
+    <div class="content-container container">
+        <h2 class="list-title">{{ username }}'s hexlist</h2>
+        <div class="list-content">
         {% for hex in hexes %}
-            <p><a href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a></p>
+            	<a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
         {% endfor %}
+        </div>
     </div>
 
 {% endblock %}
