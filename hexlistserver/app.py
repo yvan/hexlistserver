@@ -14,7 +14,7 @@ from rq import Queue
 from urllib.parse import urlparse
 from hexlistserver.worker import conn
 from random_words import RandomWords
-from itsdangerous import Signer
+from itsdangerous import URLSafeSerializer, SignatureExpired, BadSignature
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -82,20 +82,25 @@ def reset_password():
     # take in email, sign/encrpyt it,
     # then send a n email to that email 
     if request.method == 'POST':
-        s = Signer(app.config['SECRET_KEY'])
-        input_email = request.form['email']
-        signed_email = s.sign(input_email)
-        pass
+        # we want our pwd resets to only last 30 min
+        s = URLSafeSerializer(app.config['SECRET_KEY'], expires_in=1800)
+        input_email = {"email": request.form['email']}
+        hashed_email = s.dumps(input_email)
+        email_body = 'hexlist.com/password_reset/{}'.format(hashed_email)
+        
     # show form on page to put in email
     else:
         return render_template('forgot_password.html', form=RecoverPassword())
 
-@app.route('/processreset', methods=['GET'])
-def process_reset():
+@app.route('/password_reset/<string:hashed_val>', methods=['GET'])
+def process_reset(hashed_val):
     # get posted signed token unsign it and look up which user object
     # corresponding to the email it is, then pwd reset prompt
-    pass
-
+    s = URLSafeSerializer(app.config['SECRET_KEY'], expires_in=1800)
+    try:
+        s.loads(hashed_val)
+    except (BadSignature, SignatureExpired) as e:
+        pass
 '''
 view route methods
 '''
@@ -161,7 +166,7 @@ def user_view(username):
     hexlinks = {}
     user_object = get_user_by_name(username)
     if user_object:
-        hex_objects = hex_object.HexObject.query.filter_by(user_object_id=user_object.id)
+        hex_objects = list(hex_object.HexObject.query.filter_by(user_object_id=user_object.id))
         email_form = InputEmail() if current_user == user_object and not current_user.email else None
         for hex_obj in hex_objects:
             links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)

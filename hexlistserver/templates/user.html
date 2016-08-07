@@ -10,7 +10,7 @@
         {% endfor %}
         </div>
     </div>
-    {% if email_form %}
+    {% if email_form and hexes|length > 2 %}
         {% include 'email.html' %}
     {% endif %}
 {% endblock %}
