@@ -120,6 +120,7 @@ def hex_view(hex_object_id):
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
     hex_object.ex_hex_owner = hex_owner
     hex_object.ex_hexlinks = hexlinks
+    edit_hex_name_form = None
     create_user = None
     text_area_form = False
     add_more_links = False
@@ -129,7 +130,6 @@ def hex_view(hex_object_id):
     # hex is owned by anon, anonymous user
     # display a form to claim ownership
     if app.config['ANON_USER_NAME'] == hex_owner.username:
-        
         # user is not logged in
         if current_user.is_anonymous:
             create_user = CreateUser()
@@ -137,17 +137,16 @@ def hex_view(hex_object_id):
         else:
             create_user = None
             logged_in_claim_hex = True
-
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_object=hex_object, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=False, should_scroll=None)
     # hex is owned by someone
     else:
         # hex is owned by current user
         if not current_user.is_anonymous and current_user.id == hex_owner.id:
+            edit_hex_name_form = RenameHex()
             text_area_form = TextareaForm()
             add_more_links = True
             edit_hex_name = True
 
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_object=hex_object, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links, should_scroll=scroll_arg)
+    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links, should_scroll=scroll_arg)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
@@ -267,7 +266,7 @@ def store_email():
 def update_hex_name(hex_object_id):
     rename_hex = RenameHex(request.form)
     if request.form and rename_hex.validate_on_submit():
-        hex_to_update = get_hex_object(hex_object_id)
+        hex_to_update = get_hex_object_method(hex_object_id)
         hex_to_update.name = request.form['hexname']
         db.session.commit()
     return redirect(url_for('hex_view', hex_object_id=hex_object_id))
