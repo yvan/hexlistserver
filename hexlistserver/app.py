@@ -14,6 +14,7 @@ from rq import Queue
 from urllib.parse import urlparse
 from hexlistserver.worker import conn
 from random_words import RandomWords
+from itsdangerous import Signer
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -24,6 +25,9 @@ from flask.ext.sslify import SSLify
 from hexlistserver.forms.textarea import TextareaForm
 from hexlistserver.forms.create_user import CreateUser
 from hexlistserver.forms.login_user import LoginUser
+from hexlistserver.forms.input_email import InputEmail
+from hexlistserver.forms.rename_hex import RenameHex
+from hexlistserver.forms.recover_password import RecoverPassword
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -52,7 +56,7 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if not current_user.is_anonymous:
-        return redirect(request.form['login_referrer'])
+        return redirect(url_for('main_page'))
     if request.method == 'POST':
         if verify_password(request.form['username'], request.form['password']):
             login_user(get_user_by_name(request.form['username']))
@@ -72,6 +76,25 @@ def login():
 def logout():
     logout_user()
     return redirect(request.referrer)
+
+@app.route('/recover_password', methods=['GET', 'POST'])
+def reset_password():
+    # take in email, sign/encrpyt it,
+    # then send a n email to that email 
+    if request.method == 'POST':
+        s = Signer(app.config['SECRET_KEY'])
+        input_email = request.form['email']
+        signed_email = s.sign(input_email)
+        pass
+    # show form on page to put in email
+    else:
+        return render_template('forgot_password.html', form=RecoverPassword())
+
+@app.route('/processreset', methods=['GET'])
+def process_reset():
+    # get posted signed token unsign it and look up which user object
+    # corresponding to the email it is, then pwd reset prompt
+    pass
 
 '''
 view route methods
@@ -133,11 +156,15 @@ def link_view(link_object_id):
 def user_view(username):
     hexlinks = {}
     user_object = get_user_by_name(username)
-    hex_objects = hex_object.HexObject.query.filter_by(user_object_id=user_object.id)
-    for hex_obj in hex_objects:
-        links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
-        hexlinks[hex_obj.id] = [link.url for link in links]
-    return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks)
+    if user_object:
+        hex_objects = hex_object.HexObject.query.filter_by(user_object_id=user_object.id)
+        email_form = InputEmail() if current_user == user_object and not current_user.email else None
+        for hex_obj in hex_objects:
+            links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
+            hexlinks[hex_obj.id] = [link.url for link in links]
+        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, email_form=email_form)
+    else:
+        abort(404)
 
 '''
 internal form methods
@@ -221,6 +248,25 @@ def form_add_links_to_hex(hex_object_id):
     else:
         flash('there was an error adding links to this hex, reload and try again?')
         return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
+
+@app.route('/internal/emailstore', methods=['POST'])
+def store_email():
+    email_form = InputEmail(request.form)
+    if request.form and email_form.validate_on_submit():
+        if request.form['email'] == request.form['email_two']:
+            user_object = get_user_method(current_user.id)
+            user_object.email = request.form['email']
+            db.session.commit()
+    return redirect(url_for('user_view', username=current_user.username))
+
+@app.route('/internal/form_update_hex_name/<string:hex_object_id>', methods=['POST'])
+def update_hex_name(hex_object_id):
+    rename_hex = RenameHex(request.form)
+    if request.form and rename_hex.validate_on_submit():
+        hex_to_update = get_hex_object(hex_object_id)
+        hex_to_update.name = request.form['hexname']
+        db.session.commit()
+    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 '''
 api route methods

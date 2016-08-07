@@ -10,5 +10,7 @@
         {% endfor %}
         </div>
     </div>
-
+    {% if email_form %}
+        {% include 'email.html' %}
+    {% endif %}
 {% endblock %}

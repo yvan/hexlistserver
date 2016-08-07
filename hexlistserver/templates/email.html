@@ -1,0 +1,32 @@
+ <div class="content-container container">
+    <div class="col-xs-12">
+      <p>hey so we kinda need your email to recover your account if anything happens.</p>
+      <p>yeah if you could just go ahead and add it that'd be great. yeah.</p>
+      <form action="/internal/emailstore" method="POST" name="email_submit">
+        <div class="input-container form-group col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+          {{ email_form.hidden_tag() }}
+          {{ email_form.email(class="form-control") }}
+          <div class="email_referrer" style="display:none;">
+            <input name="email_referrer" type="hidden" value="{{ email_referrer }}">
+          </div>
+        </div>
+        <div class="input-container form-group col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
+          {{ email_form.email_two(class="form-control") }}
+        </div>
+        <div class="col-xs-12 center-block">
+          <button type="submit" class="btn btn-default center-block">save email</button>
+        </div>
+      </form>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flashes">
+        {% for message in messages %}
+          <p>{{ message }}</p>
+          <p><a href="">lost password?</a></p>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+</div>

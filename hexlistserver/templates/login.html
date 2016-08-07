@@ -24,9 +24,10 @@
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <div class=flashes>
+        <div class="flashes">
         {% for message in messages %}
           <p>{{ message }}</p>
+          <p><a href="/recover_password">lost password?</a></p>
         {% endfor %}
         </div>
       {% endif %}

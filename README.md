@@ -130,7 +130,7 @@ start the server
 `make run` or `gunicorn hexlistserver.app:app`
 
 start the worker in another tab (or background process)
-`python hexlistserver/heroku_worker.py`
+`python hexlistserver/worker.py`
 
 do stuff
 
@@ -354,6 +354,8 @@ this tutorial (ignore autoenv):
 [flask update row info](http://stackoverflow.com/questions/6699360/flask-sqlalchemy-update-a-rows-information)
 
 [heroku add custom domain](https://devcenter.heroku.com/articles/custom-domains)
+
+[twilio addon custom verification](https://www.twilio.com/docs/tutorials/walkthrough/account-verification/python/flask)
 
 #author
 

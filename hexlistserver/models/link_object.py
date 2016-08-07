@@ -12,8 +12,8 @@ class LinkObject(db.Model):
     url = db.Column(db.String())
     description = db.Column(db.String())
     web_page_title = db.Column(db.String())
-    hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id'))
-    hex_object = db.relationship('HexObject', foreign_keys="LinkObject.hex_object_id", cascade="all,delete")
+    hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id', ondelete="CASCADE"))
+    hex_object = db.relationship('HexObject', foreign_keys="LinkObject.hex_object_id")
 
     def __init__(self, url, description, hex_object_id):
         self.id = uuid.uuid4().urn[9:] # make a uuid, convert to urn/string, uuid starts after 9th char
