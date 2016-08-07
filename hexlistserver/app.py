@@ -118,9 +118,12 @@ def hex_view(hex_object_id):
     hex_object = get_hex_object_method(hex_object_id)
     hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+    hex_object.ex_hex_owner = hex_owner
+    hex_object.ex_hexlinks = hexlinks
     create_user = None
     text_area_form = False
     add_more_links = False
+    edit_hex_name = False
     logged_in_claim_hex = False
 
     # hex is owned by anon, anonymous user
@@ -135,15 +138,16 @@ def hex_view(hex_object_id):
             create_user = None
             logged_in_claim_hex = True
 
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id,  add_more_links=False, hex_name=hex_object.name, hexlinks=hexlinks, logged_in_claim_hex=logged_in_claim_hex,should_scroll=None)
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_object=hex_object, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=False, should_scroll=None)
     # hex is owned by someone
     else:
         # hex is owned by current user
         if not current_user.is_anonymous and current_user.id == hex_owner.id:
             text_area_form = TextareaForm()
             add_more_links = True
+            edit_hex_name = True
 
-        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_id=hex_object.id, add_more_links=add_more_links, hex_name=hex_object.name, hexlinks=hexlinks, logged_in_claim_hex=logged_in_claim_hex, should_scroll=scroll_arg)
+        return render_template('hex.html', current_user=current_user, form=create_user, textarea_form=text_area_form, hex_object=hex_object, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links, should_scroll=scroll_arg)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])

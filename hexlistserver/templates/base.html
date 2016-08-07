@@ -1,6 +1,13 @@
 <html>
   <head>
-    <title>hexlist - link storage</title>
+    {% block meta %}
+    <title>Hexlist - link storage</title>
+    <meta property="og:title" content="Hexlist - link storage">
+    <meta property="og:description" content="Hexlist is a way to store links in simple groups called hexes.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://hexlist.com/static/hexlist-red.png">
+    {% endblock %}
+
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
