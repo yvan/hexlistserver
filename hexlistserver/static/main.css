@@ -66,6 +66,19 @@ p { font-size: 15px; }
 }
 .list-link:hover { opacity: 0.75; }
 
+[contenteditable="true"]#hex-title { cursor: pointer; }
+[contenteditable="true"]#hex-title { outline: 0px solid transparent }
+[contenteditable="true"]#hex-title {
+    overflow: hidden;
+} 
+[contenteditable="true"]#hex-title br {
+    display:none;
+}
+[contenteditable="true"]#hex-title * {
+    display:inline;
+    white-space:nowrap;
+}
+
 /*.content-container textarea {
     border-radius: 1px;
     width: 450px; 

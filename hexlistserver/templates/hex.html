@@ -1,12 +1,20 @@
 {% extends "base.html" %}
 
+{% block meta %}
+<title>{{ hex_object.name }} - Hexlist</title>
+<meta property="og:title" content="{{ hex_object.name }}">
+<meta property="og:description" content="A hex by {{ hex_object.ex_hex_owner.username }}">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://hexlist.com/static/hexlist-red.png">
+{% endblock %}
+
 {% block content %}
 
     <div class="content-container container">
         <div>
-        <h2 class="list-title">{{ hex_name }}</h2>
+        <h2 class="list-title" id="hex-title" {% if edit_hex_name %} contenteditable="true" {% endif %}>{{ hex_object.name }}</h2>
         <div class="list-content">
-        {% for hexlink in hexlinks %}
+        {% for hexlink in hex_object.ex_hexlinks %}
             <a class="list-link" href="{{ hexlink.url }}" target="_blank">
             {% if hexlink.description %}
                {{ hexlink.url }}
@@ -21,7 +29,7 @@
 
         {% if form %}
           <div class="col-xs-12">
-            <form action="/internal/form_make_or_claim_user_and_claim_hex/{{ hex_id }}" method="POST" name="link_submit">
+            <form action="/internal/form_make_or_claim_user_and_claim_hex/{{ hex_object.id }}" method="POST" name="link_submit">
               <div class="input-container form-group col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
                 {{ form.hidden_tag() }}
                 {{ form.username(class="form-control") }}
@@ -41,7 +49,7 @@
           </div>
         {% elif logged_in_claim_hex %}
           <div class="col-xs-12">
-              <form action="/internal/form_make_or_claim_user_and_claim_hex_logged_in/{{ hex_id }}" method="POST" name="link_submit">
+              <form action="/internal/form_make_or_claim_user_and_claim_hex_logged_in/{{ hex_object.id }}" method="POST" name="link_submit">
                 <div class="col-xs-12 center-block">
                   <button type="submit" class="btn btn-default center-block">claim hex</button>
                 </div>
@@ -49,7 +57,7 @@
             </div>
           {% elif textarea_form %}
             <div class="col-xs-12">
-              <form action="/internal/form_add_links_to_hex/{{ hex_id }}" method="POST" name="link_submit">
+              <form action="/internal/form_add_links_to_hex/{{ hex_object.id }}" method="POST" name="link_submit">
                 <div class="input-container form-group col-sm-10 col-sm-offset-1">
                   {{ textarea_form.hidden_tag() }}
                   {{ textarea_form.links(class="form-control",rows="8") }}
@@ -80,13 +88,47 @@
         </script>
     {% endif %}
 
+    {% if edit_hex_name %}
+      <script>
+          var currentHexName = $('#hex-title').text()
+          $("[contenteditable='true']#hex-title").on("blur", function() {
+              //If the title is not empty, set the new title
+              var newHexName = $(this).text().trim()
+              if (newHexName.length !== 0) {
+                  //Max Length for hex title is 100 characters
+                  newHexName = newHexName.substring(0, Math.min(newHexName.length,100));
+                  currentHexName = newHexName
+              }
+              $(this).text(currentHexName)
+          });
+
+          $('#hex-title').bind("keydown", function(event) {
+              var target = $(event.target)
+              c = event.keyCode
+              
+              //Enter or Exit
+              if (c === 27) {
+                $(this).text(currentHexName)
+                $("#hex-title").blur()
+                // Workaround for webkit's bug
+                window.getSelection().removeAllRanges()
+              }
+              else if (c == 13) {
+                $("#hex-title").blur()
+                // Workaround for webkit's bug
+                window.getSelection().removeAllRanges()
+              }
+          });
+      </script>
+    {% endif %}
+
     <script>
-        $('.add_more_links').click(function () {
-            $('html, body').animate({
-                scrollTop: $(document).height()
-            }, 'slow');
-            return false;
-        });
+      $('.add_more_links').click(function () {
+          $('html, body').animate({
+              scrollTop: $(document).height()
+          }, 'slow')
+          return false
+      });
     </script>
 
 {% endblock %}
