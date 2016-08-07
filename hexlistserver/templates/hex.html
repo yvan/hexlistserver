@@ -6,6 +6,8 @@
 <meta property="og:description" content="A hex by {{ hex_object.ex_hex_owner.username }}">
 <meta property="og:type" content="article">
 <meta property="og:image" content="https://hexlist.com/static/hexlist-red.png">
+<meta property="og:image:width" content="182">
+<meta property="og:image:height" content="202">
 {% endblock %}
 
 {% block content %}
@@ -13,6 +15,12 @@
     <div class="content-container container">
         <div>
         <h2 class="list-title" id="hex-title" {% if edit_hex_name %} contenteditable="true" {% endif %}>{{ hex_object.name }}</h2>
+        {% if edit_hex_name %}
+        <form action="/internal/form_update_hex_name/{{ hex_object.id }}" method="POST" name="rename_hex" id="rename-hex-form" style="display:none;">
+            {{ edit_hex_name_form.hidden_tag() }}
+            {{ edit_hex_name_form.hexname(type="hidden", id="rename-hex-field") }}
+        </form>
+        {% endif %}
         <div class="list-content">
         {% for hexlink in hex_object.ex_hexlinks %}
             <a class="list-link" href="{{ hexlink.url }}" target="_blank">
@@ -92,13 +100,6 @@
       <script>
           var currentHexName = $('#hex-title').text()
           $("[contenteditable='true']#hex-title").on("blur", function() {
-              //If the title is not empty, set the new title
-              var newHexName = $(this).text().trim()
-              if (newHexName.length !== 0) {
-                  //Max Length for hex title is 100 characters
-                  newHexName = newHexName.substring(0, Math.min(newHexName.length,100));
-                  currentHexName = newHexName
-              }
               $(this).text(currentHexName)
           });
 
@@ -107,13 +108,19 @@
               c = event.keyCode
               
               //Enter or Exit
-              if (c === 27) {
-                $(this).text(currentHexName)
-                $("#hex-title").blur()
-                // Workaround for webkit's bug
-                window.getSelection().removeAllRanges()
-              }
-              else if (c == 13) {
+              if (c === 27 || c == 13) {
+                if (c == 13) {
+                  //If the title is not empty, set the new title
+                  var newHexName = $(this).text().trim()
+                  if (newHexName.length !== 0) {
+                      //Max Length for hex title is 100 characters
+                      newHexName = newHexName.substring(0, Math.min(newHexName.length,100));
+                      currentHexName = newHexName
+                  }
+                  $("#rename-hex-field").val(currentHexName)
+                  $("#rename-hex-form").submit()
+                }
+
                 $("#hex-title").blur()
                 // Workaround for webkit's bug
                 window.getSelection().removeAllRanges()
