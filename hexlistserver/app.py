@@ -164,7 +164,7 @@ def link_view(link_object_id):
 def user_view(username):
     hexlinks = {}
     user_object = get_user_by_name(username)
-    if user_object:
+    if user_object and not username == 'anon':
         hex_objects = list(hex_object.HexObject.query.filter_by(user_object_id=user_object.id))
         email_form = InputEmail() if current_user == user_object and not current_user.email else None
         for hex_obj in hex_objects:
