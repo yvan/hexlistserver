@@ -88,14 +88,6 @@
         {% endwith %}
     </div>
 
-    {% if should_scroll %}
-        <script>
-            $('html, body').animate({
-                scrollTop: $(document).height()
-            }, 'slow');
-        </script>
-    {% endif %}
-
     {% if edit_hex_name %}
       <script>
           var currentHexName = $('#hex-title').text()
@@ -128,14 +120,5 @@
           });
       </script>
     {% endif %}
-
-    <script>
-      $('.add_more_links').click(function () {
-          $('html, body').animate({
-              scrollTop: $(document).height()
-          }, 'slow')
-          return false
-      });
-    </script>
 
 {% endblock %}

@@ -118,8 +118,6 @@ def about_page():
 # display a hex with all its links
 @app.route('/hex/<string:hex_object_id>', methods=['GET'])
 def hex_view(hex_object_id):
-    scroll_arg = request.args.get('should_scroll', None)
-
     hex_object = get_hex_object_method(hex_object_id)
     hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
@@ -151,7 +149,7 @@ def hex_view(hex_object_id):
             add_more_links = True
             edit_hex_name = True
 
-    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links, should_scroll=scroll_arg)
+    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
@@ -164,7 +162,7 @@ def link_view(link_object_id):
 def user_view(username):
     hexlinks = {}
     user_object = get_user_by_name(username)
-    if user_object and not username == 'anon':
+    if user_object and not username == app.config['ANON_USER_NAME']:
         hex_objects = list(hex_object.HexObject.query.filter_by(user_object_id=user_object.id))
         email_form = InputEmail() if current_user == user_object and not current_user.email else None
         for hex_obj in hex_objects:
@@ -212,7 +210,7 @@ def form_claim_hex_logged_in(hex_object_id):
     hex_to_reassign.owner_id = session_user_object.id
     hex_to_reassign.user_object_id = session_user_object.id
     db.session.commit()
-    return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
+    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
 def form_create_user(hex_object_id):
@@ -241,9 +239,9 @@ def form_create_user(hex_object_id):
         else:
             # tell user about failed hex claim
             flash('there was an error claiming this hex, you probably just need to try again')
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
     else:
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/form_add_links_to_hex/<string:hex_object_id>', methods=['POST'])
 def form_add_links_to_hex(hex_object_id):
@@ -255,7 +253,7 @@ def form_add_links_to_hex(hex_object_id):
         return redirect(url_for('hex_view', hex_object_id=hex_object_id))
     else:
         flash('there was an error adding links to this hex, reload and try again?')
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id, should_scroll=1))
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/emailstore', methods=['POST'])
 def store_email():
