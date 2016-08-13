@@ -228,6 +228,8 @@ def form_create_user(hex_object_id):
                 hex_to_reassign.owner_id = session_user_object.id
                 hex_to_reassign.user_object_id = session_user_object.id
                 db.session.commit()
+                # log the user in
+                login_user(session_user_object)
         elif request.form['password'] == request.form['password_two']:
             # create the user
             created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
@@ -236,6 +238,8 @@ def form_create_user(hex_object_id):
             hex_to_reassign.owner_id = created_user.id
             hex_to_reassign.user_object_id = created_user.id
             db.session.commit()
+            # log the user in
+            login_user(created_user)
         else:
             # tell user about failed hex claim
             flash('there was an error claiming this hex, you probably just need to try again')
