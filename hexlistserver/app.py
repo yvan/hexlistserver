@@ -206,12 +206,15 @@ def form_hex_create():
 
 @app.route('/internal/form_make_or_claim_user_and_claim_hex_logged_in/<string:hex_object_id>', methods=['POST'])
 def form_claim_hex_logged_in(hex_object_id):
-    session_user_object = current_user
-    hex_to_reassign = get_hex_object_method(hex_object_id)
-    hex_to_reassign.owner_id = session_user_object.id
-    hex_to_reassign.user_object_id = session_user_object.id
-    db.session.commit()
-    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+    if current_user.is_anonymous:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
+    else:
+        session_user_object = current_user
+        hex_to_reassign = get_hex_object_method(hex_object_id)
+        hex_to_reassign.owner_id = session_user_object.id
+        hex_to_reassign.user_object_id = session_user_object.id
+        db.session.commit()
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
 def form_create_user(hex_object_id):
@@ -250,53 +253,65 @@ def form_create_user(hex_object_id):
 
 @app.route('/internal/form_add_links_to_hex/<string:hex_object_id>', methods=['POST'])
 def form_add_links_to_hex(hex_object_id):
-    text_area = TextareaForm(request.form)
-    if request.form and text_area.validate_on_submit():
-        submitted_urls = get_urls_from_blob(request.form['links'])
-        for url in submitted_urls:
-            post_link_method(url, '', hex_object_id)
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+    if current_user.is_anonymous:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
-        flash('there was an error adding links to this hex, reload and try again?')
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+        text_area = TextareaForm(request.form)
+        if request.form and text_area.validate_on_submit():
+            submitted_urls = get_urls_from_blob(request.form['links'])
+            for url in submitted_urls:
+                post_link_method(url, '', hex_object_id)
+            return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+        else:
+            flash('there was an error adding links to this hex, reload and try again?')
+            return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/emailstore', methods=['POST'])
-@auth.login_required
 def store_email():
-    email_form = InputEmail(request.form)
-    if request.form and email_form.validate_on_submit():
-        if request.form['email'] == request.form['email_two']:
-            user_object = get_user_method(current_user.id)
-            user_object.email = request.form['email']
-            db.session.commit()
-    return redirect(url_for('user_view', username=current_user.username))
+    if current_user.is_anonymous:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
+    else:
+        email_form = InputEmail(request.form)
+        if request.form and email_form.validate_on_submit():
+            if request.form['email'] == request.form['email_two']:
+                user_object = get_user_method(current_user.id)
+                user_object.email = request.form['email']
+                db.session.commit()
+        return redirect(url_for('user_view', username=current_user.username))
 
 @app.route('/internal/form_update_hex_name/<string:hex_object_id>', methods=['POST'])
-@auth.login_required
 def update_hex_name(hex_object_id):
-    rename_hex = RenameHex(request.form)
-    if request.form and rename_hex.validate_on_submit():
-        hex_to_update = get_hex_object_method(hex_object_id)
-        hex_to_update.name = request.form['hexname']
-        db.session.commit()
-    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+    if current_user.is_anonymous:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
+    else:
+        rename_hex = RenameHex(request.form)
+        if request.form and rename_hex.validate_on_submit():
+            hex_to_update = get_hex_object_method(hex_object_id)
+            hex_to_update.name = request.form['hexname']
+            db.session.commit()
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/form_update_link_description/<string:link_object_id>', methods=['POST'])
-@auth.login_required
 def update_link_description(link_object_id):
-    rename_link = RenameLink(request.form)
-    if request.form and rename_link.validate_on_submit():
-        link_to_update = get_link_method(link_object_id)
-        link_to_update.name = request.form['linkdescription']
-        db.session.commit()
-    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+    if current_user.is_anonymous:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
+    else:
+        rename_link = RenameLink(request.form)
+        if request.form and rename_link.validate_on_submit():
+            link_to_update = get_link_method(link_object_id)
+            link_to_update.name = request.form['linkdescription']
+            db.session.commit()
+        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/form_delete_hex/<string:hex_object_id>', methods=['POST'])
 @auth.login_required
 def internal_delete_hex(hex_object_id):
-    hex_owner = get_user_method(get_hex_object(hex_object_id).owner_id)
-    delete_hex_method(hex_object_id)
-    return redirect(url_for('user_view', username=hex_owner.username))
+    if current_user.is_anonymous:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
+    else:
+        hex_owner = get_user_method(get_hex_object(hex_object_id).owner_id)
+        delete_hex_method(hex_object_id)
+        return redirect(url_for('user_view', username=hex_owner.username))
 
 '''
 api route methods
