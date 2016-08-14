@@ -27,6 +27,7 @@ from hexlistserver.forms.create_user import CreateUser
 from hexlistserver.forms.login_user import LoginUser
 from hexlistserver.forms.input_email import InputEmail
 from hexlistserver.forms.rename_hex import RenameHex
+from hexlistserver.forms.rename_link import RenameLink
 from hexlistserver.forms.recover_password import RecoverPassword
 
 app = Flask(__name__)
@@ -275,6 +276,15 @@ def update_hex_name(hex_object_id):
     if request.form and rename_hex.validate_on_submit():
         hex_to_update = get_hex_object_method(hex_object_id)
         hex_to_update.name = request.form['hexname']
+        db.session.commit()
+    return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+
+@app.route('/internal/form_update_link_description/<string:link_object_id>', methods=['POST'])
+def update_hex_name(link_object_id):
+    rename_link = RenameLink(request.form)
+    if request.form and rename_link.validate_on_submit():
+        link_to_update = get_link_method(link_object_id)
+        link_to_update.name = request.form['linkdescription']
         db.session.commit()
     return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 

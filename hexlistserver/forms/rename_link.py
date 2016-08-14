@@ -1,7 +1,7 @@
 from flask.ext.wtf import Form
 from wtforms.fields import StringField
 
-class RenameHex(Form):
+class RenameLink(Form):
     hexname = StringField('hexname')
 
 '''
