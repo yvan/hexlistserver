@@ -261,6 +261,7 @@ def form_add_links_to_hex(hex_object_id):
         return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/emailstore', methods=['POST'])
+@auth.login_required
 def store_email():
     email_form = InputEmail(request.form)
     if request.form and email_form.validate_on_submit():
@@ -271,6 +272,7 @@ def store_email():
     return redirect(url_for('user_view', username=current_user.username))
 
 @app.route('/internal/form_update_hex_name/<string:hex_object_id>', methods=['POST'])
+@auth.login_required
 def update_hex_name(hex_object_id):
     rename_hex = RenameHex(request.form)
     if request.form and rename_hex.validate_on_submit():
@@ -280,13 +282,21 @@ def update_hex_name(hex_object_id):
     return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/form_update_link_description/<string:link_object_id>', methods=['POST'])
-def update_hex_name(link_object_id):
+@auth.login_required
+def update_link_description(link_object_id):
     rename_link = RenameLink(request.form)
     if request.form and rename_link.validate_on_submit():
         link_to_update = get_link_method(link_object_id)
         link_to_update.name = request.form['linkdescription']
         db.session.commit()
     return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+
+@app.route('/internal/form_delete_hex/<string:hex_object_id>', methods=['POST'])
+@auth.login_required
+def internal_delete_hex(hex_object_id):
+    hex_owner = get_user_method(get_hex_object(hex_object_id).owner_id)
+    delete_hex_method(hex_object_id)
+    return redirect(url_for('user_view', username=hex_owner.username))
 
 '''
 api route methods
