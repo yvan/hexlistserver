@@ -14,12 +14,16 @@ class Config(object):
     ANON_USER_PASSWORD = os.environ['ANON_USER_PASSWORD']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
 
+    MAIL_SERVER ='smtp.gmail.com'
+    MAIL_PORT = 587 #465
+    MAIL_USERNAME = os.environ['MAIL_USERNAME']
+    MAIL_PASSWORD = os.environ['MAIL_PASSWORD']
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+
 class ProductionConfig(Config):
     DEVELOPMENT = False
     DEBUG = False
-    # MAILGUN_SENDER = os.environ['MAILGUN_SMTP_LOGIN']
-    # MAILGUN_KEY = os.environ['MAILGUN_API_KEY']
-    # MAILGUN_DOMAIN = os.environ['MAILGUN_DOMAIN']
 
 class StagingConfig(Config):
     DEVELOPMENT = True

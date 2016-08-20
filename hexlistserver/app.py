@@ -5,12 +5,14 @@ primary file with app logic
 import os
 import re
 import bs4
+import uuid
 import petname
 import binascii
 import requests
 import traceback
 
 from rq import Queue
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from hexlistserver.worker import conn
 from random_words import RandomWords
@@ -21,6 +23,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.sslify import SSLify
+from flask_mail import Mail, Message
 
 from hexlistserver.forms.textarea import TextareaForm
 from hexlistserver.forms.create_user import CreateUser
@@ -29,6 +32,7 @@ from hexlistserver.forms.input_email import InputEmail
 from hexlistserver.forms.rename_hex import RenameHex
 from hexlistserver.forms.rename_link import RenameLink
 from hexlistserver.forms.recover_password import RecoverPassword
+from hexlistserver.forms.reset_password import ResetPassword
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -41,8 +45,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 db = SQLAlchemy(app)
 q = Queue(connection=conn)
+mail = Mail(app)
 
-from hexlistserver.models import hex_object, link_object, user_object, ios_hex_location, send_object
+from hexlistserver.models import hex_object, link_object, user_object, ios_hex_location, send_object, password_reset
 
 '''
 login manager
@@ -84,24 +89,54 @@ def reset_password():
     # then send a n email to that email 
     if request.method == 'POST':
         # we want our pwd resets to only last 30 min
-        s = URLSafeSerializer(app.config['SECRET_KEY'], expires_in=1800)
-        input_email = {"email": request.form['email']}
-        hashed_email = s.dumps(input_email)
-        email_body = 'hexlist.com/password_reset/{}'.format(hashed_email)
-        
+        s = URLSafeSerializer(app.config['SECRET_KEY'])
+        input_code = {"code": uuid.uuid4().urn[9:]}
+        hashed_code_payload = s.dumps(input_code)
+        msg = Message('password recovery', sender = app.config['MAIL_USERNAME'], recipients = [request.form['email']])
+        msg.body = '''
+        here is the link to reset your password: http://hexlist.com/password_reset/{}
+
+        if you did not reset your password ignore this email or contact support: hexlist.worker.bees@gmail.com
+
+        or text us at (347) 985-0439
+        '''.format(hashed_code_payload)
+        j = q.enqueue(queue_mail, msg)
+        flash('we sent you an email. go look at it.')
+        pass_reset = password_reset.PasswordReset(input_code['code'], get_user_by_email(request.form['email']).id, datetime.utcnow() + timedelta(hours=1))
+        db.session.add(pass_reset)
+        db.session.commit()
+        return render_template('forgot_password.html', form=None)
     # show form on page to put in email
     else:
         return render_template('forgot_password.html', form=RecoverPassword())
 
-@app.route('/password_reset/<string:hashed_val>', methods=['GET'])
+# necessary helper func for 
+# putting mail on a queue
+# with app context
+def queue_mail(msg):
+    with app.app_context():
+        mail.send(msg)
+
+@app.route('/password_reset/<string:hashed_val>', methods=['GET', 'POST'])
 def process_reset(hashed_val):
-    # get posted signed token unsign it and look up which user object
-    # corresponding to the email it is, then pwd reset prompt
-    s = URLSafeSerializer(app.config['SECRET_KEY'], expires_in=1800)
-    try:
-        s.loads(hashed_val)
-    except (BadSignature, SignatureExpired) as e:
-        pass
+    s = URLSafeSerializer(app.config['SECRET_KEY'])
+    if request.method == 'GET':
+        # get posted signed token unsign it and look up which user object
+        # corresponding to the email it is, then pwd reset prompt
+        try:
+            return render_template('reset_password.html', form=ResetPassword(), hashed_val=hashed_val)
+        except (BadSignature, SignatureExpired) as e:
+            pass
+    elif request.method == 'POST':
+        reset_password = ResetPassword(request.form)
+        if request.form and reset_password.validate_on_submit(): 
+            if request.form['password'] == request.form['password_two']:
+                unsigned_token = s.loads(hashed_val)
+                pass_reset = password_reset.PasswordReset.query.filter_by(code=unsigned_token['code']).first()
+                user = get_user_method(pass_reset.user_object_id)
+                user.password = user.hash_password(request.form['password'])
+                db.session.commit()
+        return redirect('/')
 '''
 view route methods
 '''
@@ -395,6 +430,9 @@ def get_user_method(user_object_id):
 
 def get_user_by_name(username):
     return user_object.UserObject.query.filter_by(username=username).first()
+
+def get_user_by_email(email):
+    return user_object.UserObject.query.filter_by(email=email).first()
 
 @app.route('/api/v1.0/user', methods=['POST'])
 @auth.login_required
