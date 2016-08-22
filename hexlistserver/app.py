@@ -96,26 +96,27 @@ def reset_password():
         user_to_email = get_user_by_email(request.form['email'])
         if not user_to_email:
             flash('the email you gave is not registered. this is awkward.')
-        message = PMMail(api_key = app.config['POSTMARK_API_KEY'],
-                 subject = "hexlist password reset",
-                 sender = "wizard@hexlist.com",
-                 to = request.form['email'],
-                 text_body = '''
-                            here is the link to reset your password:
+        else:
+            message = PMMail(api_key = app.config['POSTMARK_API_KEY'],
+                     subject = "hexlist password reset",
+                     sender = "wizard@hexlist.com",
+                     to = request.form['email'],
+                     text_body = '''
+                                here is the link to reset your password:
 
-                            http://hexlist.com/password_reset/{}
+                                http://hexlist.com/password_reset/{}
 
-                            if you did not reset your password ignore this email or contact support: support@hexlist.com
+                                if you did not reset your password ignore this email or contact support: support@hexlist.com
 
-                            or text us at (347) 985-0439
+                                or text us at (347) 985-0439
 
-                            '''.format(hashed_code_payload),
-                 tag = "recover_password")
-        j = q.enqueue(queue_mail, message)
-        flash('we sent you an email. go look at it.')
-        pass_reset = password_reset.PasswordReset(input_code['code'], user_to_email.id, datetime.utcnow() + timedelta(hours=1))
-        db.session.add(pass_reset)
-        db.session.commit()
+                                '''.format(hashed_code_payload),
+                     tag = "recover_password")
+            j = q.enqueue(queue_mail, message)
+            flash('we sent you an email. go look at it.')
+            pass_reset = password_reset.PasswordReset(input_code['code'], user_to_email.id, datetime.utcnow() + timedelta(hours=1))
+            db.session.add(pass_reset)
+            db.session.commit()
         return render_template('forgot_password.html', form=None)
     # show form on page to put in email
     else:
