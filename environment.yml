@@ -19,3 +19,4 @@ dependencies:
   - beautifulsoup4==4.4.1
   - petname==1.12
   - Flask-SSLify==0.1.5
+  - python-postmark==0.4.9

@@ -13,13 +13,7 @@ class Config(object):
     ANON_USER_NAME = os.environ['ANON_USER_NAME']
     ANON_USER_PASSWORD = os.environ['ANON_USER_PASSWORD']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-
-    MAIL_SERVER ='smtp.gmail.com'
-    MAIL_PORT = 587 #465
-    MAIL_USERNAME = os.environ['MAIL_USERNAME']
-    MAIL_PASSWORD = os.environ['MAIL_PASSWORD']
-    MAIL_USE_TLS = True
-    MAIL_USE_SSL = False
+    POSTMARK_API_KEY = os.environ['POSTMARK_API_KEY']
 
 class ProductionConfig(Config):
     DEVELOPMENT = False

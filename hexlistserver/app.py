@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 from hexlistserver.worker import conn
 from random_words import RandomWords
 from itsdangerous import URLSafeSerializer, SignatureExpired, BadSignature
+from postmark import PMMail
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -66,7 +67,7 @@ def login():
     if request.method == 'POST':
         if verify_password(request.form['username'], request.form['password']):
             login_user(get_user_by_name(request.form['username']))
-            return redirect(request.form['login_referrer'])
+            return redirect(url_for('user_view', username=current_user.username))
         else:
             # tell user about failed login
             flash('you failed to login')
@@ -75,7 +76,7 @@ def login():
         if not current_user.is_anonymous:
             return redirect(url_for('main_page'))
         login_user_form = LoginUser()
-        return render_template('login.html', form=login_user_form, login_referrer=request.referrer)
+        return render_template('login.html', form=login_user_form)
 
 @app.route('/logout', methods=['GET'])
 @login_required
@@ -92,15 +93,22 @@ def reset_password():
         s = URLSafeSerializer(app.config['SECRET_KEY'])
         input_code = {"code": uuid.uuid4().urn[9:]}
         hashed_code_payload = s.dumps(input_code)
-        msg = Message('password recovery', sender = app.config['MAIL_USERNAME'], recipients = [request.form['email']])
-        msg.body = '''
-        here is the link to reset your password: http://hexlist.com/password_reset/{}
+        message = PMMail(api_key = app.config['POSTMARK_API_KEY'],
+                 subject = "hexlist password reset",
+                 sender = "wizard@hexlist.com",
+                 to = "yvanscher@gmail.com",
+                 text_body = '''
+                            here is the link to reset your password:
 
-        if you did not reset your password ignore this email or contact support: hexlist.worker.bees@gmail.com
+                            http://hexlist.com/password_reset/{}
 
-        or text us at (347) 985-0439
-        '''.format(hashed_code_payload)
-        j = q.enqueue(queue_mail, msg)
+                            if you did not reset your password ignore this email or contact support: support@hexlist.com
+
+                            or text us at (347) 985-0439
+                            
+                            '''.format(hashed_code_payload),
+                 tag = "recover_password")
+        j = q.enqueue(queue_mail, message)
         flash('we sent you an email. go look at it.')
         pass_reset = password_reset.PasswordReset(input_code['code'], get_user_by_email(request.form['email']).id, datetime.utcnow() + timedelta(hours=1))
         db.session.add(pass_reset)
@@ -115,7 +123,7 @@ def reset_password():
 # with app context
 def queue_mail(msg):
     with app.app_context():
-        mail.send(msg)
+        msg.send()
 
 @app.route('/password_reset/<string:hashed_val>', methods=['GET', 'POST'])
 def process_reset(hashed_val):
@@ -136,7 +144,7 @@ def process_reset(hashed_val):
                 user = get_user_method(pass_reset.user_object_id)
                 user.password = user.hash_password(request.form['password'])
                 db.session.commit()
-        return redirect('/')
+        return redirect('/login')
 '''
 view route methods
 '''

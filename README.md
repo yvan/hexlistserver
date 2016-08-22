@@ -357,6 +357,8 @@ this tutorial (ignore autoenv):
 
 [twilio addon custom verification](https://www.twilio.com/docs/tutorials/walkthrough/account-verification/python/flask)
 
+[point namecheap to heroku app](https://www.namecheap.com/support/knowledgebase/article.aspx/9737/2208/how-to-point-a-domain-to-the-heroku-app)
+
 #author
 
 [yvan](https://github.com/yvan)

@@ -1,5 +1,3 @@
 export APP_SETTINGS='hexlistserver.config.DevelopmentConfig'
 export DATABASE_URL='postgresql://localhost/hexlistserver'
 export SESSION_TYPE='sqlalchemy'
-export MAIL_USERNAME='hexlist.worker.bees@gmail.com'
-export MAIL_PASSWORD='GDds2QE2BqiRZvcNsxpqJkjhinqi'
