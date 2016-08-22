@@ -93,10 +93,13 @@ def reset_password():
         s = URLSafeSerializer(app.config['SECRET_KEY'])
         input_code = {"code": uuid.uuid4().urn[9:]}
         hashed_code_payload = s.dumps(input_code)
+        user_to_email = get_user_by_email(request.form['email'])
+        if not user_to_email:
+            flash('the email you gave is not registered. this is awkward.')
         message = PMMail(api_key = app.config['POSTMARK_API_KEY'],
                  subject = "hexlist password reset",
                  sender = "wizard@hexlist.com",
-                 to = "yvanscher@gmail.com",
+                 to = request.form['email'],
                  text_body = '''
                             here is the link to reset your password:
 
@@ -105,12 +108,12 @@ def reset_password():
                             if you did not reset your password ignore this email or contact support: support@hexlist.com
 
                             or text us at (347) 985-0439
-                            
+
                             '''.format(hashed_code_payload),
                  tag = "recover_password")
         j = q.enqueue(queue_mail, message)
         flash('we sent you an email. go look at it.')
-        pass_reset = password_reset.PasswordReset(input_code['code'], get_user_by_email(request.form['email']).id, datetime.utcnow() + timedelta(hours=1))
+        pass_reset = password_reset.PasswordReset(input_code['code'], user_to_email.id, datetime.utcnow() + timedelta(hours=1))
         db.session.add(pass_reset)
         db.session.commit()
         return render_template('forgot_password.html', form=None)
