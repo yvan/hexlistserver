@@ -212,11 +212,17 @@ def user_view(username):
     user_object = get_user_by_name(username)
     if user_object and not username == app.config['ANON_USER_NAME']:
         hex_objects = list(hex_object.HexObject.query.filter_by(user_object_id=user_object.id))
-        email_form = InputEmail() if current_user == user_object and not current_user.email else None
         for hex_obj in hex_objects:
             links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
             hexlinks[hex_obj.id] = [link.url for link in links]
-        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, email_form=email_form)
+
+        email_form = None
+        enable_editing_controls = False
+        if current_user == user_object:
+            email_form = InputEmail() if not current_user.email else None
+            enable_editing_controls = True
+
+        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, enable_editing_controls=enable_editing_controls, email_form=email_form)
     else:
         abort(404)
 
@@ -351,12 +357,11 @@ def update_link_description(link_object_id):
         return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
 @app.route('/internal/form_delete_hex/<string:hex_object_id>', methods=['POST'])
-@auth.login_required
 def internal_delete_hex(hex_object_id):
     if current_user.is_anonymous:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
-        hex_owner = get_user_method(get_hex_object(hex_object_id).owner_id)
+        hex_owner = get_user_method(get_hex_object_method(hex_object_id).owner_id)
         delete_hex_method(hex_object_id)
         return redirect(url_for('user_view', username=hex_owner.username))
 

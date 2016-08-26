@@ -6,11 +6,75 @@
         <h2 class="list-title">{{ username }}'s hexlist</h2>
         <div class="list-content">
         {% for hex in hexes %}
-            	<a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
+          <div class="list-link-div">
+            <a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
+
+            {% if enable_editing_controls %}
+              <span class="btn-group" style="display: inline-block;">
+                <button class="dropdown-button btn btn-mini button-transparent dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <li><a class="delete-hex" data-hex-id="{{ hex.id }}" data-hex-name="{{ hex.name }}" data-toggle="modal" href="#confirm-delete" style="color:#d9534f;"><span class="glyphicon glyphicon-trash" style="padding-right:10px;"></span>Delete</a></li>
+                </ul>
+              </span>
+            {% endif %}
+          </div>
         {% endfor %}
         </div>
     </div>
+
+    {% if enable_editing_controls %}
+      <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                      <h3 class="modal-title" id="myModalLabel" style="color:black;">Delete Hex</h3>
+                  </div>
+                  <div class="modal-body" style="color:black;"></div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                      <a id="confirm-delete-button" class="btn btn-danger" data-dismiss="modal">Delete</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+    {% endif %}
     {% if email_form and hexes|length > 2 %}
         {% include 'email.html' %}
+    {% endif %}
+
+    {% if enable_editing_controls %}
+      <script>
+      $(".dropdown-button").mouseup(function(){
+          $(this).blur();
+      })
+      $(".delete-hex").click(function(e) {
+        hex_name = $(this).data('hex-name')
+        hex_id = $(this).data('hex-id')
+        hex_div = $(this).closest('div[class^="list-link-div"]')
+        $('#confirm-delete-button').data('hex_id', hex_id)
+        $('#confirm-delete-button').data('hex_div', hex_div)
+
+        $('#confirm-delete .modal-body').text('Are you sure you want to delete ' + hex_name + '?')
+      });
+      
+      $('#confirm-delete-button').click(function(e) {
+        hex_id = $(this).data('hex_id')
+        hex_div = $(this).data('hex_div')
+        $.ajax({
+            url: '/internal/form_delete_hex/' + hex_id,
+            type: 'POST',
+            success: function(response) {
+              hex_div.remove();
+            },
+            error: function(error) {
+                console.log(error);
+                alert(error)
+            }
+        });
+      });
+      </script>
     {% endif %}
 {% endblock %}
