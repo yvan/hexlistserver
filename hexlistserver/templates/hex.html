@@ -14,10 +14,10 @@
 
     <div class="content-container container">
         <div>
-        <h2 class="list-title" id="hex-title" {% if edit_hex_name %} contenteditable="true" {% endif %}>{{ hex_object.name }}</h2>
+        <h2 class="list-title" id="hex-title" {% if enable_editing_controls %} contenteditable="true" {% endif %}>{{ hex_object.name }}</h2>
         <h4>by <a class="fade-link" href="{{ url_for('user_view', username=hex_object.ex_hex_owner.username) }}">{{ hex_object.ex_hex_owner.username }}</a></h4>
         <!-- <hr> -->
-        {% if edit_hex_name and owned_by_logged_in_user %}
+        {% if enable_editing_controls and owned_by_logged_in_user %}
         <form action="/internal/form_update_hex_name/{{ hex_object.id }}" method="POST" name="rename_hex" id="rename-hex-form" style="display:none;">
             {{ edit_hex_name_form.hidden_tag() }}
             {{ edit_hex_name_form.hexname(type="hidden", id="rename-hex-field") }}
@@ -25,7 +25,7 @@
         {% endif %}
         <div class="list-content">
         {% for hexlink in hex_object.ex_hexlinks %}
-          <div>
+          <div class="list-link-div">
             <a class="list-link" href="{{ hexlink.url }}" target="_blank">
             {% if hexlink.description %}
                {{ hexlink.url }}
@@ -35,6 +35,16 @@
                {{ hexlink.url }}
             {% endif %}
             </a>
+            {% if enable_editing_controls %}
+              <span class="btn-group" style="display: inline-block;">
+                <button class="dropdown-button btn btn-mini button-transparent dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <li><a class="delete-link" data-link-id="{{ hexlink.id }}" href="#" style="color:#d9534f;"><span class="glyphicon glyphicon-trash" style="padding-right:10px;"></span>Delete</a></li>
+                </ul>
+              </span>
+            {% endif %}
           </div>
         {% endfor %}
         </div>
@@ -122,6 +132,30 @@
                 window.getSelection().removeAllRanges()
               }
           });
+      </script>
+    {% endif %}
+
+    {% if enable_editing_controls %}
+      <script>
+      $(".dropdown-button").mouseup(function(){
+          $(this).blur();
+      })
+      $(".delete-link").click(function(e) {
+        link_id = $(this).data('link-id')
+        link_div = $(this).closest('div[class^="list-link-div"]')
+        
+        $.ajax({
+            url: '/internal/form_delete_link/' + link_id,
+            type: 'POST',
+            success: function(response) {
+              link_div.remove();
+            },
+            error: function(error) {
+                console.log(error);
+                alert(error)
+            }
+        });
+      });
       </script>
     {% endif %}
 

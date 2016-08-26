@@ -169,7 +169,7 @@ start postgres locally
 
 Copy all values except APP_SETTINGS and DATABASE_URL, and do not set USER_MAKER_PASSWORD yet.
 
-`export ANON_USER_ID= && export ANON_USER_NAME= && export ANON_USER_PASSWORD= && export APP_SETTINGS=hexlistserver.config.DevelopmentConfig && export DATABASE_URL=postgresql://localhost/hexlistserver && export FLASK_SECRET_KEY= && export USER_MAKER_NAME= && export USER_MAKER_PASSWORD=`
+`export ANON_USER_ID= && export ANON_USER_NAME= && export ANON_USER_PASSWORD= && export APP_SETTINGS=hexlistserver.config.DevelopmentConfig && export DATABASE_URL=postgresql://localhost/hexlistserver && export FLASK_SECRET_KEY= && export POSTMARK_API_KEY= && export POSTMARK_API_TOKEN= && export POSTMARK_INBOUND_ADDRESS= && export POSTMARK_SMTP_SERVER= && export USER_MAKER_NAME= && export USER_MAKER_PASSWORD=`
 
 7 - Run `make upgrade` to perform migration & create database tables
 
