@@ -17,7 +17,7 @@
         <h2 class="list-title" id="hex-title" {% if edit_hex_name %} contenteditable="true" {% endif %}>{{ hex_object.name }}</h2>
         <h4>by <a class="fade-link" href="{{ url_for('user_view', username=hex_object.ex_hex_owner.username) }}">{{ hex_object.ex_hex_owner.username }}</a></h4>
         <!-- <hr> -->
-        {% if edit_hex_name %}
+        {% if edit_hex_name and owned_by_logged_in_user %}
         <form action="/internal/form_update_hex_name/{{ hex_object.id }}" method="POST" name="rename_hex" id="rename-hex-form" style="display:none;">
             {{ edit_hex_name_form.hidden_tag() }}
             {{ edit_hex_name_form.hexname(type="hidden", id="rename-hex-field") }}

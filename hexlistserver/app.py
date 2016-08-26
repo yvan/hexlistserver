@@ -196,8 +196,9 @@ def hex_view(hex_object_id):
             text_area_form = TextareaForm()
             add_more_links = True
             edit_hex_name = True
+            owned_by_logged_in_user = True
 
-    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links)
+    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links, owned_by_logged_in_user=owned_by_logged_in_user)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
