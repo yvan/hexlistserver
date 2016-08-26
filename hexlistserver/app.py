@@ -176,8 +176,7 @@ def hex_view(hex_object_id):
     text_area_form = False
     logged_in_claim_hex = False
     enable_editing_controls = False
-    owned_by_logged_in_user = False
-    
+
     # hex is owned by anon, anonymous user
     # display a form to claim ownership
     if app.config['ANON_USER_NAME'] == hex_owner.username:
@@ -196,9 +195,8 @@ def hex_view(hex_object_id):
             edit_hex_name_form = RenameHex()
             text_area_form = TextareaForm()
             enable_editing_controls = True
-            owned_by_logged_in_user = True
 
-    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex, owned_by_logged_in_user=owned_by_logged_in_user)
+    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
@@ -258,18 +256,24 @@ def form_hex_create():
     text_area = TextareaForm(links=request.form['links'])
     return render_template('main.html', current_user=current_user, form=text_area)
 
+#when a user needs to claim and they are logged in
 @app.route('/internal/form_make_or_claim_user_and_claim_hex_logged_in/<string:hex_object_id>', methods=['POST'])
 def form_claim_hex_logged_in(hex_object_id):
-    if current_user.is_anonymous:
+    # if the owner id is something other than the anon id, the hex is already
+    # owned
+    hex_obj = get_hex_object_method(hex_object_id)
+    hex_already_owned = hex_obj.owner_id != app.config['ANON_USER_ID']
+    if current_user.is_anonymous or hex_already_owned:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
         session_user_object = current_user
-        hex_to_reassign = get_hex_object_method(hex_object_id)
+        hex_to_reassign = hex_obj
         hex_to_reassign.owner_id = session_user_object.id
         hex_to_reassign.user_object_id = session_user_object.id
         db.session.commit()
         return redirect(url_for('hex_view', hex_object_id=hex_object_id))
 
+#when a user needs to claim + create an acct or login
 @app.route('/internal/form_make_or_claim_user_and_claim_hex/<string:hex_object_id>', methods=['POST'])
 def form_create_user(hex_object_id):
     create_user = CreateUser(request.form)
@@ -307,11 +311,13 @@ def form_create_user(hex_object_id):
 
 @app.route('/internal/form_add_links_to_hex/<string:hex_object_id>', methods=['POST'])
 def form_add_links_to_hex(hex_object_id):
-    if current_user.is_anonymous:
+    is_hex_owner = current_user.id == get_hex_object_method(hex_object_id).owner_id
+
+    if current_user.is_anonymous or not is_hex_owner:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
         text_area = TextareaForm(request.form)
-        if request.form and text_area.validate_on_submit():
+        if is_hex_owner and request.form and text_area.validate_on_submit():
             submitted_urls = get_urls_from_blob(request.form['links'])
             for url in submitted_urls:
                 post_link_method(url, '', hex_object_id)
@@ -335,11 +341,13 @@ def store_email():
 
 @app.route('/internal/form_update_hex_name/<string:hex_object_id>', methods=['POST'])
 def update_hex_name(hex_object_id):
-    if current_user.is_anonymous:
+    is_hex_owner = current_user.id == get_hex_object_method(hex_object_id).owner_id
+
+    if current_user.is_anonymous or not is_hex_owner:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
         rename_hex = RenameHex(request.form)
-        if request.form and rename_hex.validate_on_submit():
+        if is_hex_owner and request.form and rename_hex.validate_on_submit():
             hex_to_update = get_hex_object_method(hex_object_id)
             hex_to_update.name = request.form['hexname']
             db.session.commit()
@@ -347,11 +355,13 @@ def update_hex_name(hex_object_id):
 
 @app.route('/internal/form_update_link_description/<string:link_object_id>', methods=['POST'])
 def update_link_description(link_object_id):
-    if current_user.is_anonymous:
+    is_link_owner = current_user.id == get_hex_object_method(get_link_method(link_object_id).hex_object_id).owner_id
+    
+    if current_user.is_anonymous or not is_link_owner:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
         rename_link = RenameLink(request.form)
-        if request.form and rename_link.validate_on_submit():
+        if is_link_owner and request.form and rename_link.validate_on_submit():
             link_to_update = get_link_method(link_object_id)
             link_to_update.name = request.form['linkdescription']
             db.session.commit()
@@ -359,22 +369,27 @@ def update_link_description(link_object_id):
 
 @app.route('/internal/form_delete_hex/<string:hex_object_id>', methods=['POST'])
 def internal_delete_hex(hex_object_id):
-    if current_user.is_anonymous:
+    is_hex_owner = current_user.id == get_hex_object_method(hex_object_id).owner_id
+    
+    if current_user.is_anonymous or not is_hex_owner:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
         hex_owner = get_user_method(get_hex_object_method(hex_object_id).owner_id)
+        # if is_hex_owner:
         delete_hex_method(hex_object_id)
         return redirect(url_for('user_view', username=hex_owner.username))
 
 @app.route('/internal/form_delete_link/<string:link_object_id>', methods=['POST'])
 def internal_delete_link(link_object_id):
-    if current_user.is_anonymous:
+    link_to_delete = get_link_method(link_object_id)
+    hex = get_hex_object_method(link_to_delete.hex_object_id)
+    is_link_owner = current_user.id == get_hex_object_method(get_link_method(link_object_id).hex_object_id).owner_id
+    
+    if current_user.is_anonymous or not is_link_owner:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
-        link_to_delete = get_link_method(link_object_id)
-        hex = get_hex_object_method(link_to_delete.hex_object_id)
-        delete_link_method(link_object_id)
-        
+        if is_link_owner:
+            delete_link_method(link_object_id)
         return redirect(url_for('hex_view', hex_object_id=hex.id))
 
 '''
