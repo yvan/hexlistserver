@@ -174,9 +174,8 @@ def hex_view(hex_object_id):
     edit_hex_name_form = None
     create_user = None
     text_area_form = False
-    add_more_links = False
-    edit_hex_name = False
     logged_in_claim_hex = False
+    enable_editing_controls = False
 
     # hex is owned by anon, anonymous user
     # display a form to claim ownership
@@ -190,14 +189,14 @@ def hex_view(hex_object_id):
             logged_in_claim_hex = True
     # hex is owned by someone
     else:
+
         # hex is owned by current user
         if not current_user.is_anonymous and current_user.id == hex_owner.id:
             edit_hex_name_form = RenameHex()
             text_area_form = TextareaForm()
-            add_more_links = True
-            edit_hex_name = True
+            enable_editing_controls = True
 
-    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, edit_hex_name=edit_hex_name, logged_in_claim_hex=logged_in_claim_hex, add_more_links=add_more_links)
+    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
@@ -364,6 +363,17 @@ def internal_delete_hex(hex_object_id):
         hex_owner = get_user_method(get_hex_object_method(hex_object_id).owner_id)
         delete_hex_method(hex_object_id)
         return redirect(url_for('user_view', username=hex_owner.username))
+
+@app.route('/internal/form_delete_link/<string:link_object_id>', methods=['POST'])
+def internal_delete_link(link_object_id):
+    if current_user.is_anonymous:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
+    else:
+        link_to_delete = get_link_method(link_object_id)
+        hex = get_hex_object_method(link_to_delete.hex_object_id)
+        delete_link_method(link_object_id)
+        
+        return redirect(url_for('hex_view', hex_object_id=hex.id))
 
 '''
 api route methods
