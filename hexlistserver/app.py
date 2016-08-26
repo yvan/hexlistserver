@@ -375,8 +375,8 @@ def internal_delete_hex(hex_object_id):
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
         hex_owner = get_user_method(get_hex_object_method(hex_object_id).owner_id)
-        # if is_hex_owner:
-        delete_hex_method(hex_object_id)
+        if is_hex_owner:
+            delete_hex_method(hex_object_id)
         return redirect(url_for('user_view', username=hex_owner.username))
 
 @app.route('/internal/form_delete_link/<string:link_object_id>', methods=['POST'])
