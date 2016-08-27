@@ -47,6 +47,7 @@
 
     {% if enable_editing_controls %}
       <script>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}
       $(".dropdown-button").mouseup(function(){
           $(this).blur();
       })
@@ -64,7 +65,7 @@
         hex_id = $(this).data('hex_id')
         hex_div = $(this).data('hex_div')
         $.ajax({
-            url: '/internal/form_delete_hex/' + hex_id,
+            url: $SCRIPT_ROOT + '/internal/form_delete_hex/' + hex_id,
             type: 'POST',
             success: function(response) {
               hex_div.remove();
