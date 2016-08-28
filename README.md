@@ -359,6 +359,8 @@ this tutorial (ignore autoenv):
 
 [point namecheap to heroku app](https://www.namecheap.com/support/knowledgebase/article.aspx/9737/2208/how-to-point-a-domain-to-the-heroku-app)
 
+[generated terms here](http://www.bennadel.com/coldfusion/privacy-policy-generator.htm#primary-navigation)
+
 #author
 
 [yvan](https://github.com/yvan)

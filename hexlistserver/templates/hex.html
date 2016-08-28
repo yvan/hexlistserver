@@ -69,6 +69,7 @@
               </div>
             </form>
           </div>
+          <p>by claiming this hex you agree to our <a style="text-decoration:underline;" href="{{ url_for('terms_view') }}" target="_blank">terms of service</a></p>
         {% elif logged_in_claim_hex %}
           <div class="col-xs-12">
               <form action="/internal/form_make_or_claim_user_and_claim_hex_logged_in/{{ hex_object.id }}" method="POST" name="link_submit">
@@ -137,7 +138,6 @@
 
     {% if enable_editing_controls %}
       <script>
-      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }}
       $(".dropdown-button").mouseup(function(){
           $(this).blur();
       })
@@ -146,7 +146,7 @@
         link_div = $(this).closest('div[class^="list-link-div"]')
         
         $.ajax({
-            url: $SCRIPT_ROOT +'/internal/form_delete_link/' + link_id,
+            url: '/internal/form_delete_link/' + link_id,
             type: 'POST',
             success: function(response) {
               link_div.remove();

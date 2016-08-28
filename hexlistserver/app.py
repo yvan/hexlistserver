@@ -167,7 +167,7 @@ def about_page():
 @app.route('/hex/<string:hex_object_id>', methods=['GET'])
 def hex_view(hex_object_id):
     hex_object = get_hex_object_method(hex_object_id)
-    hex_owner = user_object.UserObject.query.filter_by(id=hex_object.user_object_id).first()
+    hex_owner = user_object.UserObject.query.filter_by(id=hex_object.owner_id).first()
     hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
     hex_object.ex_hex_owner = hex_owner
     hex_object.ex_hexlinks = hexlinks
@@ -224,6 +224,10 @@ def user_view(username):
         return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, enable_editing_controls=enable_editing_controls, email_form=email_form)
     else:
         abort(404)
+
+@app.route('/terms', methods=['GET'])
+def terms_view():
+    return render_template('terms.html')
 
 '''
 internal form methods
@@ -377,7 +381,7 @@ def internal_delete_hex(hex_object_id):
         hex_owner = get_user_method(get_hex_object_method(hex_object_id).owner_id)
         if is_hex_owner:
             delete_hex_method(hex_object_id)
-        return redirect(url_for('user_view', username=hex_owner.username))
+        return jsonify({'success':'success'}), 200
 
 @app.route('/internal/form_delete_link/<string:link_object_id>', methods=['POST'])
 def internal_delete_link(link_object_id):
@@ -390,7 +394,7 @@ def internal_delete_link(link_object_id):
     else:
         if is_link_owner:
             delete_link_method(link_object_id)
-        return redirect(url_for('hex_view', hex_object_id=hex.id))
+        return jsonify({'success':'success'}), 200
 
 '''
 api route methods

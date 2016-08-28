@@ -121,6 +121,7 @@ input[type=submit] {
     color: black;
     font-family: Tahoma, sans-serif;
     background-color: #fff;
+    padding-bottom: 10px;
 }
 
 input[type=submit]:active { color: #A31E39; }
