@@ -381,6 +381,7 @@ def internal_delete_hex(hex_object_id):
         hex_owner = get_user_method(get_hex_object_method(hex_object_id).owner_id)
         if is_hex_owner:
             delete_hex_method(hex_object_id)
+        # return dummy json to ajax
         return jsonify({'success':'success'}), 200
 
 @app.route('/internal/form_delete_link/<string:link_object_id>', methods=['POST'])
@@ -394,6 +395,7 @@ def internal_delete_link(link_object_id):
     else:
         if is_link_owner:
             delete_link_method(link_object_id)
+        # return dummy json to ajax
         return jsonify({'success':'success'}), 200
 
 '''
