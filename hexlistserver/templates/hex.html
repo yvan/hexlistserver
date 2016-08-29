@@ -103,7 +103,7 @@
         {% endwith %}
     </div>
 
-    {% if edit_hex_name %}
+    {% if edit_hex_name_form %}
       <script>
           var currentHexName = $('#hex-title').text()
           $("[contenteditable='true']#hex-title").on("blur", function() {
@@ -114,7 +114,7 @@
               var target = $(event.target)
               c = event.keyCode
               
-              //Enter or Exit
+              //Enter or escape
               if (c === 27 || c == 13) {
                 if (c == 13) {
                   //If the title is not empty, set the new title

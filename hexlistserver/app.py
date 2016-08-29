@@ -108,8 +108,6 @@ def reset_password():
 
                                 if you did not reset your password ignore this email or contact support: support@hexlist.com
 
-                                or text us at (347) 985-0439
-
                                 '''.format(hashed_code_payload),
                      tag = "recover_password")
             j = q.enqueue(queue_mail, message)
