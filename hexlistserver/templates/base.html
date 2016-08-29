@@ -40,7 +40,7 @@
           <div id="navbar1" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
               {% if not current_user.is_anonymous %}
-              <li><a href="{{ url_for('user_view', username=current_user.username) }}">My Hexlist</a></li>
+              <li><a href="{{ url_for('user_view', username=current_user.username) }}">my hexlist</a></li>
               {% else %}
               <li><a href="{{ url_for('login') }}">My Hexlist</a></li>
               {% endif %}
