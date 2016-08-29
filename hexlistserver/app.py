@@ -854,10 +854,10 @@ def get_urls_from_blob(blob):
 
 # this error handler only fires when DEBUG=False,
 # so it only fires on our production server
-@app.errorhandler(500)
-def internal_error(error):
-    r = send_mail('yvanscher@gmail.com', app.config['MAILGUN_SENDER'], '500 server error', '\n'.join(traceback.format_stack()), None)
-    return jsonify({'error': 'there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
+# @app.errorhandler(500)
+# def internal_error(error):
+#     r = send_mail('yvanscher@gmail.com', app.config['MAILGUN_SENDER'], '500 server error', '\n'.join(traceback.format_stack()), None)
+#     return jsonify({'error': 'there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
 
 def send_mail(to_address, from_address, subject, plaintext, html):
     r = requests.post("https://api.mailgun.net/v2/%s/messages" % app.config['MAILGUN_DOMAIN'],
