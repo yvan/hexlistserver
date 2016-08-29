@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block meta %}
+
 <title>{{ hex_object.name }} - Hexlist</title>
 <meta property="og:title" content="{{ hex_object.name }}">
 <meta property="og:description" content="A hex by {{ hex_object.ex_hex_owner.username }}">
@@ -8,6 +9,7 @@
 <meta property="og:image" content="https://hexlist.com/static/hexlist-red.png">
 <meta property="og:image:width" content="182">
 <meta property="og:image:height" content="202">
+
 {% endblock %}
 
 {% block content %}
@@ -103,7 +105,7 @@
         {% endwith %}
     </div>
 
-    {% if edit_hex_name_form %}
+    {% if enable_editing_controls %}
       <script>
           var currentHexName = $('#hex-title').text()
           $("[contenteditable='true']#hex-title").on("blur", function() {
