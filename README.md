@@ -298,6 +298,22 @@ postgresdb with flask-sqlalchemy
 
 heroku hosting and heroku postgres db
 
+#backups
+
+currently i have a backup scheduled as so:
+
+```
+heroku pg:backups schedule DATABASE_URL --at '04:00 America/New_York' --remote prod
+```
+
+4 AM New York time every day we do a backup. as per [heroku docs](https://devcenter.heroku.com/articles/heroku-postgres-backups#scheduled-backups-retention-limits) this daily backup replaces the old daily backup everyday, we only store one most recent copy per week.
+
+it is also advisable that a programmer do a manual backup (of which 5 can be stored) at monday at noon like so:
+
+```
+heroku pg:backups capture --remote prod
+```
+
 #resources
 
 [flask quickstart](http://flask.pocoo.org/docs/0.10/quickstart/)
@@ -360,6 +376,8 @@ this tutorial (ignore autoenv):
 [point namecheap to heroku app](https://www.namecheap.com/support/knowledgebase/article.aspx/9737/2208/how-to-point-a-domain-to-the-heroku-app)
 
 [generated terms here](http://www.bennadel.com/coldfusion/privacy-policy-generator.htm#primary-navigation)
+
+[database backups](https://devcenter.heroku.com/articles/heroku-postgres-backups)
 
 #author
 
