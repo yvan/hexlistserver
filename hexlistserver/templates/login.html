@@ -16,6 +16,9 @@
         <div class="col-xs-12 center-block">
           <button type="submit" class="btn btn-default center-block">login</button>
         </div>
+        <div class="flashes col-xs-12 center-block">
+          <p><a href="/recover_password">lost password?</a></p>
+        </div>
       </form>
     </div>
 
@@ -24,7 +27,6 @@
         <div class="flashes">
         {% for message in messages %}
           <p>{{ message }}</p>
-          <p><a href="/recover_password">lost password?</a></p>
         {% endfor %}
         </div>
       {% endif %}
