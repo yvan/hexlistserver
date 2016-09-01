@@ -859,19 +859,6 @@ def get_urls_from_blob(blob):
 #     r = send_mail('yvanscher@gmail.com', app.config['MAILGUN_SENDER'], '500 server error', '\n'.join(traceback.format_stack()), None)
 #     return jsonify({'error': 'there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
 
-def send_mail(to_address, from_address, subject, plaintext, html):
-    r = requests.post("https://api.mailgun.net/v2/%s/messages" % app.config['MAILGUN_DOMAIN'],
-            auth=("api", app.config['MAILGUN_KEY']),
-            data={
-                "from": from_address,
-                "to": to_address,
-                "subject": subject,
-                "text": plaintext,
-                "html": html
-            }
-         )
-    return r
-
 @auth.verify_password
 def verify_password(username_or_token, password):
     user = user_object.UserObject.verify_auth_token(username_or_token)
