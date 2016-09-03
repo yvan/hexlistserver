@@ -43,6 +43,10 @@ p { font-size: 15px; }
     position: absolute;
 }
 
+.terms-of-service { text-align: center; padding: 7.5px 0px 7.5px 0px; }
+
+.terms-of-service a { text-decoration:underline; }
+
 .flashes { text-align: center; padding: 7.5px 0px 7.5px 0px; }
 
 .logo { width: 96px; height: 96px; display: inline-block; background-size: cover; }

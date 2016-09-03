@@ -71,7 +71,10 @@
               </div>
             </form>
           </div>
-          <p>by claiming this hex you agree to the hexlist<a style="text-decoration:underline;" href="{{ url_for('terms_view') }}" target="_blank">terms of service</a></p>
+          <div class="terms-of-service col-xs-12 center-block">
+            <p>by claiming this hex you agree to the hexlist <a href="{{ url_for('terms_view') }}" target="_blank">terms of service</a></p>
+          </div>
+
         {% elif logged_in_claim_hex %}
           <div class="col-xs-12">
               <form action="/internal/form_make_or_claim_user_and_claim_hex_logged_in/{{ hex_object.id }}" method="POST" name="link_submit">
