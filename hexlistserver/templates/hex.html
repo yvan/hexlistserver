@@ -38,7 +38,7 @@
             {% endif %}
             </a>
             {% if enable_editing_controls %}
-              <span class="btn-group" style="display: inline-block;">
+              <span class="btn-group list-link-dropdown" style="visibility: hidden;">
                 <button class="dropdown-button btn btn-mini button-transparent dropdown-toggle" data-toggle="dropdown">
                     <span class="caret"></span>
                 </button>
@@ -86,7 +86,7 @@
           {% elif textarea_form %}
             <div class="col-xs-12">
               <form action="/internal/form_add_links_to_hex/{{ hex_object.id }}" method="POST" name="link_submit">
-                <div class="input-container form-group col-sm-10 col-sm-offset-1">
+                <div id="add-links-form" class="hexlist-form input-container form-group">
                   {{ textarea_form.hidden_tag() }}
                   {{ textarea_form.links(class="form-control",rows="8") }}
                 </div>
@@ -143,6 +143,11 @@
 
     {% if enable_editing_controls %}
       <script>
+      $(".list-link-div").hover(function(){
+        $(this).find('.list-link-dropdown').css('visibility', 'visible')
+      }, function() {
+        $(this).find('.list-link-dropdown').css('visibility', 'hidden')
+      })
       $(".dropdown-button").mouseup(function(){
           $(this).blur();
       })

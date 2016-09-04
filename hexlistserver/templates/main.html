@@ -12,7 +12,7 @@
         <p>get an organized hex</p>
         <div class="col-xs-12">
           <form action="/internal/form_hex_create" method="POST" name="link_submit">
-            <div class="input-container form-group form-group col-sm-8 col-sm-offset-2">
+            <div id="make-hex-form" class="hexlist-form input-container form-group form-group">
               {{ form.hidden_tag() }}
               {{ form.links(class="form-control",rows="20") }}
             </div>

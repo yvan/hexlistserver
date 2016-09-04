@@ -44,33 +44,37 @@ p { font-size: 15px; }
 }
 
 .terms-of-service { text-align: center; padding: 7.5px 0px 7.5px 0px; }
-
 .terms-of-service a { text-decoration:underline; }
 
 .flashes { text-align: center; padding: 7.5px 0px 0px 0px; }
 
 .logo { width: 96px; height: 96px; display: inline-block; background-size: cover; }
-
 .hexlist-title { font-size: 2.8em; text-align: center; }
 
 .footer-container { text-align: center; }
-
-.content-container { max-width: 700px; text-align: center; margin-bottom: 35px }
-
+.content-container { max-width: 800px; text-align: center; margin-bottom: 35px }
 .content-container input { color: black; }
 
 .login_referrer { display: none; }
 
+.hexlist-form { margin: 0px auto 15px auto }
+#make-hex-form { max-width: 396px; }
+#add-links-form { max-width: 500px; }
+
+
 .list-title { word-wrap: break-word; }
 .list-content { margin-top: 12.5px; margin-bottom: 7.5px; }
+.list-link-div { position:relative; }
 .list-link { 
   font-size: 15px; 
   text-decoration: none !important; 
   word-wrap: break-word;
   display:inline-block;
   padding: 7.5px 0px 7.5px 0px;
+  max-width: 90%;
 }
 .list-link:hover { opacity: 0.75; }
+.list-link-dropdown { position: absolute; top: 10px; }
 
 .fade-link { text-decoration: none !important; }
 .fade-link:hover { opacity: 0.75; }
