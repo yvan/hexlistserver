@@ -84,6 +84,11 @@ def logout():
     logout_user()
     return redirect(request.referrer)
 
+@app.route('/signup', methods=['GET'])
+def signup():
+    create_user = CreateUser()
+    return render_template('signup.html', form=create_user)
+
 @app.route('/recover_password', methods=['GET', 'POST'])
 def reset_password():
     # take in email, sign/encrpyt it,
@@ -257,6 +262,16 @@ def form_hex_create():
         return redirect(url_for('hex_view', hex_object_id=new_hex_object.id))
     text_area = TextareaForm(links=request.form['links'])
     return render_template('main.html', current_user=current_user, form=text_area)
+
+@app.route('/internal/form_user_create', methods=['POST'])
+def form_user_create():
+    create_user = CreateUser(request.form)
+    if request.form and create_user.validate_on_submit() and request.form['password'] == request.form['password_two']:
+        created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
+        login_user(created_user)
+    else:
+        abort(500)
+    return redirect(url_for('user_view', username=created_user.username))
 
 #when a user needs to claim and they are logged in
 @app.route('/internal/form_make_or_claim_user_and_claim_hex_logged_in/<string:hex_object_id>', methods=['POST'])
