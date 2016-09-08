@@ -269,9 +269,11 @@ def form_user_create():
     if request.form and create_user.validate_on_submit() and request.form['password'] == request.form['password_two'] and not get_user_by_name(request.form['username']):
         created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
         login_user(created_user)
+        return redirect(url_for('user_view', username=created_user.username))
     else:
-        abort(500)
-    return redirect(url_for('user_view', username=created_user.username))
+        # tell user about failed hex claim
+        flash('there was an error in account creation, try again with a different username')
+        return redirect(url_for('signup'))
 
 #when a user needs to claim and they are logged in
 @app.route('/internal/form_make_or_claim_user_and_claim_hex_logged_in/<string:hex_object_id>', methods=['POST'])
@@ -295,7 +297,7 @@ def form_claim_hex_logged_in(hex_object_id):
 def form_create_user(hex_object_id):
     create_user = CreateUser(request.form)
     if request.form and create_user.validate_on_submit(): 
-        if request.form['password'] == request.form['password_two'] and verify_password(request.form['username'], request.form['password']):
+        if request.form['password'] == request.form['password_two'] and verify_password(request.form['username'], request.form['password']) and not get_user_by_name(request.form['username']):
                 # get user from their session
                 if current_user.is_anonymous:
                     session_user_object = get_user_by_name(request.form['username'])
@@ -309,7 +311,7 @@ def form_create_user(hex_object_id):
                 db.session.commit()
                 # log the user in
                 login_user(session_user_object)
-        elif request.form['password'] == request.form['password_two']:
+        elif request.form['password'] == request.form['password_two'] and not get_user_by_name(request.form['username']):
             # create the user
             created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
             # assign the hex to that user

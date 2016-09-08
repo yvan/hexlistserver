@@ -25,4 +25,14 @@
   <p>by signing up you agree to the hexlist <a href="{{ url_for('terms_view') }}" target="_blank">terms of service</a></p>
 </div>
 
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="flashes">
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
 {% endblock %}
