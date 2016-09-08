@@ -266,7 +266,7 @@ def form_hex_create():
 @app.route('/internal/form_user_create', methods=['POST'])
 def form_user_create():
     create_user = CreateUser(request.form)
-    if request.form and create_user.validate_on_submit() and request.form['password'] == request.form['password_two']:
+    if request.form and create_user.validate_on_submit() and request.form['password'] == request.form['password_two'] and not get_user_by_name(request.form['username']):
         created_user = post_user_method(request.form['username'], request.form['password'], app.config['USER_MAKER_NAME'])
         login_user(created_user)
     else:
