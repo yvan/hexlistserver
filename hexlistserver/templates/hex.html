@@ -16,15 +16,8 @@
 
     <div class="content-container container">
         <div>
-        <h2 class="list-title" id="hex-title" {% if enable_editing_controls %} contenteditable="true" {% endif %}>{{ hex_object.name }}</h2>
+        <h2 class="list-title" id="hex-title" {% if enable_editing_controls %} contenteditable="true" data-hex-id="{{ hex_object.id }}" {% endif %}>{{ hex_object.name }}</h2>
         <h4>by <a class="fade-link" href="{{ url_for('user_view', username=hex_object.ex_hex_owner.username) }}">{{ hex_object.ex_hex_owner.username }}</a></h4>
-        <!-- <hr> -->
-        {% if enable_editing_controls %}
-        <form action="/internal/form_update_hex_name/{{ hex_object.id }}" method="POST" name="rename_hex" id="rename-hex-form" style="display:none;">
-            {{ edit_hex_name_form.hidden_tag() }}
-            {{ edit_hex_name_form.hexname(type="hidden", id="rename-hex-field") }}
-        </form>
-        {% endif %}
         <div class="list-content">
         {% for hexlink in hex_object.ex_hexlinks %}
           <div class="list-link-div">
@@ -43,6 +36,7 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu pull-right">
+                    <li><a class="rename-link" data-link-id="{{ hexlink.id }}" data-link-description="{{ hexlink.description if hexlink.description }}" data-webpage-title="{{ hexlink.web_page_title if hexlink.web_page_title }}" data-url="{{ hexlink.url if hexlink.url }}" style="cursor:pointer;"><span class="glyphicon glyphicon-pencil" style="padding-right:10px;"></span>Rename</a></li>
                     <li><a class="delete-link" data-link-id="{{ hexlink.id }}" href="#" style="color:#d9534f;"><span class="glyphicon glyphicon-trash" style="padding-right:10px;"></span>Delete</a></li>
                 </ul>
               </span>
@@ -109,13 +103,58 @@
     </div>
 
     {% if enable_editing_controls %}
-      <script>
-          var currentHexName = $('#hex-title').text()
-          $("[contenteditable='true']#hex-title").on("blur", function() {
-              $(this).text(currentHexName)
-          });
+      <form method="POST" name="rename_hex" id="rename-hex-form" style="display:none;">
+          {{ edit_hex_name_form.hidden_tag() }}
+          {{ edit_hex_name_form.hexname(type="hidden", id="rename-hex-field") }}
+      </form>
+      <form method="POST" name="rename_link" id="rename-link-form" style="display:none;">
+          {{ rename_link_form.hidden_tag() }}
+          {{ rename_link_form.linkdescription(type="hidden", id="rename-link-field") }}
+      </form>
+    {% endif %}
 
-          $('#hex-title').bind("keydown", function(event) {
+    {% if enable_editing_controls %}
+      <script>
+        $(".list-link-div").hover(function(){
+          $(this).find('.list-link-dropdown').css('visibility', 'visible')
+        }, function() {
+          $(this).find('.list-link-dropdown').css('visibility', 'hidden')
+        })
+        $(".dropdown-button").mouseup(function(){
+            $(this).blur();
+        })
+
+        $(".rename-link").click(function(e) {
+          current_link_description = $(this).data('link-description')
+          webpage_title = $(this).data('webpage-title')
+          link_url = $(this).data('url')
+          link_id = $(this).data('link-id')
+          link_div = $(this).closest('div[class^="list-link-div"]')
+          link = link_div.find('.list-link')
+          link.attr('contenteditable','true')
+          link.selectText()
+
+          rename_form = $('#rename-link-form')
+          rename_field = rename_form.find('#rename-link-field')
+
+          link.on("blur", function() {
+              //Revert to scraped title or url if description is empty
+              if (current_link_description.length !== 0) {
+                link.text(current_link_description)
+              }
+              else {
+                if (webpage_title.length !== 0) {
+                  console.log('reverting to webpage title' + webpage_title)
+                  link.text(webpage_title)
+                }
+                else {
+                  link.text(link_url) 
+                }
+              }
+              
+              link.attr('contenteditable','false')
+          });
+          link.bind("keydown", function(event) {
               var target = $(event.target)
               c = event.keyCode
               
@@ -123,51 +162,104 @@
               if (c === 27 || c == 13) {
                 if (c == 13) {
                   //If the title is not empty, set the new title
-                  var newHexName = $(this).text().trim()
-                  if (newHexName.length !== 0) {
-                      //Max Length for hex title is 100 characters
-                      newHexName = newHexName.substring(0, Math.min(newHexName.length,100));
-                      currentHexName = newHexName
-                  }
-                  $("#rename-hex-field").val(currentHexName)
-                  $("#rename-hex-form").submit()
+                  var new_link_description = $(this).text().trim()
+                  //New desccription may be empty
+                  //Max Length for hex title is 1000 characters
+                  new_link_description = new_link_description.substring(0, Math.min(new_link_description.length,1000));
+                  current_link_description = new_link_description
+                  rename_field.val(current_link_description)
+
+                  //Submit rename request
+                  $.ajax({
+                      url: '/internal/form_update_link_description/' + link_id,
+                      data: $(rename_form).serialize(),
+                      type: 'POST',
+                      success: function(response) {},
+                      error: function(error) {
+                          console.log(error);
+                          alert(error)
+                      }
+                  });
                 }
 
-                $("#hex-title").blur()
+                link.blur()
                 // Workaround for webkit's bug
                 window.getSelection().removeAllRanges()
               }
           });
-      </script>
-    {% endif %}
+        });
+        var current_hex_name = $('#hex-title').text()
+        $("[contenteditable='true']#hex-title").on("blur", function() {
+            $(this).text(current_hex_name)
+        });
+        $('#hex-title').bind("keydown", function(event) {
+            var hex_id = $(this).data('hex-id')
+            var target = $(event.target)
+            c = event.keyCode
+            
+            //Enter or escape
+            if (c === 27 || c == 13) {
+              if (c == 13) {
+                //If the title is not empty, set the new title
+                var new_hex_name = $(this).text().trim()
+                if (new_hex_name.length !== 0) {
+                    //Max Length for hex title is 100 characters
+                    new_hex_name = new_hex_name.substring(0, Math.min(new_hex_name.length,100));
+                    current_hex_name = new_hex_name
+                }
+                $("#rename-hex-field").val(current_hex_name)
 
-    {% if enable_editing_controls %}
-      <script>
-      $(".list-link-div").hover(function(){
-        $(this).find('.list-link-dropdown').css('visibility', 'visible')
-      }, function() {
-        $(this).find('.list-link-dropdown').css('visibility', 'hidden')
-      })
-      $(".dropdown-button").mouseup(function(){
-          $(this).blur();
-      })
-      $(".delete-link").click(function(e) {
-        link_id = $(this).data('link-id')
-        link_div = $(this).closest('div[class^="list-link-div"]')
-        
-        $.ajax({
-            url: '/internal/form_delete_link/' + link_id,
-            type: 'POST',
-            success: function(response) {
-              link_div.remove();
-            },
-            error: function(error) {
-                console.log(error);
-                alert(error)
+                //Submit rename request
+                $.ajax({
+                    url: '/internal/form_update_hex_name/' + hex_id,
+                    data: $("#rename-hex-form").serialize(),
+                    type: 'POST',
+                    success: function(response) {},
+                    error: function(error) {
+                        console.log(error);
+                        alert(error)
+                    }
+                });
+              }
+
+              $("#hex-title").blur()
+              // Workaround for webkit's bug
+              window.getSelection().removeAllRanges()
             }
         });
-      });
+        $(".delete-link").click(function(e) {
+          link_id = $(this).data('link-id')
+          link_div = $(this).closest('div[class^="list-link-div"]')
+          
+          $.ajax({
+              url: '/internal/form_delete_link/' + link_id,
+              type: 'POST',
+              success: function(response) {
+                link_div.remove();
+              },
+              error: function(error) {
+                  console.log(error);
+                  alert(error)
+              }
+          });
+        });
+
+        jQuery.fn.selectText = function(){
+           var doc = document;
+           var element = this[0];
+           console.log(this, element);
+           if (doc.body.createTextRange) {
+               var range = document.body.createTextRange();
+               range.moveToElementText(element);
+               range.select();
+           } else if (window.getSelection) {
+               var selection = window.getSelection();        
+               var range = document.createRange();
+               range.selectNodeContents(element);
+               selection.removeAllRanges();
+               selection.addRange(range);
+           }
+        };
       </script>
     {% endif %}
-
 {% endblock %}

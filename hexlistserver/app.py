@@ -175,6 +175,7 @@ def hex_view(hex_object_id):
     hex_object.ex_hex_owner = hex_owner
     hex_object.ex_hexlinks = hexlinks
     edit_hex_name_form = None
+    rename_link_form = None
     create_user = None
     text_area_form = False
     logged_in_claim_hex = False
@@ -196,10 +197,11 @@ def hex_view(hex_object_id):
         # hex is owned by current user
         if not current_user.is_anonymous and current_user.id == hex_owner.id:
             edit_hex_name_form = RenameHex()
+            rename_link_form = RenameLink()
             text_area_form = TextareaForm()
             enable_editing_controls = True
 
-    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex)
+    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, rename_link_form=rename_link_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
@@ -219,12 +221,14 @@ def user_view(username):
             hexlinks[hex_obj.id] = [link.url for link in links]
 
         email_form = None
+        rename_hex_form = None
         enable_editing_controls = False
         if current_user == user_object:
             email_form = InputEmail() if not current_user.email else None
+            rename_hex_form = RenameHex()
             enable_editing_controls = True
 
-        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, enable_editing_controls=enable_editing_controls, email_form=email_form)
+        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, enable_editing_controls=enable_editing_controls, email_form=email_form, rename_hex_form=rename_hex_form)
     else:
         abort(404)
 
@@ -370,7 +374,8 @@ def update_hex_name(hex_object_id):
             hex_to_update = get_hex_object_method(hex_object_id)
             hex_to_update.name = request.form['hexname']
             db.session.commit()
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+            # return dummy json to ajax
+        return jsonify({'success':'success'}), 200
 
 @app.route('/internal/form_update_link_description/<string:link_object_id>', methods=['POST'])
 def update_link_description(link_object_id):
@@ -382,9 +387,10 @@ def update_link_description(link_object_id):
         rename_link = RenameLink(request.form)
         if is_link_owner and request.form and rename_link.validate_on_submit():
             link_to_update = get_link_method(link_object_id)
-            link_to_update.name = request.form['linkdescription']
+            link_to_update.description = request.form['linkdescription']
             db.session.commit()
-        return redirect(url_for('hex_view', hex_object_id=hex_object_id))
+        # return dummy json to ajax
+        return jsonify({'success':'success'}), 200
 
 @app.route('/internal/form_delete_hex/<string:hex_object_id>', methods=['POST'])
 def internal_delete_hex(hex_object_id):
