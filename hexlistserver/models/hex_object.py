@@ -13,17 +13,20 @@ class HexObject(db.Model):
     name = db.Column(db.String())
     image_path = db.Column(db.String())
 
+    is_private = db.Column(db.Boolean)
+
     owner_id = db.Column(db.String(), db.ForeignKey('user_objects.id'))
     user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id'))
 
     owner = db.relationship('UserObject', foreign_keys="HexObject.owner_id")
     user_object = db.relationship('UserObject', foreign_keys="HexObject.user_object_id")
 
-    def __init__(self, name, owner_id, user_id, image_path):
+    def __init__(self, name, owner_id, user_id, image_path, is_private):
         self.id = uuid.uuid4().urn[9:] # make a uuid, convert to urn/string, uuid starts after 9th char
         self.name = name
         self.owner_id = owner_id
         self.user_object_id = user_id
+        self.is_private = is_private
         self.image_path = image_path
 
     def __repr__(self):

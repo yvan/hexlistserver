@@ -7,7 +7,11 @@
         <div class="list-content">
         {% for hex in hexes %}
           <div class="list-link-div">
+            {% if not hex.is_private %}
+              <a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
+            {% elif hex.is_private and should_show_private_hexes %}
             <a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
+            {% endif %}
             {% if enable_editing_controls %}
               <span class="btn-group list-link-dropdown" style="visibility: hidden;">
                 <button class="dropdown-button btn btn-mini button-transparent dropdown-toggle" data-toggle="dropdown">
@@ -15,6 +19,11 @@
                 </button>
                 <ul class="dropdown-menu pull-right">
                     <li><a class="rename-hex" data-hex-id="{{ hex.id }}" data-hex-name="{{ hex.name }}" style="cursor:pointer;"><span class="glyphicon glyphicon-pencil" style="padding-right:10px;"></span>Rename</a></li>
+                    {% if hex.is_private %}
+                      <li><a class="make-public" data-hex-id="{{ hex.id }}" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open" style="padding-right:10px;"></span>Make public</a></li>
+                    {% else %}
+                      <li><a class="make-private" data-hex-id="{{ hex.id }}" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-close" style="padding-right:10px;"></span>Make private</a></li>
+                    {% endif %}
                     <li><a class="delete-hex" data-hex-id="{{ hex.id }}" data-hex-name="{{ hex.name }}" data-toggle="modal" href="#confirm-delete" style="color:#d9534f;"><span class="glyphicon glyphicon-trash" style="padding-right:10px;"></span>Delete</a></li>
                 </ul>
               </span>
@@ -58,6 +67,38 @@
         })
         $(".dropdown-button").mouseup(function(){
             $(this).blur();
+        })
+
+        $(".make-private").click(function(e) {
+          hex_id = $(this).data('hex-id')
+          $.ajax({
+            url: '/internal/toggle_private/' + hex_id,
+            type: 'POST',
+              success: function(response) {
+                console.log('switched privacy')
+                $('.make-private[data-hex-id="'+ hex_id +'"]').replaceWith('<a class="make-public" data-hex-id="'+hex_id+'" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open" style="padding-right:10px;"></span>Make public</a>')
+              },
+              error: function(error) {
+                  console.log(error);
+                  alert(error)
+              }
+          })
+        })
+
+        $(".make-public").click(function(e) {
+          hex_id = $(this).data('hex-id')
+          $.ajax({
+            url: '/internal/toggle_private/' + hex_id,
+            type: 'POST',
+              success: function(response) {
+                console.log('switched privacy')
+                $('.make-public[data-hex-id="'+ hex_id +'"]').replaceWith('<a class="make-private" data-hex-id="'+hex_id+'" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-close" style="padding-right:10px;"></span>Make private</a>')
+              },
+              error: function(error) {
+                  console.log(error);
+                  alert(error)
+              }
+          })
         })
         
         $(".rename-hex").click(function(e) {
@@ -116,7 +157,6 @@
           hex_div = $(this).closest('div[class^="list-link-div"]')
           $('#confirm-delete-button').data('hex_id', hex_id)
           $('#confirm-delete-button').data('hex_div', hex_div)
-
           $('#confirm-delete .modal-body').text('Are you sure you want to delete ' + hex_name + '?')
         });
         

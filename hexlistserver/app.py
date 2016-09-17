@@ -223,12 +223,14 @@ def user_view(username):
         email_form = None
         rename_hex_form = None
         enable_editing_controls = False
+        should_show_private_hexes = False
         if current_user == user_object:
             email_form = InputEmail() if not current_user.email else None
             rename_hex_form = RenameHex()
             enable_editing_controls = True
+            should_show_private_hexes = True
 
-        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, enable_editing_controls=enable_editing_controls, email_form=email_form, rename_hex_form=rename_hex_form)
+        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, enable_editing_controls=enable_editing_controls, email_form=email_form, rename_hex_form=rename_hex_form, should_show_private_hexes=should_show_private_hexes)
     else:
         abort(404)
 
@@ -418,6 +420,20 @@ def internal_delete_link(link_object_id):
     else:
         if is_link_owner:
             delete_link_method(link_object_id)
+        # return dummy json to ajax
+        return jsonify({'success':'success'}), 200
+
+@app.route('/internal/toggle_private/<string:hex_object_id>', methods=['POST'])
+def toggle_hex_private(hex_object_id):
+    hex_object = get_hex_object_method(hex_object_id)
+    is_hex_owner = current_user.id == hex_object.owner_id
+
+    if current_user.is_anonymous or not is_hex_owner:
+        return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
+    else:
+        if is_hex_owner:
+            hex_object.is_private = not hex_object.is_private
+        db.session.commit()
         # return dummy json to ajax
         return jsonify({'success':'success'}), 200
 
