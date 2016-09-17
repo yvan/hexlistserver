@@ -69,14 +69,15 @@
             $(this).blur();
         })
 
-        $(".make-private").click(function(e) {
+        $(document).on('click','.make-private',function(){
+          privacy_button = $(this)
           hex_id = $(this).data('hex-id')
           $.ajax({
             url: '/internal/toggle_private/' + hex_id,
             type: 'POST',
               success: function(response) {
                 console.log('switched privacy')
-                $('.make-private[data-hex-id="'+ hex_id +'"]').replaceWith('<a class="make-public" data-hex-id="'+hex_id+'" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open" style="padding-right:10px;"></span>Make public</a>')
+                $(privacy_button).replaceWith('<a class="make-public" data-hex-id="'+hex_id+'" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open" style="padding-right:10px;"></span>Make public</a>')
               },
               error: function(error) {
                   console.log(error);
@@ -85,14 +86,15 @@
           })
         })
 
-        $(".make-public").click(function(e) {
+        $(document).on('click','.make-public',function(){
+          privacy_button = $(this)
           hex_id = $(this).data('hex-id')
           $.ajax({
             url: '/internal/toggle_private/' + hex_id,
             type: 'POST',
               success: function(response) {
                 console.log('switched privacy')
-                $('.make-public[data-hex-id="'+ hex_id +'"]').replaceWith('<a class="make-private" data-hex-id="'+hex_id+'" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-close" style="padding-right:10px;"></span>Make private</a>')
+                $(privacy_button).replaceWith('<a class="make-private" data-hex-id="'+hex_id+'" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-close" style="padding-right:10px;"></span>Make private</a>')
               },
               error: function(error) {
                   console.log(error);
