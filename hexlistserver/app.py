@@ -170,38 +170,41 @@ def about_page():
 @app.route('/hex/<string:hex_object_id>', methods=['GET'])
 def hex_view(hex_object_id):
     hex_object = get_hex_object_method(hex_object_id)
-    hex_owner = user_object.UserObject.query.filter_by(id=hex_object.owner_id).first()
-    hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
-    hex_object.ex_hex_owner = hex_owner
-    hex_object.ex_hexlinks = hexlinks
-    edit_hex_name_form = None
-    rename_link_form = None
-    create_user = None
-    text_area_form = False
-    logged_in_claim_hex = False
-    enable_editing_controls = False
-
-    # hex is owned by anon, anonymous user
-    # display a form to claim ownership
-    if app.config['ANON_USER_NAME'] == hex_owner.username:
-        # user is not logged in
-        if current_user.is_anonymous:
-            create_user = CreateUser()
-        # user is logged in
-        else:
-            create_user = None
-            logged_in_claim_hex = True
-    # hex is owned by someone
+    if hex_object.is_private and (current_user.is_anonymous or current_user.id != hex_object.owner_id):
+        return render_template('private_hex.html')
     else:
+        hex_owner = user_object.UserObject.query.filter_by(id=hex_object.owner_id).first()
+        hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
+        hex_object.ex_hex_owner = hex_owner
+        hex_object.ex_hexlinks = hexlinks
+        edit_hex_name_form = None
+        rename_link_form = None
+        create_user = None
+        text_area_form = False
+        logged_in_claim_hex = False
+        enable_editing_controls = False
 
-        # hex is owned by current user
-        if not current_user.is_anonymous and current_user.id == hex_owner.id:
-            edit_hex_name_form = RenameHex()
-            rename_link_form = RenameLink()
-            text_area_form = TextareaForm()
-            enable_editing_controls = True
+        # hex is owned by anon, anonymous user
+        # display a form to claim ownership
+        if app.config['ANON_USER_NAME'] == hex_owner.username:
+            # user is not logged in
+            if current_user.is_anonymous:
+                create_user = CreateUser()
+            # user is logged in
+            else:
+                create_user = None
+                logged_in_claim_hex = True
+        # hex is owned by someone
+        else:
 
-    return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, rename_link_form=rename_link_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex)
+            # hex is owned by current user
+            if not current_user.is_anonymous and current_user.id == hex_owner.id:
+                edit_hex_name_form = RenameHex()
+                rename_link_form = RenameLink()
+                text_area_form = TextareaForm()
+                enable_editing_controls = True
+
+        return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, rename_link_form=rename_link_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
