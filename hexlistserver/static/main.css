@@ -63,7 +63,7 @@ p { font-size: 15px; }
 
 
 .list-title { word-wrap: break-word; }
-.list-content { margin-top: 12.5px; margin-bottom: 7.5px; }
+#list-content { margin-top: 12.5px; margin-bottom: 7.5px; }
 .list-link-div { position:relative; }
 .list-link { 
   font-size: 15px; 

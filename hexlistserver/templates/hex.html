@@ -12,15 +12,19 @@
 
 {% endblock %}
 
+{% block scripts %}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Sortable/1.4.2/Sortable.min.js"></script>
+{% endblock %}
+
 {% block content %}
 
     <div class="content-container container">
         <div>
         <h2 class="list-title" id="hex-title" {% if enable_editing_controls %} contenteditable="true" data-hex-id="{{ hex_object.id }}" {% endif %}>{{ hex_object.name }}</h2>
         <h4>by <a class="fade-link" href="{{ url_for('user_view', username=hex_object.ex_hex_owner.username) }}">{{ hex_object.ex_hex_owner.username }}</a></h4>
-        <div class="list-content">
+        <div id="list-content">
         {% for hexlink in hex_object.ex_hexlinks %}
-          <div class="list-link-div">
+          <div class="list-link-div" data-link-id="{{ hexlink.id }}">
             <a class="list-link" href="{{ hexlink.url }}" target="_blank">
             {% if hexlink.description %}
                {{ hexlink.description }}
@@ -242,6 +246,20 @@
                   alert(error)
               }
           });
+        });
+
+        //Reorganization
+        var el = document.getElementById('list-content');
+        var sort = Sortable.create(el, {
+          animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+          onUpdate: function (evt/**Event*/){
+             var item = evt.item; // the current dragged HTMLElement
+             link_id = $(evt.item).data('link-id');
+
+             // console.log(link_id)
+             // console.log(evt.oldIndex)
+             // console.log(evt.newIndex)
+          }
         });
 
         jQuery.fn.selectText = function(){

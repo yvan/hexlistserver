@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 
+{% block scripts %}
+  <script src="//cdnjs.cloudflare.com/ajax/libs/Sortable/1.4.2/Sortable.min.js"></script>
+{% endblock %}
+
 {% block content %}
     
     <div class="content-container container">
         <h2 class="list-title">{{ username }}'s hexlist</h2>
-        <div class="list-content">
+        <div id="list-content">
         {% for hex in hexes %}
-          <div class="list-link-div">
+          <div class="list-link-div" data-hex-id="{{ hex.id }}">
             <a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
             {% if enable_editing_controls %}
               <span class="btn-group list-link-dropdown" style="visibility: hidden;">
@@ -134,6 +138,20 @@
                   alert(error)
               }
           });
+        });
+
+        //Reorganization
+        var el = document.getElementById('list-content');
+        var sort = Sortable.create(el, {
+          animation: 150, // ms, animation speed moving items when sorting, `0` — without animation
+          onUpdate: function (evt/**Event*/){
+             var item = evt.item; // the current dragged HTMLElement
+             hex_id = $(evt.item).data('hex-id');
+
+             // console.log(hex_id)
+             // console.log(evt.oldIndex)
+             // console.log(evt.newIndex)
+          }
         });
 
         jQuery.fn.selectText = function(){
