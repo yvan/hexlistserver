@@ -487,7 +487,7 @@ def post_hex_object():
         return jsonify({'error': 'you dont have the right to touch that, you didnt build that', 'code': 403}), 403
 
 def post_hex_object_method(name, owner_id, user_id, image_path):
-    new_hex_object = hex_object.HexObject(name, owner_id, user_id, image_path)
+    new_hex_object = hex_object.HexObject(name, owner_id, user_id, image_path, False)
     db.session.add(new_hex_object)
     db.session.commit()
     return new_hex_object
