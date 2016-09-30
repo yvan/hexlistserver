@@ -21,6 +21,7 @@ from postmark import PMMail
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.sslify import SSLify
@@ -169,14 +170,17 @@ def about_page():
 # display a hex with all its links
 @app.route('/hex/<string:hex_object_id>', methods=['GET'])
 def hex_view(hex_object_id):
-    hex_object = get_hex_object_method(hex_object_id)
-    if hex_object.is_private and (current_user.is_anonymous or current_user.id != hex_object.owner_id):
+    queried_hex_object = get_hex_object_method(hex_object_id)
+    if queried_hex_object.is_private and (current_user.is_anonymous or current_user.id != queried_hex_object.owner_id):
         return render_template('private_hex.html')
     else:
-        hex_owner = user_object.UserObject.query.filter_by(id=hex_object.owner_id).first()
+        hex_owner = user_object.UserObject.query.filter_by(id=queried_hex_object.owner_id).first()
         hexlinks = link_object.LinkObject.query.filter_by(hex_object_id=hex_object_id)
-        hex_object.ex_hex_owner = hex_owner
-        hex_object.ex_hexlinks = hexlinks
+        queried_hex_object.ex_hex_owner = hex_owner
+        queried_hex_object.ex_hexlinks = hexlinks
+        # get 5% smaple of hex_objects, limit result to 5 things
+        next_hex = hex_object.HexObject.query.filter(hex_object.HexObject.owner_id!=app.config['ANON_USER_ID']).order_by(func.random()).limit(1).first()
+
         edit_hex_name_form = None
         rename_link_form = None
         create_user = None
@@ -204,7 +208,7 @@ def hex_view(hex_object_id):
                 text_area_form = TextareaForm()
                 enable_editing_controls = True
 
-        return render_template('hex.html', current_user=current_user, hex_object=hex_object, edit_hex_name_form=edit_hex_name_form, rename_link_form=rename_link_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex)
+        return render_template('hex.html', current_user=current_user, hex_object=queried_hex_object, edit_hex_name_form=edit_hex_name_form, rename_link_form=rename_link_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex, next_hex_object_id=next_hex.id)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
@@ -428,14 +432,14 @@ def internal_delete_link(link_object_id):
 
 @app.route('/internal/toggle_private/<string:hex_object_id>', methods=['POST'])
 def toggle_hex_private(hex_object_id):
-    hex_object = get_hex_object_method(hex_object_id)
-    is_hex_owner = current_user.id == hex_object.owner_id
+    queried_hex_object = get_hex_object_method(hex_object_id)
+    is_hex_owner = current_user.id == queried_hex_object.owner_id
 
     if current_user.is_anonymous or not is_hex_owner:
         return jsonify({"witty_message": "you crafty little turd. stay away from our internal stuff."})
     else:
         if is_hex_owner:
-            hex_object.is_private = not hex_object.is_private
+            queried_hex_object.is_private = not queried_hex_object.is_private
         db.session.commit()
         # return dummy json to ajax
         return jsonify({'success':'success'}), 200

@@ -18,6 +18,7 @@
         <div>
         <h2 class="list-title" id="hex-title" {% if enable_editing_controls %} contenteditable="true" data-hex-id="{{ hex_object.id }}" {% endif %}>{{ hex_object.name }}</h2>
         <h4>by <a class="fade-link" href="{{ url_for('user_view', username=hex_object.ex_hex_owner.username) }}">{{ hex_object.ex_hex_owner.username }}</a></h4>
+        <h4><a href="{{ url_for('hex_view', hex_object_id=next_hex_object_id) }}">next</a></h4>
         <div class="list-content">
         {% for hexlink in hex_object.ex_hexlinks %}
           <div class="list-link-div">
