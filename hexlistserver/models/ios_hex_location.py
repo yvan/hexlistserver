@@ -12,7 +12,7 @@ class IosHexLocation(db.Model):
     id = db.Column(db.String(), primary_key=True)
     user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id', ondelete="CASCADE"))
     hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id', ondelete="CASCADE"))    
-    location = db.Column(db.String())
+    location = db.Column(db.String(), index=True)
 
     hex_object = db.relationship('HexObject', foreign_keys="IosHexLocation.hex_object_id")
     user_object = db.relationship('UserObject', foreign_keys="IosHexLocation.user_object_id")

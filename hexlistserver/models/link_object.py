@@ -9,9 +9,9 @@ class LinkObject(db.Model):
     __tablename__ = 'link_objects'
 
     id = db.Column(db.String(), primary_key=True)
-    url = db.Column(db.String())
-    description = db.Column(db.String())
-    web_page_title = db.Column(db.String())
+    url = db.Column(db.String(), index=True)
+    description = db.Column(db.String(), index=True)
+    web_page_title = db.Column(db.String(), index=True)
     hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id', ondelete="CASCADE"))
     hex_object = db.relationship('HexObject', foreign_keys="LinkObject.hex_object_id")
 

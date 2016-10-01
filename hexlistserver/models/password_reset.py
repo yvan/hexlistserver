@@ -9,7 +9,7 @@ class PasswordReset(db.Model):
     __tablename__ = 'password_resets'
 
     id = db.Column(db.String(), primary_key=True)
-    code = db.Column(db.String())
+    code = db.Column(db.String(), index=True)
     expiry_date = db.Column(db.String())
     user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id', ondelete="CASCADE"))
     user_object = db.relationship('UserObject', foreign_keys="PasswordReset.user_object_id")

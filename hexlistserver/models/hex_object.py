@@ -10,8 +10,8 @@ class HexObject(db.Model):
     __tablename__ = 'hex_objects'
 
     id = db.Column(db.String(), primary_key=True)
-    name = db.Column(db.String())
-    image_path = db.Column(db.String())
+    name = db.Column(db.String(), index=True)
+    image_path = db.Column(db.String(), index=True)
 
     is_private = db.Column(db.Boolean)
 

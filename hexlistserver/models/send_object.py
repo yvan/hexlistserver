@@ -9,8 +9,8 @@ class SendObject(db.Model):
     __tablename__ = 'send_objects'
 
     id = db.Column(db.String(), primary_key=True)
-    sender_id = db.Column(db.String())
-    recipient_id = db.Column(db.String())
+    sender_id = db.Column(db.String(), index=True)
+    recipient_id = db.Column(db.String(), index=True)
     hex_object_id = db.Column(db.String(), db.ForeignKey('hex_objects.id', ondelete="CASCADE"))
     hex_object = db.relationship('HexObject', foreign_keys="SendObject.hex_object_id")
 

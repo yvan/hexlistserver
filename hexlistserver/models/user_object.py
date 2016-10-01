@@ -14,7 +14,7 @@ class UserObject(db.Model):
 
     id = db.Column(db.String(), primary_key=True)
     username = db.Column(db.String(32), index=True)
-    email = db.Column(db.String(128))
+    email = db.Column(db.String(128), index=True)
     password_hash = db.Column(db.String(128))
     is_active = True
     is_authenticated = True
