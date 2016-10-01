@@ -15,8 +15,8 @@ class HexObject(db.Model):
 
     is_private = db.Column(db.Boolean)
 
-    owner_id = db.Column(db.String(), db.ForeignKey('user_objects.id'))
-    user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id'))
+    owner_id = db.Column(db.String(), db.ForeignKey('user_objects.id'), index=True)
+    user_object_id = db.Column(db.String(), db.ForeignKey('user_objects.id'), index=True)
 
     owner = db.relationship('UserObject', foreign_keys="HexObject.owner_id")
     user_object = db.relationship('UserObject', foreign_keys="HexObject.user_object_id")
