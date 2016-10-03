@@ -179,7 +179,7 @@ def hex_view(hex_object_id):
         queried_hex_object.ex_hex_owner = hex_owner
         queried_hex_object.ex_hexlinks = hexlinks
         # get 5% smaple of hex_objects, limit result to 5 things
-        next_hex = hex_object.HexObject.query.filter(hex_object.HexObject.owner_id!=app.config['ANON_USER_ID'], (hex_object.HexObject.is_private == False) or hex_object.HexObject.is_private == None ).order_by(func.random()).limit(1).first()
+        next_hex = hex_object.HexObject.query.filter(hex_object.HexObject.owner_id!=app.config['ANON_USER_ID'], (hex_object.HexObject.is_private == False) or (hex_object.HexObject.is_private == None)).order_by(func.random()).limit(1).first()
 
         edit_hex_name_form = None
         rename_link_form = None
