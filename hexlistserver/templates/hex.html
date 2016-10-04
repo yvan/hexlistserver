@@ -18,7 +18,7 @@
         <h2 class="list-title" id="hex-title" {% if enable_editing_controls %} contenteditable="true" data-hex-id="{{ hex_object.id }}" {% endif %}>{{ hex_object.name }}
         </h2>
         <h4>
-          <a class="fade-link" href="{{ url_for('hex_view', hex_object_id=next_hex.id) }}">
+          <a class="fade-link" href="{{ url_for('hex_view', hex_object_id=next_hex.id) }}" onclick="goBack()">
             <span class="glyphicon glyphicon-menu-left" style="font-size:1.2em;vertical-align: -4px;"></span>
           </a>
           <a class="fade-link" href="{{ url_for('user_view', username=hex_object.ex_hex_owner.username) }}">
@@ -122,6 +122,13 @@
           {{ rename_link_form.linkdescription(type="hidden", id="rename-link-field") }}
       </form>
     {% endif %}
+
+
+    <script>
+    function goBack() {
+        window.history.back();
+    }
+    </script>
 
     {% if enable_editing_controls %}
       <script>
