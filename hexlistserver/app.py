@@ -219,13 +219,9 @@ def link_view(link_object_id):
 # display a user with all their hexes
 @app.route('/user/<string:username>', methods=['GET'])
 def user_view(username):
-    hexlinks = {}
     user_object = get_user_by_name(username)
     if user_object and not username == app.config['ANON_USER_NAME']:
         hex_objects = list(hex_object.HexObject.query.filter_by(user_object_id=user_object.id))
-        for hex_obj in hex_objects:
-            links = link_object.LinkObject.query.filter_by(hex_object_id=hex_obj.id)
-            hexlinks[hex_obj.id] = [link.url for link in links]
 
         email_form = None
         rename_hex_form = None
@@ -237,7 +233,7 @@ def user_view(username):
             enable_editing_controls = True
             should_show_private_hexes = True
 
-        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, hexlinks=hexlinks, enable_editing_controls=enable_editing_controls, email_form=email_form, rename_hex_form=rename_hex_form, should_show_private_hexes=should_show_private_hexes)
+        return render_template('user.html', current_user=current_user, username=username, hexes=hex_objects, enable_editing_controls=enable_editing_controls, email_form=email_form, rename_hex_form=rename_hex_form, should_show_private_hexes=should_show_private_hexes)
     else:
         abort(404)
 
