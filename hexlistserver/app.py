@@ -221,7 +221,9 @@ def link_view(link_object_id):
 def user_view(username):
     user_object = get_user_by_name(username)
     if user_object and not username == app.config['ANON_USER_NAME']:
-        hex_objects = list(hex_object.HexObject.query.filter_by(user_object_id=user_object.id))
+        def get_name(hex_item):
+            return hex_item.name
+        hex_objects = sorted(list(hex_object.HexObject.query.filter_by(user_object_id=user_object.id)), key=get_name)
 
         email_form = None
         rename_hex_form = None
