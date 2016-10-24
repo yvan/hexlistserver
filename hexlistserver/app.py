@@ -140,14 +140,18 @@ def process_reset(hashed_val):
         # get posted signed token unsign it and look up which user object
         # corresponding to the email it is, then pwd reset prompt
         try:
+            unsigned_token = s.loads(hashed_val)
             return render_template('reset_password.html', form=ResetPassword(), hashed_val=hashed_val)
         except (BadSignature, SignatureExpired) as e:
-            pass
+            abort(404) 
     elif request.method == 'POST':
         reset_password = ResetPassword(request.form)
         if request.form and reset_password.validate_on_submit(): 
             if request.form['password'] == request.form['password_two']:
-                unsigned_token = s.loads(hashed_val)
+                try:
+                    unsigned_token = s.loads(hashed_val)
+                except (BadSignature, SignatureExpired) as e:
+                    abort(404)                 
                 pass_reset = password_reset.PasswordReset.query.filter_by(code=unsigned_token['code']).first()
                 user = get_user_method(pass_reset.user_object_id)
                 user.password = user.hash_password(request.form['password'])
