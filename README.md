@@ -17,13 +17,13 @@ ther production server is at:
 
 `https://hexlistserver-prod.herokuapp.com/`
 
-#/api/v1.0/token
+# /api/v1.0/token
 
 GET:
 
 `curl -u dev:dev -X GET http://localhost:8000/api/v1.0/token`
 
-#/api/v1.0/user
+# /api/v1.0/user
 
 POST:
 
@@ -37,7 +37,7 @@ DELETE:
 
 `curl -u dev:dev -X DELETE http://127.0.0.1:8000/api/v1.0/user/7851171`
 
-#/api/v1.0/hex
+# /api/v1.0/hex
 
 GET:
 
@@ -51,7 +51,7 @@ DELETE:
 
 `curl -i -X DELETE http://localhost:8000/api/v1.0/hex/5605321 -u dev:dev`
 
-#/api/v1.0/link
+# /api/v1.0/link
 
 GET:
 
@@ -65,7 +65,7 @@ DELETE:
 
 `curl -u dev:dev -i -X DELETE http://127.0.0.1:8000/api/v1.0/link/7059414`
 
-#/api/v1.0/hexlinks
+# /api/v1.0/hexlinks
 
 GET:
 
@@ -79,7 +79,7 @@ DELETE:
 
 `curl -u dev:dev -i -X DELETE http://127.0.0.1:8000/api/v1.0/hexlinks/534f6e75-93a6-4b6d-9dcf-85ae20fcb144`
 
-#/api/v1.0/location
+# /api/v1.0/location
 
 GET:
 
@@ -93,7 +93,7 @@ DELETE:
 
 `curl -u dev:dev -i -X DELETE http://localhost:8000/api/v1.0/location/534f6e75-93a6-4b6d-9dcf-85ae20fcb144`
 
-#/api/v1.0/send
+# /api/v1.0/send
 
 GET:
 
@@ -107,7 +107,7 @@ DELETE:
 
 `curl -u dev:dev -i -X DELETE http://localhost:8000/api/v1.0/send/175823b5-64a1-47d0-a6a6-81f2c685af11`
 
-#using curl
+# using curl
 
 -u username:password is a way ot authenticate to the API. altough you should use a token instead. to use a token, first hit the token generation api [endpoint](#/api/v1.0/token), get a token and use it instead of the username (password can be any word w/ a token) like:
 
@@ -115,7 +115,7 @@ DELETE:
 
 creating a user already requires the existence of a user, to get around this. on a live DB just copy a local DB entry and manually insert it into heroku postgres, once that's done you can use that user to generate tokens make yous password a long unhackable phrase (at least 4-5 words, some numbers, and special chars). you can manually insert this user onto the staging server like so: .
 
-#running locally
+# running locally
 
 launch redis
 `launchctl load ~/Library/LaunchAgents/homebrew.mxcl.redis.plist`
@@ -123,8 +123,15 @@ launch redis
 stop redis
 `launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.redis.plist`
 
+craete postgres folder if not created:
+`initdb /usr/local/var/postgres/`
+
 start postgres locally
 `pg_ctl start -D /usr/local/var/postgres/`
+
+`createuser --pwprompt USER_NAME`
+
+`createdb -O admin -E utf8 DB_NAME`
 
 start the server
 `make run` or `gunicorn hexlistserver.app:app`
@@ -134,7 +141,7 @@ start the worker in another tab (or background process)
 
 do stuff
 
-#development
+# development
 
 1 - Clone hexlistserver repository
 
