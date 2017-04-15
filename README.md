@@ -297,7 +297,7 @@ upgrading to the next level of db on heroku:
 adding namecheap ssl certificate:
 [https://www.resumonk.com/blog/setup-ssl-certificate-heroku/](https://www.resumonk.com/blog/setup-ssl-certificate-heroku/)
 
-#setup
+# setup
 
 python flask app
 
@@ -305,7 +305,7 @@ postgresdb with flask-sqlalchemy
 
 heroku hosting and heroku postgres db
 
-#backups
+# backups
 
 currently i have a backup scheduled as so:
 
@@ -321,7 +321,7 @@ it is also advisable that a programmer do a manual backup (of which 5 can be sto
 heroku pg:backups capture --remote prod
 ```
 
-#resources
+# resources
 
 [flask quickstart](http://flask.pocoo.org/docs/0.10/quickstart/)
 
@@ -386,6 +386,6 @@ this tutorial (ignore autoenv):
 
 [database backups](https://devcenter.heroku.com/articles/heroku-postgres-backups)
 
-#author
+# author
 
 [yvan](https://github.com/yvan)
