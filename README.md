@@ -297,6 +297,16 @@ upgrading to the next level of db on heroku:
 adding namecheap ssl certificate:
 [https://www.resumonk.com/blog/setup-ssl-certificate-heroku/](https://www.resumonk.com/blog/setup-ssl-certificate-heroku/)
 
+restoring the db from a local copy:
+
+1 - get credentials (the database url):
+
+`heroku pg:credentials --remote prod`
+
+2 - use pg_restore:
+
+`pg_restore -d 'THE_URL_FROM_STEP_1' LOCAL_BACKUP_FILE_PATH`
+
 # setup
 
 python flask app
