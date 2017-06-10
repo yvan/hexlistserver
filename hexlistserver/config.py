@@ -13,7 +13,7 @@ class Config(object):
     ANON_USER_NAME = os.environ['ANON_USER_NAME']
     ANON_USER_PASSWORD = os.environ['ANON_USER_PASSWORD']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-    POSTMARK_API_KEY = os.environ['POSTMARK_API_KEY']
+    # POSTMARK_API_KEY = os.environ['POSTMARK_API_KEY']
 
 class ProductionConfig(Config):
     DEVELOPMENT = False
