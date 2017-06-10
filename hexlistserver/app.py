@@ -17,7 +17,7 @@ from urllib.parse import urlparse
 from hexlistserver.worker import conn
 from random_words import RandomWords
 from itsdangerous import URLSafeSerializer, SignatureExpired, BadSignature
-from postmark import PMMail
+# from postmark import PMMail
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -90,41 +90,41 @@ def signup():
     create_user = CreateUser()
     return render_template('signup.html', form=create_user)
 
-@app.route('/recover_password', methods=['GET', 'POST'])
-def reset_password():
-    # take in email, sign/encrpyt it,
-    # then send a n email to that email 
-    if request.method == 'POST':
-        # we want our pwd resets to only last 30 min
-        s = URLSafeSerializer(app.config['SECRET_KEY'])
-        input_code = {"code": uuid.uuid4().urn[9:]}
-        hashed_code_payload = s.dumps(input_code)
-        user_to_email = get_user_by_email(request.form['email'])
-        if not user_to_email:
-            flash('the email you gave is not registered. this is awkward.')
-        else:
-            message = PMMail(api_key = app.config['POSTMARK_API_KEY'],
-                     subject = "hexlist password reset",
-                     sender = "wizard@hexlist.com",
-                     to = request.form['email'],
-                     text_body = '''
-                                here is the link to reset your password:
+# @app.route('/recover_password', methods=['GET', 'POST'])
+# def reset_password():
+#     # take in email, sign/encrpyt it,
+#     # then send a n email to that email 
+#     if request.method == 'POST':
+#         # we want our pwd resets to only last 30 min
+#         s = URLSafeSerializer(app.config['SECRET_KEY'])
+#         input_code = {"code": uuid.uuid4().urn[9:]}
+#         hashed_code_payload = s.dumps(input_code)
+#         user_to_email = get_user_by_email(request.form['email'])
+#         if not user_to_email:
+#             flash('the email you gave is not registered. this is awkward.')
+#         else:
+#             message = PMMail(api_key = app.config['POSTMARK_API_KEY'],
+#                      subject = "hexlist password reset",
+#                      sender = "wizard@hexlist.com",
+#                      to = request.form['email'],
+#                      text_body = '''
+#                                 here is the link to reset your password:
 
-                                http://hexlist.com/password_reset/{}
+#                                 http://hexlist.com/password_reset/{}
 
-                                if you did not reset your password ignore this email or contact support: support@hexlist.com
+#                                 if you did not reset your password ignore this email or contact support: support@hexlist.com
 
-                                '''.format(hashed_code_payload),
-                     tag = "recover_password")
-            j = q.enqueue(queue_mail, message)
-            flash('we sent you an email. go look at it.')
-            pass_reset = password_reset.PasswordReset(input_code['code'], user_to_email.id, datetime.utcnow() + timedelta(hours=1))
-            db.session.add(pass_reset)
-            db.session.commit()
-        return render_template('forgot_password.html', form=None)
-    # show form on page to put in email
-    else:
-        return render_template('forgot_password.html', form=RecoverPassword())
+#                                 '''.format(hashed_code_payload),
+#                      tag = "recover_password")
+#             j = q.enqueue(queue_mail, message)
+#             flash('we sent you an email. go look at it.')
+#             pass_reset = password_reset.PasswordReset(input_code['code'], user_to_email.id, datetime.utcnow() + timedelta(hours=1))
+#             db.session.add(pass_reset)
+#             db.session.commit()
+#         return render_template('forgot_password.html', form=None)
+#     # show form on page to put in email
+#     else:
+#         return render_template('forgot_password.html', form=RecoverPassword())
 
 # necessary helper func for 
 # putting mail on a queue
