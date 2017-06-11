@@ -110,7 +110,7 @@ def reset_password():
                         <a href="http://hexlist.com/password_reset/{hash}">http://hexlist.com/password_reset/{hash}</a>
                         <br/>
                         <br/>
-                        If you did not reset your password ignore this email or contact support: support@hexlist.com
+                        If you did not reset your password ignore this email or contact support: wizard@hexlist.com
                         '''.format(hash=hashed_code_payload)
 
             from_email =sendgrid.helpers.mail.Email(app.config['SENDER_EMAIL'])
