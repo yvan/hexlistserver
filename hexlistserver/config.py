@@ -15,6 +15,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SENDGRID_API_KEY = os.environ['SENDGRID_API_KEY']
     SENDER_EMAIL = os.environ['SENDER_EMAIL']
+    YVAN_EMAIL = os.environ['YVAN_EMAIL']
 
 class ProductionConfig(Config):
     DEVELOPMENT = False

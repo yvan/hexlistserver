@@ -113,7 +113,7 @@ def reset_password():
                         If you did not reset your password ignore this email or contact support: wizard@hexlist.com
                         '''.format(hash=hashed_code_payload)
 
-            from_email =sendgrid.helpers.mail.Email(app.config['SENDER_EMAIL'])
+            from_email = sendgrid.helpers.mail.Email(app.config['SENDER_EMAIL'])
             subject = "You have reset your Hexlist password!"
             to_email = sendgrid.helpers.mail.Email(request.form['email'])
             content = sendgrid.helpers.mail.Content("text/html", content)
@@ -449,6 +449,11 @@ def toggle_hex_private(hex_object_id):
         db.session.commit()
         # return dummy json to ajax
         return jsonify({'success':'success'}), 200
+
+@app.route('/internal/error', methods=['GET'])
+def internal_error():
+    pass
+    # return jsonify({'error': 'There was some terrible error, an email is on its way to us, don\'t fret little human.', 'code': 500}), 500
 
 '''
 api route methods
@@ -908,10 +913,22 @@ def get_urls_from_blob(blob):
 
 # this error handler only fires when DEBUG=False,
 # so it only fires on our production server
-# @app.errorhandler(500)
-# def internal_error(error):
-#     r = send_mail('yvanscher@gmail.com', app.config['MAILGUN_SENDER'], '500 server error', '\n'.join(traceback.format_stack()), None)
-#     return jsonify({'error': 'there was some terrible error, an email is on its way to us, don\'t fret little human', 'code': 500}), 500
+@app.errorhandler(500)
+def internal_error(error):
+    content =   '''
+            There was a 500 error on hexlist server:
+            <br/>
+            <br/>
+            {strace}
+            '''.format(strace=traceback.format_stack())
+
+    from_email = sendgrid.helpers.mail.Email(app.config['SENDER_EMAIL'])
+    subject = "500 hexlist.com Server Error!"
+    to_email = sendgrid.helpers.mail.Email(app.config['YVAN_EMAIL'])
+    content = sendgrid.helpers.mail.Content("text/html", content)
+    mail = sendgrid.helpers.mail.Mail(from_email=from_email, subject=subject, to_email=to_email, content=content)
+    j = q.enqueue(queue_mail, mail)
+    return jsonify({'error': 'There was some terrible error, an email is on its way to us, don\'t fret little human.', 'code': 500}), 500
 
 @auth.verify_password
 def verify_password(username_or_token, password):
