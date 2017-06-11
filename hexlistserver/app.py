@@ -450,11 +450,10 @@ def toggle_hex_private(hex_object_id):
         # return dummy json to ajax
         return jsonify({'success':'success'}), 200
 
-@app.route('/internal/error', methods=['GET'])
-def internal_error():
-    pass
-    # return jsonify({'error': 'There was some terrible error, an email is on its way to us, don\'t fret little human.', 'code': 500}), 500
-
+# @app.route('/internal/error', methods=['GET'])
+# def internal_error():
+#     pass
+    
 '''
 api route methods
 '''
