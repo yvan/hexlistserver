@@ -10,6 +10,7 @@ import petname
 import binascii
 import requests
 import traceback
+import sendgrid
 
 from rq import Queue
 from datetime import datetime, timedelta
@@ -17,7 +18,6 @@ from urllib.parse import urlparse
 from hexlistserver.worker import conn
 from random_words import RandomWords
 from itsdangerous import URLSafeSerializer, SignatureExpired, BadSignature
-# from postmark import PMMail
 
 from flask import g, abort, redirect, url_for, request, Flask, render_template, jsonify, session, flash
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -90,48 +90,52 @@ def signup():
     create_user = CreateUser()
     return render_template('signup.html', form=create_user)
 
-# @app.route('/recover_password', methods=['GET', 'POST'])
-# def reset_password():
-#     # take in email, sign/encrpyt it,
-#     # then send a n email to that email 
-#     if request.method == 'POST':
-#         # we want our pwd resets to only last 30 min
-#         s = URLSafeSerializer(app.config['SECRET_KEY'])
-#         input_code = {"code": uuid.uuid4().urn[9:]}
-#         hashed_code_payload = s.dumps(input_code)
-#         user_to_email = get_user_by_email(request.form['email'])
-#         if not user_to_email:
-#             flash('the email you gave is not registered. this is awkward.')
-#         else:
-#             message = PMMail(api_key = app.config['POSTMARK_API_KEY'],
-#                      subject = "hexlist password reset",
-#                      sender = "wizard@hexlist.com",
-#                      to = request.form['email'],
-#                      text_body = '''
-#                                 here is the link to reset your password:
+@app.route('/recover_password', methods=['GET', 'POST'])
+def reset_password():
+    # take in email, sign/encrpyt it,
+    # then send a n email to that email 
+    if request.method == 'POST':
+        # we want our pwd resets to only last 30 min
+        s = URLSafeSerializer(app.config['SECRET_KEY'])
+        input_code = {"code": uuid.uuid4().urn[9:]}
+        hashed_code_payload = s.dumps(input_code)
+        user_to_email = get_user_by_email(request.form['email'])
+        if not user_to_email:
+            flash('The email you gave is not registered. This is awkward.')
+        else:
+            content =   '''
+                        Here is the link to reset your password:
+                        <br/>
+                        <br/>
+                        <a href="http://hexlist.com/password_reset/{hash}">http://hexlist.com/password_reset/{hash}</a>
+                        <br/>
+                        <br/>
+                        If you did not reset your password ignore this email or contact support: support@hexlist.com
+                        '''.format(hash=hashed_code_payload)
 
-#                                 http://hexlist.com/password_reset/{}
+            from_email =sendgrid.helpers.mail.Email(app.config['SENDER_EMAIL'])
+            subject = "You have reset your Hexlist password!"
+            to_email = sendgrid.helpers.mail.Email(request.form['email'])
+            content = sendgrid.helpers.mail.Content("text/html", content)
+            mail = sendgrid.helpers.mail.Mail(from_email=from_email, subject=subject, to_email=to_email, content=content)
+            j = q.enqueue(queue_mail, mail)
 
-#                                 if you did not reset your password ignore this email or contact support: support@hexlist.com
-
-#                                 '''.format(hashed_code_payload),
-#                      tag = "recover_password")
-#             j = q.enqueue(queue_mail, message)
-#             flash('we sent you an email. go look at it.')
-#             pass_reset = password_reset.PasswordReset(input_code['code'], user_to_email.id, datetime.utcnow() + timedelta(hours=1))
-#             db.session.add(pass_reset)
-#             db.session.commit()
-#         return render_template('forgot_password.html', form=None)
-#     # show form on page to put in email
-#     else:
-#         return render_template('forgot_password.html', form=RecoverPassword())
+            flash('We sent you an email. go look at it.')
+            pass_reset = password_reset.PasswordReset(input_code['code'], user_to_email.id, datetime.utcnow() + timedelta(hours=1))
+            db.session.add(pass_reset)
+            db.session.commit()
+        return render_template('forgot_password.html', form=None)
+    # show form on page to put in email
+    else:
+        return render_template('forgot_password.html', form=RecoverPassword())
 
 # necessary helper func for 
 # putting mail on a queue
 # with app context
 def queue_mail(msg):
     with app.app_context():
-        msg.send()
+        sg = sendgrid.SendGridAPIClient(apikey=app.config['SENDGRID_API_KEY'])
+        sg.client.mail.send.post(request_body=msg.get())
 
 @app.route('/password_reset/<string:hashed_val>', methods=['GET', 'POST'])
 def process_reset(hashed_val):
