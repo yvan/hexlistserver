@@ -7,10 +7,10 @@
     </div>
 
     <div class="content-container container">
-        <p class="hexlist-title">hexlist</p>
-        <p>hexlist is a simple link manager and organizer</p>
-        <p>put some links in the text area below</p>
-        <p>get an organized hex</p>
+        <p class="hexlist-title">Hexlist</p>
+        <p>Hexlist is a simple link manager and organizer.</p>
+        <p>Put some links in the text area below.</p>
+        <p>Get an organized list of links.</p>
         <div class="col-xs-12">
           <form action="/internal/form_hex_create" method="POST" name="link_submit">
             <div id="make-hex-form" class="hexlist-form input-container form-group form-group">
@@ -18,11 +18,36 @@
               {{ form.links(class="form-control",rows="20") }}
             </div>
             <div class="col-xs-12 center-block">
-              <button type="submit" class="btn btn-default center-block">make hex</button>
+              <button type="submit" class="btn btn-default center-block" style="margin-bottom: 15px">Make Hex</button>
             </div>
           </form>
         </div>
-        
+
+        <p class="hexlist-title">Random Hexes:</p>
+
+        {% for hex in rand_hexes %}
+            {% if not hex.is_private %}
+              <a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
+            {% elif hex.is_private and should_show_private_hexes %}
+            <a class="list-link" href="{{ url_for('hex_view', hex_object_id=hex.id) }}">{{ hex.name }}</a>
+            {% endif %}
+            {% if enable_editing_controls %}
+              <span class="btn-group list-link-dropdown" style="visibility: hidden;">
+                <button class="dropdown-button btn btn-mini button-transparent dropdown-toggle" data-toggle="dropdown">
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu pull-right">
+                    <li><a class="rename-hex" data-hex-id="{{ hex.id }}" data-hex-name="{{ hex.name }}" style="cursor:pointer;"><span class="glyphicon glyphicon-pencil" style="padding-right:10px;"></span>Rename</a></li>
+                    {% if hex.is_private %}
+                      <li><a class="make-public" data-hex-id="{{ hex.id }}" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-open" style="padding-right:10px;"></span>Make public</a></li>
+                    {% else %}
+                      <li><a class="make-private" data-hex-id="{{ hex.id }}" style="cursor:pointer;"><span class="glyphicon glyphicon-eye-close" style="padding-right:10px;"></span>Make private</a></li>
+                    {% endif %}
+                    <li><a class="delete-hex" data-hex-id="{{ hex.id }}" data-hex-name="{{ hex.name }}" data-toggle="modal" href="#confirm-delete" style="color:#d9534f;"><span class="glyphicon glyphicon-trash" style="padding-right:10px;"></span>Delete</a></li>
+                </ul>
+              </span>
+          {% endif %}
+        {% endfor %}
     </div>
 
 {% endblock %}

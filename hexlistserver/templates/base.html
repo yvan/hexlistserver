@@ -43,14 +43,14 @@
               {% if not current_user.is_anonymous %}
               <li><a href="{{ url_for('user_view', username=current_user.username) }}">my hexlist</a></li>
               {% else %}
-              <li><a href="{{ url_for('login') }}">my hexlist</a></li>
+              <li><a href="{{ url_for('login') }}">My Hexlist</a></li>
               {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
               {% if current_user.is_anonymous %}
-              <li class="navbar-right"><a href="{{ url_for('login') }}">login</a></li>
+              <li class="navbar-right"><a href="{{ url_for('login') }}">Login</a></li>
               {% else %}
-              <li class="navbar-right"><a href="{{ url_for('logout') }}">logout</a></li>
+              <li class="navbar-right"><a href="{{ url_for('logout') }}">Logout</a></li>
               {% endif %}
             </ul>
           </div>

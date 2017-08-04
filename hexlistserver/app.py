@@ -168,7 +168,9 @@ view route methods
 @app.route('/', methods=['GET'])
 def main_page():
     text_area = TextareaForm()
-    return render_template('main.html', current_user=current_user, form=text_area)
+    # randomly pull 10 hexes
+    rand_hexes = hex_object.HexObject.query.order_by(func.random()).offset(20).limit(10).all()
+    return render_template('main.html', current_user=current_user, form=text_area, rand_hexes=rand_hexes)
 
 @app.route('/about', methods=['GET'])
 def about_page():
@@ -216,7 +218,16 @@ def hex_view(hex_object_id):
                 text_area_form = TextareaForm()
                 enable_editing_controls = True
 
-        return render_template('hex.html', current_user=current_user, hex_object=queried_hex_object, edit_hex_name_form=edit_hex_name_form, rename_link_form=rename_link_form, form=create_user, textarea_form=text_area_form, enable_editing_controls=enable_editing_controls, logged_in_claim_hex=logged_in_claim_hex, next_hex=next_hex)
+        return render_template('hex.html', 
+                                current_user=current_user, 
+                                hex_object=queried_hex_object, 
+                                edit_hex_name_form=edit_hex_name_form, 
+                                rename_link_form=rename_link_form, 
+                                form=create_user, 
+                                textarea_form=text_area_form, 
+                                enable_editing_controls=enable_editing_controls, 
+                                logged_in_claim_hex=logged_in_claim_hex, 
+                                next_hex=next_hex)
 
 # display a link
 @app.route('/link/<string:link_object_id>', methods=['GET'])
